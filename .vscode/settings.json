@@ -1,0 +1,10 @@
+{
+	"makefile.extensionOutputFolder": "./.vscode",
+	"makefile.launchConfigurations": [
+		{
+			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan/FirstTriangle",
+			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan/FirstTriangle/app",
+			"binaryArgs": []
+		}
+	]
+}

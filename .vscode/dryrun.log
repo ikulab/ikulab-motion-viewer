@@ -1,0 +1,5 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/caffeine/DevelopEnv/git_repos/vulkan/FirstTriangle'
+g++ -std=c++17 -O2 -fdiagnostics-color=always -g -o app main.cpp FirstTriangleApp.cpp -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
+make: Leaving directory '/home/caffeine/DevelopEnv/git_repos/vulkan/FirstTriangle'
+ 
