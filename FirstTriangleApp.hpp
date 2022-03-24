@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 
 class FirstTriangleApp {
-	GLFWwindow *window;
+	GLFWwindow* window;
 	uint32_t WINDOW_WIDTH = 800;
 	uint32_t WINDOW_HEIGHT = 600;
 
@@ -12,6 +12,7 @@ class FirstTriangleApp {
 	void createInstance();
 	void mainLoop();
 	void cleanUp();
+
 public:
 	void run();
 };
