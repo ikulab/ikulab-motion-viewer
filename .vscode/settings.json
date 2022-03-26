@@ -5,6 +5,11 @@
 			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan/FirstTriangle",
 			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan/FirstTriangle/app",
 			"binaryArgs": []
+		},
+		{
+			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan-FirstTriangle",
+			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan-FirstTriangle/app",
+			"binaryArgs": []
 		}
 	]
 }
