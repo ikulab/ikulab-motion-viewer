@@ -15,6 +15,8 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
 };
@@ -88,14 +90,17 @@ class FirstTriangleApp {
 	void createLogicalDevice();
 	void createSurface();
 	void createSwapChain();
+	void recreateSwapChain();
 	void createImageViews();
 	void createGraphicPipeline();
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	void createRenderPass();
 	void createFramebuffers();
 	void createCommandPool();
-	void createCommandBuffer();
+	void createCommandBuffers();
 	void createSyncObjects();
+
+	void cleanupSwapChain();
 
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
@@ -111,11 +116,13 @@ class FirstTriangleApp {
 	std::vector<VkFramebuffer> swapChainFrameBuffers;
 
 	VkCommandPool commandPool;
-	VkCommandBuffer commandBuffer;
+	std::vector<VkCommandBuffer> commandBuffers;
 
-	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
-	VkFence inFlightFence;
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
+
+	uint32_t currentFrame = 0;
 
 	void drawFrame();
 

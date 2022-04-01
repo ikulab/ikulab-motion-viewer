@@ -106,7 +106,7 @@ void FirstTriangleApp::initVulkan() {
 	createGraphicPipeline();
 	createFramebuffers();
 	createCommandPool();
-	createCommandBuffer();
+	createCommandBuffers();
 	createSyncObjects();
 }
 
@@ -337,6 +337,16 @@ void FirstTriangleApp::createSwapChain() {
 
 	swapChainImageFormat = surfaceFormat.format;
 	swapChainExtent = extent;
+}
+
+void FirstTriangleApp::recreateSwapChain() {
+	vkDeviceWaitIdle(device);
+
+	createSwapChain();
+	createImageViews();
+	createRenderPass();
+	createGraphicPipeline();
+	createFramebuffers();
 }
 
 void FirstTriangleApp::createImageViews() {
@@ -607,19 +617,25 @@ void FirstTriangleApp::createCommandPool() {
 	}
 }
 
-void FirstTriangleApp::createCommandBuffer() {
+void FirstTriangleApp::createCommandBuffers() {
+	commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = commandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = 1;
+	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-	if (vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer) != VK_SUCCESS) {
+	if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate command buffers.");
 	}
 }
 
 void FirstTriangleApp::createSyncObjects() {
+	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
 	VkSemaphoreCreateInfo semaphoreCreateInfo{};
 	semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -627,13 +643,13 @@ void FirstTriangleApp::createSyncObjects() {
 	fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		if (vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+			vkCreateFence(device, &fenceCreateInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
 
-
-	if (vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
-		vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS ||
-		vkCreateFence(device, &fenceCreateInfo, nullptr, &inFlightFence) != VK_SUCCESS) {
-
-		throw std::runtime_error("failed to create sync objects.");
+			throw std::runtime_error("failed to create sync objects.");
+		}
 	}
 }
 
@@ -675,26 +691,45 @@ void FirstTriangleApp::mainLoop() {
 		glfwPollEvents();
 		drawFrame();
 	}
+
+	vkDeviceWaitIdle(device);
 }
 
-void FirstTriangleApp::cleanUp() {
-	vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
-	vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
-	vkDestroyFence(device, inFlightFence, nullptr);
-
-	vkDestroyCommandPool(device, commandPool, nullptr);
-	for (auto frameBuffer : swapChainFrameBuffers) {
-		vkDestroyFramebuffer(device, frameBuffer, nullptr);
+void FirstTriangleApp::cleanupSwapChain() {
+	for (size_t i = 0; i < swapChainFrameBuffers.size(); i++) {
+		vkDestroyFramebuffer(device, swapChainFrameBuffers[i], nullptr);
 	}
+
 	vkDestroyPipeline(device, graphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 	vkDestroyRenderPass(device, renderPass, nullptr);
 
-	for (auto imageView : swapChainImageViews) {
-		vkDestroyImageView(device, imageView, nullptr);
+	for (size_t i=0; i < swapChainImageViews.size(); i++) {
+		vkDestroyImageView(device, swapChainImageViews[i], nullptr);
 	}
 
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
+}
+
+void FirstTriangleApp::cleanUp() {
+	cleanupSwapChain();
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+		vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+		vkDestroyFence(device, inFlightFences[i], nullptr);
+	}
+
+	vkDestroyCommandPool(device, commandPool, nullptr);
+	// for (auto frameBuffer : swapChainFrameBuffers) {
+	// 	vkDestroyFramebuffer(device, frameBuffer, nullptr);
+	// }
+
+	// for (auto imageView : swapChainImageViews) {
+	// 	vkDestroyImageView(device, imageView, nullptr);
+	// }
+
+	// vkDestroySwapchainKHR(device, swapChain, nullptr);
 	vkDestroyDevice(device, nullptr);
 
 	if (enableValidationLayers) {
@@ -858,31 +893,31 @@ std::vector<char> FirstTriangleApp::readFile(const std::string& fileName) {
 }
 
 void FirstTriangleApp::drawFrame() {
-	vkWaitForFences(device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
-	vkResetFences(device, 1, &inFlightFence);
+	vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
 	uint32_t imageIndex;
-	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
-	vkResetCommandBuffer(commandBuffer, 0);
-	recordCommandBuffer(commandBuffer, imageIndex);
+	vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+	recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+	VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
+	submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
 
-	VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFence) != VK_SUCCESS) {
+	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to submit draw command buffer.");
 	}
 
@@ -898,4 +933,6 @@ void FirstTriangleApp::drawFrame() {
 	presentInfo.pResults = nullptr;
 
 	vkQueuePresentKHR(presentQueue, &presentInfo);
+
+	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
