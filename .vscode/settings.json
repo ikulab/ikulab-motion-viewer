@@ -15,6 +15,11 @@
 			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan-advanced",
 			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan-advanced/app",
 			"binaryArgs": []
+		},
+		{
+			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan/vulkan-advanced",
+			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan/vulkan-advanced/app",
+			"binaryArgs": []
 		}
 	],
 	"files.associations": {

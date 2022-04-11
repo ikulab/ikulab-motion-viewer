@@ -92,6 +92,12 @@ const std::vector<uint16_t> indices = {
 	0, 1, 2, 2, 3, 0
 };
 
+struct UniformBufferObject {
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
+
 class FirstTriangleApp {
 	GLFWwindow* window;
 	VkInstance instance;
@@ -148,6 +154,8 @@ class FirstTriangleApp {
 	);
 	void createVertexBuffer();
 	void createIndexBuffer();
+	void createUniformBuffers();
+	void createDescriptorSetLayout();
 
 	void cleanupSwapChain();
 
@@ -165,6 +173,7 @@ class FirstTriangleApp {
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
+	VkDescriptorSetLayout descriptorSetLayout;
 
 	std::vector<VkFramebuffer> swapChainFrameBuffers;
 
@@ -181,8 +190,11 @@ class FirstTriangleApp {
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
 	void drawFrame();
+	void updateUniformBuffer(uint32_t currentImage);
 
 	void initWindow();
 	void initVulkan();
