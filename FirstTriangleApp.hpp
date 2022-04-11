@@ -73,6 +73,7 @@ struct Vertex {
 		attributeDescriptions[0].location = 0;
 		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
 		attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
 		attributeDescriptions[1].binding = 0;
 		attributeDescriptions[1].location = 1;
 		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
@@ -103,6 +104,8 @@ class FirstTriangleApp {
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
+	bool framebufferResized = false;
+
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	VkDevice device;
 	VkQueue graphicsQueue;
@@ -125,7 +128,7 @@ class FirstTriangleApp {
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
 	void setupDebugMessenger();
-	void populateDebugMessengerCreateinfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
 	void pickPhysicalDevice();
 	bool isDeviceSuitable(VkPhysicalDevice device);
@@ -138,7 +141,7 @@ class FirstTriangleApp {
 	void createSwapChain();
 	void recreateSwapChain();
 	void createImageViews();
-	void createGraphicPipeline();
+	void createGraphicsPipeline();
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	void createRenderPass();
 	void createFramebuffers();
@@ -156,6 +159,8 @@ class FirstTriangleApp {
 	void createIndexBuffer();
 	void createUniformBuffers();
 	void createDescriptorSetLayout();
+	void createDescriptorPool();
+	void createDescriptorSets();
 
 	void cleanupSwapChain();
 
@@ -193,6 +198,9 @@ class FirstTriangleApp {
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
+	VkDescriptorPool descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
+
 	void drawFrame();
 	void updateUniformBuffer(uint32_t currentImage);
 
@@ -213,6 +221,11 @@ class FirstTriangleApp {
 		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 		return VK_FALSE;
 	}
+
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+        auto app = reinterpret_cast<FirstTriangleApp*>(glfwGetWindowUserPointer(window));
+        app->framebufferResized = true;
+    }
 
 public:
 	void run();
