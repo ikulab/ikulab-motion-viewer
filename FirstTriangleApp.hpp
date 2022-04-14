@@ -161,10 +161,28 @@ class FirstTriangleApp {
 	void createDescriptorSetLayout();
 	void createDescriptorPool();
 	void createDescriptorSets();
+	void createImage(
+		uint32_t width,
+		uint32_t height,
+		VkFormat format,
+		VkImageTiling tiling,
+		VkImageUsageFlags usage,
+		VkMemoryPropertyFlags properties,
+		VkImage& image,
+		VkDeviceMemory& imageMemory
+	);
+	void createTextureImage();
 
 	void cleanupSwapChain();
 
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+	void copyBufferToImage(
+		VkBuffer buffer,
+		VkImage image,
+		uint32_t width,
+		uint32_t height
+	);
+
 
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
@@ -197,12 +215,24 @@ class FirstTriangleApp {
 	VkDeviceMemory indexBufferMemory;
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	VkImage textureImage;
+	VkDeviceMemory textureImageMemory;
 
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
+	VkCommandBuffer beginSingleTimeCommands();
+	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
 	void drawFrame();
 	void updateUniformBuffer(uint32_t currentImage);
+
+	void transitionImageLayout(
+		VkImage image,
+		VkFormat format,
+		VkImageLayout oldLayout,
+		VkImageLayout newLayout
+	);
 
 	void initWindow();
 	void initVulkan();
@@ -222,10 +252,10 @@ class FirstTriangleApp {
 		return VK_FALSE;
 	}
 
-    static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-        auto app = reinterpret_cast<FirstTriangleApp*>(glfwGetWindowUserPointer(window));
-        app->framebufferResized = true;
-    }
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+		auto app = reinterpret_cast<FirstTriangleApp*>(glfwGetWindowUserPointer(window));
+		app->framebufferResized = true;
+	}
 
 public:
 	void run();
