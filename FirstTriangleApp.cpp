@@ -1217,6 +1217,10 @@ void FirstTriangleApp::updateUniformBuffer(uint32_t currentImage) {
     auto currentTime = std::chrono::high_resolution_clock::now();
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+    float lookAtX = 2.0f;
+    float lookAtY = 2.0f;
+    float lookAtZ = (sin(M_PI * time / 4.0f) + 1.0f) * 4.0f;
+
     UniformBufferObject ubo{};
     ubo.model = glm::rotate(
         glm::mat4(1.0f),
@@ -1224,7 +1228,7 @@ void FirstTriangleApp::updateUniformBuffer(uint32_t currentImage) {
         glm::vec3(0.0f, 0.0f, 1.0f)
     );
     ubo.view = glm::lookAt(
-        glm::vec3(2.0f, 2.0f, 2.0f),
+        glm::vec3(lookAtX, lookAtY, lookAtZ),
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, 1.0f)
     );
