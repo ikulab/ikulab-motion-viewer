@@ -132,7 +132,6 @@ class FirstTriangleApp {
 
 	void pickPhysicalDevice();
 	bool isDeviceSuitable(VkPhysicalDevice device);
-	int rateDeviceSuitability(VkPhysicalDevice device);
 
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
@@ -171,7 +170,10 @@ class FirstTriangleApp {
 		VkImage& image,
 		VkDeviceMemory& imageMemory
 	);
+	VkImageView createImageView(VkImage image, VkFormat format);
 	void createTextureImage();
+	void createTextureImageView();
+	void createTextureSampler();
 
 	void cleanupSwapChain();
 
@@ -216,7 +218,9 @@ class FirstTriangleApp {
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	VkImage textureImage;
+	VkImageView textureImageView;
 	VkDeviceMemory textureImageMemory;
+	VkSampler textureSampler;
 
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;

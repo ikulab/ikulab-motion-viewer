@@ -80,5 +80,9 @@
 		"thread": "cpp",
 		"cinttypes": "cpp",
 		"typeinfo": "cpp"
-	}
+	},
+	"todo-tree.filtering.excludeGlobs": [
+		"**/node_modules",
+		"**/includes/*"
+	]
 }

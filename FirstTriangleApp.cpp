@@ -116,6 +116,8 @@ void FirstTriangleApp::initVulkan() {
     createFramebuffers();
     createCommandPool();
     createTextureImage();
+    createTextureImageView();
+    createTextureSampler();
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
@@ -158,17 +160,14 @@ void FirstTriangleApp::pickPhysicalDevice() {
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-    std::multimap<int, VkPhysicalDevice> candidates;
-
     for (const auto& device : devices) {
-        int score = rateDeviceSuitability(device);
-        candidates.insert(std::make_pair(score, device));
+        if (isDeviceSuitable(device)) {
+            physicalDevice = device;
+            break;
+        }
     }
 
-    if (candidates.rbegin()->first > 0) {
-        physicalDevice = candidates.rbegin()->second;
-    }
-    else {
+    if (physicalDevice == VK_NULL_HANDLE) {
         throw std::runtime_error("failed to find a suitable GPU.");
     }
 }
@@ -185,28 +184,13 @@ bool FirstTriangleApp::isDeviceSuitable(VkPhysicalDevice device) {
             !swapChainSupport.presentModes.empty();
     }
 
+    VkPhysicalDeviceFeatures supportedFeatures;
+    vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
     return indices.isComplete() &&
         extensionsSupported &&
-        swapChainAdequate;
-}
-
-int FirstTriangleApp::rateDeviceSuitability(VkPhysicalDevice device) {
-    VkPhysicalDeviceProperties deviceProperties;
-    VkPhysicalDeviceFeatures deviceFeatures;
-    vkGetPhysicalDeviceProperties(device, &deviceProperties);
-    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-    if (!deviceFeatures.geometryShader) {
-        return 0;
-    }
-
-    int score = 0;
-    if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-        score += 1000;
-    }
-    score += deviceProperties.limits.maxImageDimension2D;
-
-    return score;
+        swapChainAdequate &&
+        supportedFeatures.samplerAnisotropy;
 }
 
 QueueFamilyIndices FirstTriangleApp::findQueueFamilies(VkPhysicalDevice device) {
@@ -260,6 +244,7 @@ void FirstTriangleApp::createLogicalDevice() {
     }
 
     VkPhysicalDeviceFeatures deviceFeatures{};
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
 
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -376,26 +361,7 @@ void FirstTriangleApp::createImageViews() {
     swapChainImageViews.resize(swapChainImages.size());
 
     for (size_t i = 0; i < swapChainImages.size(); i++) {
-        VkImageViewCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.image = swapChainImages[i];
-        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        createInfo.format = swapChainImageFormat;
-
-        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        createInfo.subresourceRange.baseMipLevel = 0;
-        createInfo.subresourceRange.levelCount = 1;
-        createInfo.subresourceRange.baseArrayLayer = 0;
-        createInfo.subresourceRange.layerCount = 1;
-
-        if (vkCreateImageView(device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create image views.");
-        }
+        swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat);
     }
 }
 
@@ -904,6 +870,27 @@ void FirstTriangleApp::createImage(
     vkBindImageMemory(device, image, imageMemory, 0);
 }
 
+VkImageView FirstTriangleApp::createImageView(VkImage image, VkFormat format) {
+    VkImageViewCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    createInfo.image = image;
+    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    createInfo.format = format;
+
+    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    createInfo.subresourceRange.baseMipLevel = 0;
+    createInfo.subresourceRange.levelCount = 1;
+    createInfo.subresourceRange.baseArrayLayer = 0;
+    createInfo.subresourceRange.layerCount = 1;
+
+    VkImageView imageView;
+    if (vkCreateImageView(device, &createInfo, nullptr, &imageView) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create image views.");
+    }
+
+    return imageView;
+}
+
 void FirstTriangleApp::createTextureImage() {
     int txtWidth, txtHeight, txtChannels;
     stbi_uc* pixels = stbi_load(
@@ -946,7 +933,7 @@ void FirstTriangleApp::createTextureImage() {
         textureImage,
         textureImageMemory
     );
-    
+
     transitionImageLayout(
         textureImage,
         VK_FORMAT_R8G8B8A8_SRGB,
@@ -968,6 +955,37 @@ void FirstTriangleApp::createTextureImage() {
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
+}
+
+void FirstTriangleApp::createTextureImageView() {
+    textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+}
+
+void FirstTriangleApp::createTextureSampler() {
+    VkSamplerCreateInfo samplerInfo{};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter = VK_FILTER_LINEAR;
+    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    samplerInfo.mipLodBias = 0.0f;
+    samplerInfo.minLod = 0.0f;
+    samplerInfo.maxLod = 0.0f;
+
+    VkPhysicalDeviceProperties properties;
+    vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+    samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+
+    if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create texture sampler.");
+    }
 }
 
 void FirstTriangleApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
@@ -1104,6 +1122,8 @@ void FirstTriangleApp::cleanupSwapChain() {
 void FirstTriangleApp::cleanUp() {
     cleanupSwapChain();
 
+    vkDestroySampler(device, textureSampler, nullptr);
+    vkDestroyImageView(device, textureImageView, nullptr);
     vkDestroyImage(device, textureImage, nullptr);
     vkFreeMemory(device, textureImageMemory, nullptr);
 
@@ -1361,7 +1381,7 @@ void FirstTriangleApp::updateUniformBuffer(uint32_t currentImage) {
 
     float lookAtX = 2.0f;
     float lookAtY = 2.0f;
-    float lookAtZ = (sin(M_PI * time / 4.0f)) * 4.0f;
+    float lookAtZ = (sin(M_PI * time / 4.0f) + 1.0f) * 4.0f;
 
     UniformBufferObject ubo{};
     ubo.model = glm::rotate(
@@ -1442,7 +1462,7 @@ void FirstTriangleApp::transitionImageLayout(
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
 
-	VkPipelineStageFlags srcStage, dstStage;
+    VkPipelineStageFlags srcStage, dstStage;
 
     if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
         barrier.srcAccessMask = 0;
