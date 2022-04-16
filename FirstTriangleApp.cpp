@@ -763,10 +763,10 @@ void FirstTriangleApp::createDescriptorSetLayout() {
     uboLayoutBinding.binding = 0;
     uboLayoutBinding.descriptorCount = 1;
     uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     uboLayoutBinding.pImmutableSamplers = nullptr;
+    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-    VkDescriptorSetLayoutBinding samplerLayoutBinding;
+    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
     samplerLayoutBinding.binding = 1;
     samplerLayoutBinding.descriptorCount = 1;
     samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -923,7 +923,7 @@ VkImageView FirstTriangleApp::createImageView(VkImage image, VkFormat format) {
 void FirstTriangleApp::createTextureImage() {
     int txtWidth, txtHeight, txtChannels;
     stbi_uc* pixels = stbi_load(
-        "textures/iorin.jpg",
+        "textures/dotty.jpg",
         &txtWidth,
         &txtHeight,
         &txtChannels,
