@@ -14,6 +14,7 @@
 #include <GLFW/glfw3.h>
 
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -115,6 +116,7 @@ void FirstTriangleApp::initVulkan() {
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
+    createDepthResources();
     createTextureImage();
     createTextureImageView();
     createTextureSampler();
@@ -361,7 +363,7 @@ void FirstTriangleApp::createImageViews() {
     swapChainImageViews.resize(swapChainImages.size());
 
     for (size_t i = 0; i < swapChainImages.size(); i++) {
-        swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat);
+        swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 }
 
@@ -899,14 +901,16 @@ void FirstTriangleApp::createImage(
     vkBindImageMemory(device, image, imageMemory, 0);
 }
 
-VkImageView FirstTriangleApp::createImageView(VkImage image, VkFormat format) {
+VkImageView FirstTriangleApp::createImageView(
+    VkImage image, VkFormat format, VkImageAspectFlags aspectFlags
+) {
     VkImageViewCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     createInfo.image = image;
     createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
     createInfo.format = format;
 
-    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    createInfo.subresourceRange.aspectMask = aspectFlags;
     createInfo.subresourceRange.baseMipLevel = 0;
     createInfo.subresourceRange.levelCount = 1;
     createInfo.subresourceRange.baseArrayLayer = 0;
@@ -987,7 +991,7 @@ void FirstTriangleApp::createTextureImage() {
 }
 
 void FirstTriangleApp::createTextureImageView() {
-    textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+    textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
 void FirstTriangleApp::createTextureSampler() {
@@ -1015,6 +1019,20 @@ void FirstTriangleApp::createTextureSampler() {
     if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture sampler.");
     }
+}
+
+void FirstTriangleApp::createDepthResources() {
+    VkFormat depthFormat = findDepthFormat();
+
+    createImage(
+        swapChainExtent.width, swapChainExtent.height,
+        depthFormat,
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        depthImage, depthImageMemory
+    );
+    createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
 void FirstTriangleApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
@@ -1519,4 +1537,43 @@ void FirstTriangleApp::transitionImageLayout(
     );
 
     endSingleTimeCommands(commandBuffer);
+}
+
+VkFormat FirstTriangleApp::findSupportedFormat(
+    const std::vector<VkFormat>& candidates,
+    VkImageTiling tiling,
+    VkFormatFeatureFlags features
+) {
+    for (VkFormat format : candidates) {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
+
+        if (tiling == VK_IMAGE_TILING_LINEAR) {
+            if ((props.linearTilingFeatures & features) == features) {
+                return format;
+            }
+        }
+        else if (tiling == VK_IMAGE_TILING_OPTIMAL) {
+            if ((props.optimalTilingFeatures & features) == features) {
+                return format;
+            }
+        }
+    }
+
+    throw std::runtime_error("failed to find supported format.");
+}
+
+VkFormat FirstTriangleApp::findDepthFormat() {
+    return findSupportedFormat(
+        { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+    );
+}
+
+bool FirstTriangleApp::hasStencilComponent(VkFormat format) {
+    return (
+        format == VK_FORMAT_D32_SFLOAT_S8_UINT |
+        format == VK_FORMAT_D24_UNORM_S8_UINT
+        );
 }
