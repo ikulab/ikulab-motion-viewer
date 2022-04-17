@@ -4,10 +4,10 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "FirstTriangleApp.hpp"
+#include "app.hpp"
 
 int main() {
-	FirstTriangleApp app;
+	App app;
 
 	std::cout << "Hello, Triangle!!" << std::endl;
 	try {

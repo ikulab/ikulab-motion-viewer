@@ -112,7 +112,7 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 proj;
 };
 
-class FirstTriangleApp {
+class App {
 	GLFWwindow* window;
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
@@ -285,7 +285,7 @@ class FirstTriangleApp {
 	}
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-		auto app = reinterpret_cast<FirstTriangleApp*>(glfwGetWindowUserPointer(window));
+		auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
 	}
 

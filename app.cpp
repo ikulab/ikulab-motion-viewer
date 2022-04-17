@@ -1,4 +1,4 @@
-#include "FirstTriangleApp.hpp"
+#include "app.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -49,7 +49,7 @@ void DestroyDebugUtilsMessengerEXT(
     }
 }
 
-void FirstTriangleApp::createInstance() {
+void App::createInstance() {
     if (enableValidationLayers && !checkValidationLayerSupport())
         throw std::runtime_error("validation layers requested, but not available.");
 
@@ -93,7 +93,7 @@ void FirstTriangleApp::createInstance() {
     std::cout << "Vulkan instance have been created." << std::endl;
 }
 
-void FirstTriangleApp::initWindow() {
+void App::initWindow() {
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -103,7 +103,7 @@ void FirstTriangleApp::initWindow() {
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
-void FirstTriangleApp::initVulkan() {
+void App::initVulkan() {
     createInstance();
     setupDebugMessenger();
     createSurface();
@@ -129,7 +129,7 @@ void FirstTriangleApp::initVulkan() {
     createSyncObjects();
 }
 
-void FirstTriangleApp::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
+void App::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.messageSeverity =
@@ -142,7 +142,7 @@ void FirstTriangleApp::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCre
     createInfo.pfnUserCallback = debugCallback;
 }
 
-void FirstTriangleApp::setupDebugMessenger() {
+void App::setupDebugMessenger() {
     if (!enableValidationLayers) return;
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
@@ -152,7 +152,7 @@ void FirstTriangleApp::setupDebugMessenger() {
         throw std::runtime_error("failed to set up debug messenger.");
 }
 
-void FirstTriangleApp::pickPhysicalDevice() {
+void App::pickPhysicalDevice() {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     if (deviceCount == 0) {
@@ -174,7 +174,7 @@ void FirstTriangleApp::pickPhysicalDevice() {
     }
 }
 
-bool FirstTriangleApp::isDeviceSuitable(VkPhysicalDevice device) {
+bool App::isDeviceSuitable(VkPhysicalDevice device) {
     QueueFamilyIndices indices = findQueueFamilies(device);
 
     bool extensionsSupported = checkDeviceExtensionSupport(device);
@@ -195,7 +195,7 @@ bool FirstTriangleApp::isDeviceSuitable(VkPhysicalDevice device) {
         supportedFeatures.samplerAnisotropy;
 }
 
-QueueFamilyIndices FirstTriangleApp::findQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices App::findQueueFamilies(VkPhysicalDevice device) {
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
@@ -226,7 +226,7 @@ QueueFamilyIndices FirstTriangleApp::findQueueFamilies(VkPhysicalDevice device) 
     return indices;
 }
 
-void FirstTriangleApp::createLogicalDevice() {
+void App::createLogicalDevice() {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -275,13 +275,13 @@ void FirstTriangleApp::createLogicalDevice() {
     vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
 
-void FirstTriangleApp::createSurface() {
+void App::createSurface() {
     if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
         throw std::runtime_error("failed to create window surface.");
     }
 }
 
-void FirstTriangleApp::createSwapChain() {
+void App::createSwapChain() {
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -340,7 +340,7 @@ void FirstTriangleApp::createSwapChain() {
     swapChainExtent = extent;
 }
 
-void FirstTriangleApp::recreateSwapChain() {
+void App::recreateSwapChain() {
     int width = 0, height = 0;
     glfwGetFramebufferSize(window, &width, &height);
     while (width == 0 || height == 0) {
@@ -363,7 +363,7 @@ void FirstTriangleApp::recreateSwapChain() {
     createDescriptorSets();
     createCommandBuffers();}
 
-void FirstTriangleApp::createImageViews() {
+void App::createImageViews() {
     swapChainImageViews.resize(swapChainImages.size());
 
     for (size_t i = 0; i < swapChainImages.size(); i++) {
@@ -371,7 +371,7 @@ void FirstTriangleApp::createImageViews() {
     }
 }
 
-void FirstTriangleApp::createGraphicsPipeline() {
+void App::createGraphicsPipeline() {
     auto vertShaderCode = readFile("shaders/bin/vert.spv");
     auto fragShaderCode = readFile("shaders/bin/frag.spv");
 
@@ -531,7 +531,7 @@ void FirstTriangleApp::createGraphicsPipeline() {
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
 }
 
-VkShaderModule FirstTriangleApp::createShaderModule(const std::vector<char>& code) {
+VkShaderModule App::createShaderModule(const std::vector<char>& code) {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = code.size();
@@ -545,7 +545,7 @@ VkShaderModule FirstTriangleApp::createShaderModule(const std::vector<char>& cod
     return shaderModule;
 }
 
-void FirstTriangleApp::createRenderPass() {
+void App::createRenderPass() {
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = swapChainImageFormat;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -614,7 +614,7 @@ void FirstTriangleApp::createRenderPass() {
     }
 }
 
-void FirstTriangleApp::createFramebuffers() {
+void App::createFramebuffers() {
     swapChainFrameBuffers.resize(swapChainImageViews.size());
 
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
@@ -638,7 +638,7 @@ void FirstTriangleApp::createFramebuffers() {
     }
 }
 
-void FirstTriangleApp::createCommandPool() {
+void App::createCommandPool() {
     QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
 
     VkCommandPoolCreateInfo poolCreateInfo{};
@@ -651,7 +651,7 @@ void FirstTriangleApp::createCommandPool() {
     }
 }
 
-void FirstTriangleApp::createBuffer(
+void App::createBuffer(
     VkDeviceSize size,
     VkBufferUsageFlags usage,
     VkMemoryPropertyFlags properties,
@@ -683,7 +683,7 @@ void FirstTriangleApp::createBuffer(
     vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
 
-void FirstTriangleApp::createVertexBuffer() {
+void App::createVertexBuffer() {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
     VkBuffer stagingBuffer;
@@ -714,7 +714,7 @@ void FirstTriangleApp::createVertexBuffer() {
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void FirstTriangleApp::createIndexBuffer() {
+void App::createIndexBuffer() {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
     VkBuffer stagingBuffer;
@@ -746,7 +746,7 @@ void FirstTriangleApp::createIndexBuffer() {
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void FirstTriangleApp::createUniformBuffers() {
+void App::createUniformBuffers() {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
     uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -763,7 +763,7 @@ void FirstTriangleApp::createUniformBuffers() {
     }
 }
 
-void FirstTriangleApp::createCommandBuffers() {
+void App::createCommandBuffers() {
     commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo{};
@@ -777,7 +777,7 @@ void FirstTriangleApp::createCommandBuffers() {
     }
 }
 
-void FirstTriangleApp::createSyncObjects() {
+void App::createSyncObjects() {
     imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -799,7 +799,7 @@ void FirstTriangleApp::createSyncObjects() {
     }
 }
 
-void FirstTriangleApp::createDescriptorSetLayout() {
+void App::createDescriptorSetLayout() {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
     uboLayoutBinding.descriptorCount = 1;
@@ -828,7 +828,7 @@ void FirstTriangleApp::createDescriptorSetLayout() {
     }
 }
 
-void FirstTriangleApp::createDescriptorPool() {
+void App::createDescriptorPool() {
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
@@ -846,7 +846,7 @@ void FirstTriangleApp::createDescriptorPool() {
     }
 }
 
-void FirstTriangleApp::createDescriptorSets() {
+void App::createDescriptorSets() {
     std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -896,7 +896,7 @@ void FirstTriangleApp::createDescriptorSets() {
     }
 }
 
-void FirstTriangleApp::createImage(
+void App::createImage(
     uint32_t width,
     uint32_t height,
     VkFormat format,
@@ -940,7 +940,7 @@ void FirstTriangleApp::createImage(
     vkBindImageMemory(device, image, imageMemory, 0);
 }
 
-VkImageView FirstTriangleApp::createImageView(
+VkImageView App::createImageView(
     VkImage image, VkFormat format, VkImageAspectFlags aspectFlags
 ) {
     VkImageViewCreateInfo createInfo{};
@@ -963,7 +963,7 @@ VkImageView FirstTriangleApp::createImageView(
     return imageView;
 }
 
-void FirstTriangleApp::createTextureImage() {
+void App::createTextureImage() {
     int txtWidth, txtHeight, txtChannels;
     stbi_uc* pixels = stbi_load(
         "textures/dotty.jpg",
@@ -1029,11 +1029,11 @@ void FirstTriangleApp::createTextureImage() {
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void FirstTriangleApp::createTextureImageView() {
+void App::createTextureImageView() {
     textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
-void FirstTriangleApp::createTextureSampler() {
+void App::createTextureSampler() {
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     samplerInfo.magFilter = VK_FILTER_LINEAR;
@@ -1060,7 +1060,7 @@ void FirstTriangleApp::createTextureSampler() {
     }
 }
 
-void FirstTriangleApp::createDepthResources() {
+void App::createDepthResources() {
     VkFormat depthFormat = findDepthFormat();
 
     createImage(
@@ -1074,7 +1074,7 @@ void FirstTriangleApp::createDepthResources() {
     depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
-void FirstTriangleApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
+void App::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = 0;
@@ -1127,7 +1127,7 @@ void FirstTriangleApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32
     }
 }
 
-uint32_t FirstTriangleApp::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+uint32_t App::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
@@ -1140,7 +1140,7 @@ uint32_t FirstTriangleApp::findMemoryType(uint32_t typeFilter, VkMemoryPropertyF
     throw std::runtime_error("failed to find suitable memory type.");
 }
 
-void FirstTriangleApp::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+void App::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
     VkBufferCopy copyRegion{};
@@ -1150,7 +1150,7 @@ void FirstTriangleApp::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevi
     endSingleTimeCommands(commandBuffer);
 }
 
-void FirstTriangleApp::copyBufferToImage(
+void App::copyBufferToImage(
     VkBuffer buffer,
     VkImage image,
     uint32_t width,
@@ -1183,7 +1183,7 @@ void FirstTriangleApp::copyBufferToImage(
     endSingleTimeCommands(commandBuffer);
 }
 
-void FirstTriangleApp::mainLoop() {
+void App::mainLoop() {
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         drawFrame();
@@ -1192,7 +1192,7 @@ void FirstTriangleApp::mainLoop() {
     vkDeviceWaitIdle(device);
 }
 
-void FirstTriangleApp::cleanupSwapChain() {
+void App::cleanupSwapChain() {
     vkDestroyImageView(device, depthImageView, nullptr);
     vkDestroyImage(device, depthImage, nullptr);
     vkFreeMemory(device, depthImageMemory, nullptr);
@@ -1212,7 +1212,7 @@ void FirstTriangleApp::cleanupSwapChain() {
     vkDestroySwapchainKHR(device, swapChain, nullptr);
 }
 
-void FirstTriangleApp::cleanUp() {
+void App::cleanUp() {
     cleanupSwapChain();
 
     vkDestroySampler(device, textureSampler, nullptr);
@@ -1254,14 +1254,14 @@ void FirstTriangleApp::cleanUp() {
     glfwTerminate();
 }
 
-void FirstTriangleApp::run() {
+void App::run() {
     initWindow();
     initVulkan();
     mainLoop();
     cleanUp();
 }
 
-std::vector<const char*> FirstTriangleApp::getRequiredExtensions() {
+std::vector<const char*> App::getRequiredExtensions() {
     uint32_t glfwExtensionCount;
     const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
@@ -1274,7 +1274,7 @@ std::vector<const char*> FirstTriangleApp::getRequiredExtensions() {
     return extensions;
 }
 
-bool FirstTriangleApp::checkValidationLayerSupport() {
+bool App::checkValidationLayerSupport() {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -1299,7 +1299,7 @@ bool FirstTriangleApp::checkValidationLayerSupport() {
     return true;
 }
 
-bool FirstTriangleApp::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+bool App::checkDeviceExtensionSupport(VkPhysicalDevice device) {
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
@@ -1314,7 +1314,7 @@ bool FirstTriangleApp::checkDeviceExtensionSupport(VkPhysicalDevice device) {
     return requiredExtensions.empty();
 }
 
-SwapChainSupportDetails FirstTriangleApp::querySwapChainSupport(VkPhysicalDevice device) {
+SwapChainSupportDetails App::querySwapChainSupport(VkPhysicalDevice device) {
     SwapChainSupportDetails details;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
@@ -1336,7 +1336,7 @@ SwapChainSupportDetails FirstTriangleApp::querySwapChainSupport(VkPhysicalDevice
     return details;
 }
 
-VkSurfaceFormatKHR FirstTriangleApp::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+VkSurfaceFormatKHR App::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
     for (const auto& availableFormat : availableFormats) {
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
             availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -1348,7 +1348,7 @@ VkSurfaceFormatKHR FirstTriangleApp::chooseSwapSurfaceFormat(const std::vector<V
     return availableFormats[0];
 }
 
-VkPresentModeKHR FirstTriangleApp::chooseSwapChainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
+VkPresentModeKHR App::chooseSwapChainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
     for (const auto& availablePresentMode : availablePresentModes) {
         if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
             return availablePresentMode;
@@ -1358,7 +1358,7 @@ VkPresentModeKHR FirstTriangleApp::chooseSwapChainPresentMode(const std::vector<
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D FirstTriangleApp::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+VkExtent2D App::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return capabilities.currentExtent;
     }
@@ -1383,7 +1383,7 @@ VkExtent2D FirstTriangleApp::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& ca
     }
 }
 
-std::vector<char> FirstTriangleApp::readFile(const std::string& fileName) {
+std::vector<char> App::readFile(const std::string& fileName) {
     std::ifstream file(fileName, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
@@ -1403,7 +1403,7 @@ std::vector<char> FirstTriangleApp::readFile(const std::string& fileName) {
     return buffer;
 }
 
-void FirstTriangleApp::drawFrame() {
+void App::drawFrame() {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
@@ -1466,7 +1466,7 @@ void FirstTriangleApp::drawFrame() {
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void FirstTriangleApp::updateUniformBuffer(uint32_t currentImage) {
+void App::updateUniformBuffer(uint32_t currentImage) {
     static auto startTime = std::chrono::high_resolution_clock::now();
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -1502,7 +1502,7 @@ void FirstTriangleApp::updateUniformBuffer(uint32_t currentImage) {
     vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
 }
 
-VkCommandBuffer FirstTriangleApp::beginSingleTimeCommands() {
+VkCommandBuffer App::beginSingleTimeCommands() {
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -1520,7 +1520,7 @@ VkCommandBuffer FirstTriangleApp::beginSingleTimeCommands() {
     return commandBuffer;
 }
 
-void FirstTriangleApp::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
+void App::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
     vkEndCommandBuffer(commandBuffer);
 
     VkSubmitInfo submitInfo{};
@@ -1534,7 +1534,7 @@ void FirstTriangleApp::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
     vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
 
-void FirstTriangleApp::transitionImageLayout(
+void App::transitionImageLayout(
     VkImage image,
     VkFormat format,
     VkImageLayout oldLayout,
@@ -1585,7 +1585,7 @@ void FirstTriangleApp::transitionImageLayout(
     endSingleTimeCommands(commandBuffer);
 }
 
-VkFormat FirstTriangleApp::findSupportedFormat(
+VkFormat App::findSupportedFormat(
     const std::vector<VkFormat>& candidates,
     VkImageTiling tiling,
     VkFormatFeatureFlags features
@@ -1609,7 +1609,7 @@ VkFormat FirstTriangleApp::findSupportedFormat(
     throw std::runtime_error("failed to find supported format.");
 }
 
-VkFormat FirstTriangleApp::findDepthFormat() {
+VkFormat App::findDepthFormat() {
     return findSupportedFormat(
         { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
         VK_IMAGE_TILING_OPTIMAL,
@@ -1617,7 +1617,7 @@ VkFormat FirstTriangleApp::findDepthFormat() {
     );
 }
 
-bool FirstTriangleApp::hasStencilComponent(VkFormat format) {
+bool App::hasStencilComponent(VkFormat format) {
     return (
         format == VK_FORMAT_D32_SFLOAT_S8_UINT |
         format == VK_FORMAT_D24_UNORM_S8_UINT
