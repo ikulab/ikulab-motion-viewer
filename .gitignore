@@ -11,6 +11,8 @@ sample
 *.lo
 *.o
 *.obj
+# for models
+!models/*.obj
 
 # Precompiled Headers
 *.gch

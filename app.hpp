@@ -87,23 +87,14 @@ struct Vertex {
 
 		return attributeDescriptions;
 	}
-};
 
-const std::vector<Vertex> vertices = {
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-};
-
-const std::vector<uint16_t> indices = {
-	0, 1, 2, 2, 3, 0,
-	4, 5, 6, 6, 7, 4
+	bool operator==(const Vertex& other) const {
+		return (
+			pos == other.pos &&
+			color == other.color &&
+			texCoord == other.texCoord
+			);
+	}
 };
 
 struct UniformBufferObject {
@@ -133,8 +124,10 @@ class App {
 
 	VkSurfaceKHR surface;
 
-	uint32_t WINDOW_WIDTH = 800;
-	uint32_t WINDOW_HEIGHT = 600;
+	const uint32_t WINDOW_WIDTH = 800;
+	const uint32_t WINDOW_HEIGHT = 600;
+	const std::string MODEL_PATH = "models/viking_room.obj";
+	const std::string TEXTURE_PATH = "textures/viking_room.png";
 
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();
@@ -176,6 +169,7 @@ class App {
 	void createImage(
 		uint32_t width,
 		uint32_t height,
+		uint32_t mipLevels,
 		VkFormat format,
 		VkImageTiling tiling,
 		VkImageUsageFlags usage,
@@ -184,7 +178,7 @@ class App {
 		VkDeviceMemory& imageMemory
 	);
 	VkImageView createImageView(
-		VkImage image, VkFormat format, VkImageAspectFlags aspectFlags
+		VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels
 	);
 	void createTextureImage();
 	void createTextureImageView();
@@ -227,12 +221,16 @@ class App {
 
 	uint32_t currentFrame = 0;
 
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
+
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	uint32_t mipLevels;
 	VkImage textureImage;
 	VkImageView textureImageView;
 	VkDeviceMemory textureImageMemory;
@@ -255,7 +253,8 @@ class App {
 		VkImage image,
 		VkFormat format,
 		VkImageLayout oldLayout,
-		VkImageLayout newLayout
+		VkImageLayout newLayout,
+		uint32_t mipLevels
 	);
 
 	VkFormat findSupportedFormat(
@@ -265,6 +264,9 @@ class App {
 	);
 	VkFormat findDepthFormat();
 	bool hasStencilComponent(VkFormat format);
+
+	void loadModel();
+	void generateMipmaps(VkImage image, int32_t txtWidth, int32_t txtHeight, uint32_t mipLevels);
 
 	void initWindow();
 	void initVulkan();
