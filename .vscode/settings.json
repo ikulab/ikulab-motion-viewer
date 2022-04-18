@@ -2,32 +2,7 @@
 	"makefile.extensionOutputFolder": "./.vscode",
 	"makefile.launchConfigurations": [
 		{
-			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan/FirstTriangle",
-			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan/FirstTriangle/app",
-			"binaryArgs": []
-		},
-		{
-			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan-FirstTriangle",
-			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan-FirstTriangle/app",
-			"binaryArgs": []
-		},
-		{
-			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan-advanced",
-			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan-advanced/app",
-			"binaryArgs": []
-		},
-		{
-			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan/vulkan-advanced",
-			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan/vulkan-advanced/app",
-			"binaryArgs": []
-		},
-		{
-			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan/vulkan-loading-models",
-			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan/vulkan-loading-models/app",
-			"binaryArgs": []
-		},
-		{
-			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan/vulkan-ikulab/bin",
+			"cwd": "/home/caffeine/DevelopEnv/git_repos/vulkan/vulkan-ikulab",
 			"binaryPath": "/home/caffeine/DevelopEnv/git_repos/vulkan/vulkan-ikulab/bin/app",
 			"binaryArgs": []
 		}
