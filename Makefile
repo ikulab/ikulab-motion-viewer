@@ -1,27 +1,23 @@
-CFLAGS = -std=c++17 -fdiagnostics-color=always -g
-LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
-INCLUDE_PATH = ./includes
+Cflags = -std=c++17 -fdiagnostics-color=always -g
+LdFlags = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
-release: main.cpp app.cpp app.hpp shaders/shader.*
-	./compile.sh
-	g++ $(CFLAGS) -O3 -o app main.cpp app.cpp $(LDFLAGS) -I$(INCLUDE_PATH)
+SrcPaths = src/main.cpp src/app.cpp
+Ingredients = $(SrcPaths) src/app.hpp shaders/shader.*
+IncludePath = ./includes
 
-app: main.cpp app.cpp app.hpp shaders/shader.*
+release: $(Ingredients)
 	./compile.sh
-	g++ $(CFLAGS) -O2 -o app main.cpp app.cpp $(LDFLAGS) -I$(INCLUDE_PATH)
+	g++ $(Cflags) -O3 -o bin/app $(SrcPaths) $(LdFlags) -I$(IncludePath)
+
+app: $(Ingredients)
+	./compile.sh
+	g++ $(Cflags) -O2 -o bin/app $(SrcPaths) $(LdFlags) -I$(IncludePath)
 
 run: app
-	./app
-
-sample: sample.cpp
-	./compile.sh
-	g++ $(CFLAGS) -o sample sample.cpp $(LDFLAGS) -I$(INCLUDE_PATH)
-
-run_sample: sample
-	./sample
+	bin/app
 
 .PHONY: clean
 
 clean:
-	rm -f app sample
+	rm bin/app
 	rm shaders/bin/*

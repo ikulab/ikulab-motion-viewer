@@ -126,8 +126,8 @@ class App {
 
 	const uint32_t WINDOW_WIDTH = 800;
 	const uint32_t WINDOW_HEIGHT = 600;
-	const std::string MODEL_PATH = "models/viking_room.obj";
-	const std::string TEXTURE_PATH = "textures/viking_room.png";
+	const std::string MODEL_PATH = "../models/viking_room.obj";
+	const std::string TEXTURE_PATH = "../textures/viking_room.png";
 
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();

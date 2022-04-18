@@ -36,7 +36,6 @@ namespace std {
     };
 }
 
-
 VkResult CreateDebugUtilsMessengerEXT(
     VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateinfo,
@@ -393,8 +392,8 @@ void App::createImageViews() {
 }
 
 void App::createGraphicsPipeline() {
-    auto vertShaderCode = readFile("shaders/bin/vert.spv");
-    auto fragShaderCode = readFile("shaders/bin/frag.spv");
+    auto vertShaderCode = readFile("../shaders/bin/vert.spv");
+    auto fragShaderCode = readFile("../shaders/bin/frag.spv");
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);

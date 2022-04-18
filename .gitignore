@@ -1,6 +1,5 @@
 .vscode/*.log
-app
-sample
+bin/app
 
 # template -------------
 # Prerequisites
