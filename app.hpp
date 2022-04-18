@@ -170,6 +170,7 @@ class App {
 		uint32_t width,
 		uint32_t height,
 		uint32_t mipLevels,
+		VkSampleCountFlagBits numSamples,
 		VkFormat format,
 		VkImageTiling tiling,
 		VkImageUsageFlags usage,
@@ -184,6 +185,7 @@ class App {
 	void createTextureImageView();
 	void createTextureSampler();
 	void createDepthResources();
+	void createColorResource();
 
 	void cleanupSwapChain();
 
@@ -243,6 +245,8 @@ class App {
 	VkDeviceMemory depthImageMemory;
 	VkImageView depthImageView;
 
+	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+
 	VkCommandBuffer beginSingleTimeCommands();
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
@@ -266,7 +270,13 @@ class App {
 	bool hasStencilComponent(VkFormat format);
 
 	void loadModel();
-	void generateMipmaps(VkImage image, int32_t txtWidth, int32_t txtHeight, uint32_t mipLevels);
+	void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t txtWidth, int32_t txtHeight, uint32_t mipLevels);
+
+	VkSampleCountFlagBits getMaxUsableSampleCount();
+
+	VkImage colorImage;
+	VkDeviceMemory colorImageMemory;
+	VkImageView colorImageView;
 
 	void initWindow();
 	void initVulkan();
