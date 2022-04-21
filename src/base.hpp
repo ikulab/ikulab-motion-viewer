@@ -11,6 +11,8 @@
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 
+#include "./definition/vertex.hpp"
+
 #ifdef NODEBUG
 const bool enableValidationLayers = false;
 #else
@@ -224,7 +226,6 @@ class Base {
 	VkFormat findDepthFormat();
 	bool hasStencilComponent(VkFormat format);
 
-	void loadModel();
 	void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t txtWidth, int32_t txtHeight, uint32_t mipLevels);
 
 	VkSampleCountFlagBits getMaxUsableSampleCount();
@@ -234,7 +235,6 @@ class Base {
 	VkImageView colorImageView;
 
 	void initWindow();
-	void initVulkan();
 	void createInstance();
 	void cleanup();
 
@@ -258,7 +258,6 @@ class Base {
 public:
 	Base() {
 		initWindow();
-		initVulkan();
 	}
 
 	~Base() {
@@ -266,7 +265,14 @@ public:
 		cleanup();
 	}
 
+	void initVulkan();
+
 	void pollWindowEvent() { glfwPollEvents(); };
 	int windowShouldClose() { return glfwWindowShouldClose(window); };
 	void drawFrame();
+
+	void addVertex(Vertex vertex);
+	void addVertices(const std::vector<Vertex>& vertices);
+	void addIndex(uint32_t index);
+	void addindices(const std::vector<uint32_t>& indices);
 };

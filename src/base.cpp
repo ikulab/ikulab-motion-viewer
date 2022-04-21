@@ -138,7 +138,6 @@ void Base::initVulkan() {
     createTextureImage();
     createTextureImageView();
     createTextureSampler();
-    loadModel();
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
@@ -1523,7 +1522,8 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
 
     float lookAtX = 2.0f;
     float lookAtY = 2.0f;
-    float lookAtZ = (sin(M_PI * time / 4.0f) + 1.0f) * 4.0f;
+    float lookAtZ = (sin(M_PI * time / 4.0f)) * 4.0f;
+    // float lookAtZ = 2.0f;
 
     UniformBufferObject ubo{};
     ubo.model = glm::rotate(
@@ -1674,47 +1674,6 @@ bool Base::hasStencilComponent(VkFormat format) {
         );
 }
 
-void Base::loadModel() {
-    tinyobj::attrib_t attr;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
-
-    if (!tinyobj::LoadObj(
-        &attr, &shapes, &materials,
-        &warn, &err,
-        MODEL_PATH.c_str())) {
-
-        throw std::runtime_error(warn + err);
-    }
-
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-
-    for (const auto& shape : shapes) {
-        for (const auto& index : shape.mesh.indices) {
-            Vertex vertex{};
-
-            vertex.pos = {
-                attr.vertices[3 * index.vertex_index + 0],
-                attr.vertices[3 * index.vertex_index + 1],
-                attr.vertices[3 * index.vertex_index + 2]
-            };
-            vertex.texCoord = {
-                attr.texcoords[2 * index.texcoord_index + 0],
-                1.0 - attr.texcoords[2 * index.texcoord_index + 1]
-            };
-            vertex.color = { 1.0f, 1.0f, 1.0f };
-
-            if (uniqueVertices.count(vertex) == 0) {
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
-            }
-
-            indices.push_back(uniqueVertices[vertex]);
-        }
-    }
-}
-
 void Base::generateMipmaps(VkImage image, VkFormat imageFormat, int32_t txtWidth, int32_t txtHeight, uint32_t mipLevels) {
     VkFormatProperties props;
     vkGetPhysicalDeviceFormatProperties(physicalDevice, imageFormat, &props);
@@ -1827,4 +1786,26 @@ VkSampleCountFlagBits Base::getMaxUsableSampleCount() {
     if (counts & VK_SAMPLE_COUNT_4_BIT) return VK_SAMPLE_COUNT_4_BIT;
     if (counts & VK_SAMPLE_COUNT_2_BIT) return VK_SAMPLE_COUNT_2_BIT;
     return VK_SAMPLE_COUNT_1_BIT;
+}
+
+void Base::addVertex(Vertex vertex) {
+    vertices.push_back(vertex);
+}
+
+void Base::addVertices(const std::vector<Vertex>& vertices) {
+    this->vertices.insert(
+        this->vertices.end(),
+        vertices.begin(), vertices.end()
+    );
+}
+
+void Base::addIndex(uint32_t index) {
+    indices.push_back(index);
+}
+
+void Base::addindices(const std::vector<uint32_t>& indices) {
+    this->indices.insert(
+        this->indices.begin(),
+        indices.begin(), indices.end()
+    );
 }
