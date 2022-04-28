@@ -7,7 +7,7 @@ IncludePath := ./includes
 
 
 bin/app: $(Ingredients)
-	g++ $(Cflags) -O2 -o bin/app $(SrcPaths) $(LdFlags) -I$(IncludePath)
+	g++ $(Cflags) -O0 -o bin/app $(SrcPaths) $(LdFlags) -I$(IncludePath)
 
 shaders/bin/vert.spv: shaders/shader.vert
 	/usr/local/bin/glslc shader.vert -o shaders/bin/vert.spv

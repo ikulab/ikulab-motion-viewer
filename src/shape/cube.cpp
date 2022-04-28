@@ -3,7 +3,7 @@
 
 #include "cube.hpp"
 
-std::vector<Vertex> GradationCube::getVertices() {
+std::vector<Vertex> GradationCube::getVertices() const {
 	float xp = width / 2.0f + pos.r;
 	float xn = -width / 2.0f + pos.r;
 	float yp = height / 2.0f + pos.g;
@@ -34,7 +34,7 @@ std::vector<Vertex> GradationCube::getVertices() {
 	return result;
 }
 
-std::vector<uint32_t> GradationCube::getIndices() {
+std::vector<uint32_t> GradationCube::getIndices() const {
 	std::vector<uint32_t> result = {
 		// Top
 		0, 1, 2,
@@ -61,7 +61,7 @@ std::vector<uint32_t> GradationCube::getIndices() {
 	return result;
 }
 
-std::vector<Vertex> Cube::getVertices() {
+std::vector<Vertex> Cube::getVertices() const {
 	glm::vec3 leftDownBottom{
 		-width / 2.0f + pos.x,
 		-height / 2.0f + pos.y,
@@ -138,7 +138,7 @@ std::vector<Vertex> Cube::getVertices() {
 	return result;
 }
 
-std::vector<uint32_t> Cube::getIndices() {
+std::vector<uint32_t> Cube::getIndices() const {
 	std::vector<uint32_t> result = {
 		// Top
 		0, 1, 2,

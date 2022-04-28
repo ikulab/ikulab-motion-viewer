@@ -1,4 +1,6 @@
+#include <iostream>
 #include <memory>
+#include <array>
 
 #include <glm/glm.hpp>
 
@@ -18,16 +20,30 @@ void App::init() {
 }
 
 void App::createShapes() {
-	auto upGradationCube = std::make_unique<GradationCube>(
-		1.0, 2.0, 0.5, glm::vec3(-1.5, 0.0, 0.0)
-	);
-	auto upCube = std::make_unique<Cube>(
-		1.0, 1.0, 1.0, glm::vec3(0.0, 0.0, 0.0),
-		upGradationCube->getVertices().size()
-	);
+	// "staging" array
+	std::array<std::unique_ptr<Shape>, 2> tmpShapes = {
+		std::make_unique<GradationCube>(
+			1.0, 2.0, 0.5,
+			glm::vec3(-1.5, 0.0, 0.0)
+		),
+		std::make_unique<Cube>(
+			1.0, 1.0, 1.0,
+			glm::vec3(0.0, 0.0, 0.0)
+		)
+	};
 
-	shapes.push_back(std::move(upGradationCube));
-	shapes.push_back(std::move(upCube));
+	// set base index
+	uint32_t baseIndex = 0;
+	for (const auto& shape : tmpShapes) {
+		shape->setBaseIndex(baseIndex);
+		baseIndex += static_cast<uint32_t>(shape->getVertices().size());
+	}
+
+	// move to shapes vector
+	shapes.assign(
+		std::make_move_iterator(tmpShapes.begin()),
+		std::make_move_iterator(tmpShapes.end())
+	);
 }
 
 void App::registerShapes() {
