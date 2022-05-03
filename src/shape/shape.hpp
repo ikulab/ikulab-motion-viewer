@@ -7,16 +7,15 @@
 
 class Shape {
 protected:
-	uint32_t baseIndex;
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
 public:
-	Shape(uint32_t baseIndex) : baseIndex(baseIndex) {};
-
-	virtual std::vector<Vertex> getVertices() const {
-		return std::vector<Vertex>();
+	inline const std::vector<Vertex>& getVertices() const {
+		return vertices;
 	};
-	virtual std::vector<uint32_t> getIndices() const {
-		return std::vector<uint32_t>();
+	inline const std::vector<uint32_t>& getIndices() const {
+		return indices;
 	};
 
-	void setBaseIndex(uint32_t index);
+	void setBaseIndex(uint32_t baseIndex);
 };
