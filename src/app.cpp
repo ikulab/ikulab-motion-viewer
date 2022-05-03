@@ -9,6 +9,7 @@
 
 #include "shape/shape.hpp"
 #include "shape/cube.hpp"
+#include "shape/sphere.hpp"
 
 void App::init() {
 	base = std::make_unique<Base>();
@@ -21,14 +22,18 @@ void App::init() {
 
 void App::createShapes() {
 	// "staging" array
-	std::array<std::unique_ptr<Shape>, 2> tmpShapes = {
-		std::make_unique<GradationCube>(
-			1.0, 2.0, 0.5,
-			glm::vec3(-1.5, 0.0, 0.0)
-		),
-		std::make_unique<Cube>(
-			1.0, 1.0, 1.0,
-			glm::vec3(0.0, 0.0, 0.0)
+	std::array<std::unique_ptr<Shape>, 1> tmpShapes = {
+		// std::make_unique<GradationCube>(
+		// 	1.0, 2.0, 0.5,
+		// 	glm::vec3(-1.5, 0.0, 0.0)
+		// ),
+		// std::make_unique<Cube>(
+		// 	1.0, 1.0, 1.0,
+		// 	glm::vec3(0.0, 0.0, 0.0)
+		// ),
+		std::make_unique<Sphere>(
+			glm::vec3(0.0, 0.0, 0.0),
+			0.5, 8, 10
 		)
 	};
 

@@ -9,9 +9,7 @@ class Shape {
 protected:
 	uint32_t baseIndex;
 public:
-	Shape() {
-		std::cout << "constructing Shape" << std::endl;
-	}
+	Shape(uint32_t baseIndex) : baseIndex(baseIndex) {};
 
 	virtual std::vector<Vertex> getVertices() const {
 		return std::vector<Vertex>();
