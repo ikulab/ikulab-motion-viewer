@@ -1,8 +1,8 @@
 [*.{c++,cc,cpp,cxx,h,h++,hh,hpp,hxx,inl,ipp,tlh,tli}]
 cpp_indent_braces=false
-cpp_indent_multi_line_relative_to=innermost_parenthesis
+cpp_indent_multi_line_relative_to=outermost_parenthesis
 cpp_indent_within_parentheses=indent
-cpp_indent_preserve_within_parentheses=false
+cpp_indent_preserve_within_parentheses=true
 cpp_indent_case_labels=false
 cpp_indent_case_contents=true
 cpp_indent_case_contents_when_block=false
@@ -18,8 +18,8 @@ cpp_new_line_before_open_brace_function=same_line
 cpp_new_line_before_open_brace_block=same_line
 cpp_new_line_before_open_brace_lambda=same_line
 cpp_new_line_scope_braces_on_separate_lines=false
-cpp_new_line_close_brace_same_line_empty_type=false
-cpp_new_line_close_brace_same_line_empty_function=false
+cpp_new_line_close_brace_same_line_empty_type=true
+cpp_new_line_close_brace_same_line_empty_function=true
 cpp_new_line_before_catch=true
 cpp_new_line_before_else=true
 cpp_new_line_before_while_in_do_while=false
