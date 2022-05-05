@@ -7,7 +7,7 @@
 class Sphere : public Shape {
 	glm::vec3 pos;
 	float r;
-	uint32_t numSplitV, numSplitH;
+	uint32_t numSplitH, numSplitV;
 public:
-	Sphere(glm::vec3 pos, float r, uint32_t numSplitV, uint32_t numSplitH);
+	Sphere(glm::vec3 pos, float r, uint32_t numSplitH, uint32_t numSplitV);
 };
