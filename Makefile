@@ -10,11 +10,11 @@ bin/app: $(Ingredients)
 	g++ $(Cflags) -O0 -o bin/app $(SrcPaths) $(LdFlags) -I$(IncludePath)
 
 shaders/bin/vert.spv: shaders/shader.vert
-	/usr/local/bin/glslc shader.vert -o shaders/bin/vert.spv
+	/usr/local/bin/glslc shaders/shader.vert -o shaders/bin/vert.spv
 
 shaders/bin/frag.spv: shaders/shader.frag
 
-	/usr/local/bin/glslc shader.frag -o shaders/bin/frag.spv
+	/usr/local/bin/glslc shaders/shader.frag -o shaders/bin/frag.spv
 
 
 .PHONY: clean release run

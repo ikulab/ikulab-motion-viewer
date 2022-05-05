@@ -85,8 +85,6 @@ class Base {
 
 	const uint32_t WINDOW_WIDTH = 800;
 	const uint32_t WINDOW_HEIGHT = 600;
-	const std::string MODEL_PATH = "models/viking_room.obj";
-	const std::string TEXTURE_PATH = "textures/viking_room.png";
 
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();
@@ -140,9 +138,6 @@ class Base {
 	VkImageView createImageView(
 		VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels
 	);
-	void createTextureImage();
-	void createTextureImageView();
-	void createTextureSampler();
 	void createDepthResources();
 	void createColorResource();
 
@@ -191,10 +186,6 @@ class Base {
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	uint32_t mipLevels;
-	VkImage textureImage;
-	VkImageView textureImageView;
-	VkDeviceMemory textureImageMemory;
-	VkSampler textureSampler;
 
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;

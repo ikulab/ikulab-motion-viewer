@@ -50,35 +50,35 @@ Cube::Cube(float width, float height, float depth, glm::vec3 pos)
 
 	vertices.assign({
 		// 0-3 Top face - red
-		{leftUpTop, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		{leftDownTop, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		{rightDownTop, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		{rightUpTop, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+		{leftUpTop, {1.0f, 0.0f, 0.0f}},
+		{leftDownTop, {1.0f, 0.0f, 0.0f}},
+		{rightDownTop, {1.0f, 0.0f, 0.0f}},
+		{rightUpTop, {1.0f, 0.0f, 0.0f}},
 		// 4-7 Bottom face - green
-		{leftUpBottom, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{rightUpBottom, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{rightDownBottom, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{leftDownBottom, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		{leftUpBottom, {0.0f, 1.0f, 0.0f}},
+		{rightUpBottom, {0.0f, 1.0f, 0.0f}},
+		{rightDownBottom, {0.0f, 1.0f, 0.0f}},
+		{leftDownBottom, {0.0f, 1.0f, 0.0f}},
 		// 8-11 Left face - blue
-		{leftUpTop, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		{leftUpBottom, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		{leftDownBottom, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		{leftDownTop, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+		{leftUpTop, {0.0f, 0.0f, 1.0f}},
+		{leftUpBottom, {0.0f, 0.0f, 1.0f}},
+		{leftDownBottom, {0.0f, 0.0f, 1.0f}},
+		{leftDownTop, {0.0f, 0.0f, 1.0f}},
 		// 12-15 Right face - purple
-		{rightUpTop, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		{rightDownTop, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		{rightDownBottom, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		{rightUpBottom, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+		{rightUpTop, {1.0f, 0.0f, 1.0f}},
+		{rightDownTop, {1.0f, 0.0f, 1.0f}},
+		{rightDownBottom, {1.0f, 0.0f, 1.0f}},
+		{rightUpBottom, {1.0f, 0.0f, 1.0f}},
 		// 16-19 Front face - cyan
-		{leftDownTop, {0.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-		{leftDownBottom, {0.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-		{rightDownBottom, {0.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-		{rightDownTop, {0.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+		{leftDownTop, {0.0f, 1.0f, 1.0f}},
+		{leftDownBottom, {0.0f, 1.0f, 1.0f}},
+		{rightDownBottom, {0.0f, 1.0f, 1.0f}},
+		{rightDownTop, {0.0f, 1.0f, 1.0f}},
 		// 20-23 Back face - yellow
-		{rightUpTop, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{rightUpBottom, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{leftUpBottom, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{leftUpTop, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		{rightUpTop, {1.0f, 1.0f, 0.0f}},
+		{rightUpBottom, {1.0f, 1.0f, 0.0f}},
+		{leftUpBottom, {1.0f, 1.0f, 0.0f}},
+		{leftUpTop, {1.0f, 1.0f, 0.0f}}
 	});
 
 	indices.assign({
@@ -115,23 +115,23 @@ GradationCube::GradationCube(float width, float height, float depth, glm::vec3 p
 
 	vertices.assign({
 		// Top face (Z = 0.5)
-		// 0: left top - blue
-		{{xn, yn, zp}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		// 1: right top - red
-		{{xp, yn, zp}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		// 2: right bottom - blue
-		{{xp, yp, zp}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		// 3: left bottom - green
-		{{xn, yp, zp}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		// 0: left top
+		{{xn, yn, zp}, {1.0f, 1.0f, 1.0f}},
+		// 1: right top
+		{{xp, yn, zp}, {1.0f, 1.0f, 1.0f}},
+		// 2: right bottom
+		{{xp, yp, zp}, {1.0f, 1.0f, 1.0f}},
+		// 3: left bottom
+		{{xn, yp, zp}, {1.0f, 1.0f, 1.0f}},
 		// Bottom face (Z = -0.5)
-		// 4: left top - red
-		{{xn, yn, zn}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		// 5: right top - green
-		{{xp, yn, zn}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		// 6: right bottom - red
-		{{xp, yp, zn}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		// 7: left bottom - blue
-		{{xn, yp, zn}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+		// 4: left top
+		{{xn, yn, zn}, {1.0f, 1.0f, 1.0f}},
+		// 5: right top
+		{{xp, yn, zn}, {1.0f, 1.0f, 1.0f}},
+		// 6: right bottom
+		{{xp, yp, zn}, {1.0f, 1.0f, 1.0f}},
+		// 7: left bottom
+		{{xn, yp, zn}, {1.0f, 1.0f, 1.0f}}
 	});
 
 	indices.assign({
