@@ -1,28 +1,28 @@
 #include <cmath>
+#include <vector>
+#include <glm/glm.hpp>
 
 #include "./bone.hpp"
+#include "./sphere.hpp"
 
-Bone::Bone(glm::vec3 rootPos, glm::vec3 tipPos)
-	: rootPos{ rootPos }, tipPos{ tipPos } {
-
-	length = glm::distance(rootPos, tipPos);
-	subVec = tipPos - rootPos;
+Bone::Bone(uint32_t id) {
+	this->id = id;
 
 	// Top vertex
 	vertices.push_back({
-		{0.0, 0.0, 1.0}, {1.0, 1.0, 1.0}
+		{0.0, 0.0, 1.0}, {0.8, 0.8, 0.8}, id
 	});
 
 	vertices.insert(vertices.end(), {
-		{{-0.1, -0.1, 0.9}, {1.0, 1.0, 1.0}},
-		{{-0.1,  0.1, 0.9}, {1.0, 1.0, 1.0}},
-		{{ 0.1,  0.1, 0.9}, {1.0, 1.0, 1.0}},
-		{{ 0.1, -0.1, 0.9}, {1.0, 1.0, 1.0}}
+		{{-0.1, -0.1, 0.9}, {0.8, 0.8, 0.8}, id},
+		{{-0.1,  0.1, 0.9}, {0.8, 0.8, 0.8}, id},
+		{{ 0.1,  0.1, 0.9}, {0.8, 0.8, 0.8}, id},
+		{{ 0.1, -0.1, 0.9}, {0.8, 0.8, 0.8}, id}
 	});
 
 	// Bottom vertex
 	vertices.push_back({
-		{0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}
+		{0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}, id
 	});
 
 	indices.assign({
@@ -35,4 +35,36 @@ Bone::Bone(glm::vec3 rootPos, glm::vec3 tipPos)
 		5, 4, 3,
 		5, 1, 4
 	});
+
+	// root and top Spheres
+	Sphere rootSphere(
+		glm::vec3(0.0, 0.0, 0.0),
+		0.05, 10, 10
+	);
+	Sphere tipSphere(
+		glm::vec3(0.0, 0.0, 1.0),
+		0.05, 10, 10
+	);
+
+	uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
+	rootSphere.setBaseIndex(baseIndex);
+	baseIndex += static_cast<uint32_t>(rootSphere.getVertices().size());
+	tipSphere.setBaseIndex(baseIndex);
+
+	vertices.insert(vertices.end(),
+		rootSphere.getVertices().begin(),
+		rootSphere.getVertices().end()
+	);
+	vertices.insert(vertices.end(),
+		tipSphere.getVertices().begin(),
+		tipSphere.getVertices().end()
+	);
+	indices.insert(indices.end(),
+		rootSphere.getIndices().begin(),
+		rootSphere.getIndices().end()
+	);
+	indices.insert(indices.end(),
+		tipSphere.getIndices().begin(),
+		tipSphere.getIndices().end()
+	);
 }

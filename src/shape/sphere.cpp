@@ -9,7 +9,7 @@ Sphere::Sphere(glm::vec3 pos, float r, uint32_t numSplitH, uint32_t numSplitV)
 	: pos(pos), r(r), numSplitH(numSplitH), numSplitV(numSplitV) {
 
 	// Top vertex (n = 0)
-	vertices.push_back({ {pos.x, pos.y, pos.z + r}, {0.0, 1.0, 0.0} });
+	vertices.push_back({ {pos.x, pos.y, pos.z + r}, {0.8, 0.8, 0.8} });
 
 	for (uint32_t n = 1; n < numSplitH; n++) {
 		for (uint32_t m = 0; m < numSplitV; m++) {
@@ -22,13 +22,13 @@ Sphere::Sphere(glm::vec3 pos, float r, uint32_t numSplitH, uint32_t numSplitV)
 
 			vertices.push_back({
 				{pos.x + x, pos.y + y, pos.z + z},
-				{n / (float)numSplitH, 0.2, 0.2},
+				{0.8, 0.8, 0.8},
 			});
 		}
 	}
 
 	// Bottom vertex (n = numSplitH)
-	vertices.push_back({ {pos.x, pos.y, pos.z - r}, {1.0, 0.0, 0.0} });
+	vertices.push_back({ {pos.x, pos.y, pos.z - r}, {0.8, 0.8, 0.8} });
 
 	// Top index (n = 1)
 	for (uint32_t m = 0; m < numSplitV; m++) {

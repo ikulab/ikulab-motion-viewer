@@ -771,7 +771,7 @@ void Base::createIndexBuffer() {
 }
 
 void Base::createUniformBuffers() {
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject) * MAX_ID;
 
     uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
     uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
@@ -879,7 +879,7 @@ void Base::createDescriptorSets() {
         VkDescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = uniformBuffers[i];
         bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
+        bufferInfo.range = sizeof(UniformBufferObject) * MAX_ID;
 
         std::array<VkWriteDescriptorSet, 1> descriptorWrites{};
         descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -1383,32 +1383,32 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
 
     float lookAtX = 2.0f;
     float lookAtY = 2.0f;
-    float lookAtZ = (sin(M_PI * time / 4.0f)) * 4.0f;
-    // float lookAtZ = 2.0f;
+    // float lookAtZ = (sin(M_PI * time / 4.0f)) * 4.0f;
+    float lookAtZ = 2.0f;
 
-    UniformBufferObject ubo{};
-    ubo.model = glm::rotate(
+    std::array<UniformBufferObject, MAX_ID> ubos;
+    ubos[0].model = glm::rotate(
         glm::mat4(1.0f),
         time * glm::radians(90.0f),
         glm::vec3(0.0f, 0.0f, 1.0f)
     );
-    ubo.view = glm::lookAt(
+    ubos[0].view = glm::lookAt(
         glm::vec3(lookAtX, lookAtY, lookAtZ),
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, 1.0f)
     );
-    ubo.proj = glm::perspective(
+    ubos[0].proj = glm::perspective(
         glm::radians(45.0f),
         swapChainExtent.width / (float)swapChainExtent.height,
         0.1f,
         10.0f
     );
 
-    ubo.proj[1][1] *= -1;
+    ubos[0].proj[1][1] *= -1;
 
     void* data;
-    vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
-    memcpy(data, &ubo, sizeof(ubo));
+    vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubos), 0, &data);
+    memcpy(data, &ubos, sizeof(ubos));
     vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
 }
 

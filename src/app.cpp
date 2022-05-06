@@ -24,7 +24,7 @@ void App::init() {
 void App::createShapes() {
 	// "staging" array
 	std::array<std::unique_ptr<Shape>, 1> tmpShapes {
-		std::make_unique<GradationCube>(
+		std::make_unique<Cube>(
 			1.0, 1.0, 1.0,
 			glm::vec3(0.0, 0.0, 0.0)
 		)
