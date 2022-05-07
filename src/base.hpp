@@ -20,7 +20,7 @@ const bool enableValidationLayers = true;
 #endif
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
-const int MAX_ID = 64;
+const int MAX_ID = 3;
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -164,7 +164,7 @@ class Base {
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
-	VkDescriptorSetLayout descriptorSetLayout;
+	std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts;
 
 	std::vector<VkFramebuffer> swapChainFrameBuffers;
 

@@ -495,8 +495,8 @@ void Base::createGraphicsPipeline() {
 
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
     pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutCreateInfo.setLayoutCount = 1;
-    pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
+    pipelineLayoutCreateInfo.setLayoutCount = descriptorSetLayouts.size();
+    pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
 
@@ -824,31 +824,38 @@ void Base::createSyncObjects() {
 }
 
 void Base::createDescriptorSetLayout() {
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    VkDescriptorSetLayoutBinding modelMatLayoutBinding{};
+    modelMatLayoutBinding.binding = 0;
+    modelMatLayoutBinding.descriptorCount = MAX_ID * static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    modelMatLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    modelMatLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-    std::array<VkDescriptorSetLayoutBinding, 1> bindings = {
-        uboLayoutBinding,
-    };
-    VkDescriptorSetLayoutCreateInfo layoutCreateInfo{};
-    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutCreateInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    layoutCreateInfo.pBindings = bindings.data();
+    VkDescriptorSetLayoutBinding sceneMatLayoutBinding{};
+    sceneMatLayoutBinding.binding = 1;
+    sceneMatLayoutBinding.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    sceneMatLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    sceneMatLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-    if (vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor set layout.");
+    std::array<VkDescriptorSetLayoutCreateInfo, 2> layoutCreateInfos;
+    layoutCreateInfos[0].sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutCreateInfos[0].bindingCount = 1;
+    layoutCreateInfos[0].pBindings = &modelMatLayoutBinding;
+    layoutCreateInfos[1].sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutCreateInfos[1].bindingCount = 1;
+    layoutCreateInfos[1].pBindings = &sceneMatLayoutBinding;
+
+    for (int i = 0; i < layoutCreateInfos.size(); i++) {
+        if (vkCreateDescriptorSetLayout(device, &layoutCreateInfos[i], nullptr, &descriptorSetLayouts[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create descriptor set layout.");
+        }
     }
 }
 
 void Base::createDescriptorPool() {
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * MAX_ID;
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
     VkDescriptorPoolCreateInfo poolCreateInfo{};
@@ -887,7 +894,7 @@ void Base::createDescriptorSets() {
         descriptorWrites[0].dstBinding = 0;
         descriptorWrites[0].dstArrayElement = 0;
         descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].descriptorCount = MAX_ID;
         descriptorWrites[0].pBufferInfo = &bufferInfo;
 
         vkUpdateDescriptorSets(
@@ -1408,7 +1415,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
 
     void* data;
     vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubos), 0, &data);
-    memcpy(data, &ubos, sizeof(ubos));
+    memcpy(data, ubos.data(), sizeof(ubos));
     vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
 }
 
