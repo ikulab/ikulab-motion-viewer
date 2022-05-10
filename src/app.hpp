@@ -19,9 +19,5 @@ public:
 		init();
 	}
 
-	~App() {
-		// TODO: clean up Base object
-	}
-
 	void run();
 };
