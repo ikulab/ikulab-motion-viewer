@@ -689,7 +689,7 @@ void Base::createBuffer(
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     if (vkCreateBuffer(device, &bufferCreateInfo, nullptr, &buffer) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create vertex buffer.");
+        throw std::runtime_error("failed to create buffer.");
     }
 
     VkMemoryRequirements memRequirements;
@@ -701,7 +701,7 @@ void Base::createBuffer(
     allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate vertex buffer memory.");
+        throw std::runtime_error("failed to allocate buffer memory.");
     }
 
     vkBindBufferMemory(device, buffer, bufferMemory, 0);
@@ -775,6 +775,8 @@ void Base::createUniformBuffers() {
     uniformBufferSizes[DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO] = sizeof(SceneMatUBO);
 
     for (size_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; frame++) {
+        uniformBuffers[frame].resize(NUM_OF_DESCRIPTOR_SETS);
+        uniformBufferMemories[frame].resize(NUM_OF_DESCRIPTOR_SETS);
         for (size_t descSetIndex = 0; descSetIndex < NUM_OF_DESCRIPTOR_SETS; descSetIndex++) {
             createBuffer(
                 uniformBufferSizes[descSetIndex],
@@ -836,7 +838,8 @@ void Base::createDescriptorSetLayout() {
     sceneMatLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     sceneMatLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-    std::array<VkDescriptorSetLayoutCreateInfo, 2> layoutCreateInfos;
+    std::array<VkDescriptorSetLayoutCreateInfo, NUM_OF_DESCRIPTOR_SETS> layoutCreateInfos;
+    layoutCreateInfos.fill({});
     layoutCreateInfos[DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO]
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutCreateInfos[DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO].bindingCount = 1;
@@ -850,9 +853,9 @@ void Base::createDescriptorSetLayout() {
     for (int descriptor = 0; descriptor < NUM_OF_DESCRIPTOR_SETS; descriptor++) {
         if (vkCreateDescriptorSetLayout(
             device,
-            &layoutCreateInfos.at(descriptor),
+            &layoutCreateInfos[descriptor],
             nullptr,
-            &descriptorSetLayouts.at(descriptor)
+            &descriptorSetLayouts[descriptor]
             ) != VK_SUCCESS) {
             throw std::runtime_error("failed to create descriptor set layout.");
         }
@@ -860,9 +863,9 @@ void Base::createDescriptorSetLayout() {
 }
 
 void Base::createDescriptorPool() {
-    std::array<VkDescriptorPoolSize, 2> poolSizes{};
+    std::array<VkDescriptorPoolSize, 2> poolSizes;
     poolSizes[DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * MAX_ID;
+    poolSizes[DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT * MAX_ID);
     poolSizes[DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
@@ -870,7 +873,7 @@ void Base::createDescriptorPool() {
     poolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolCreateInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolCreateInfo.pPoolSizes = poolSizes.data();
-    poolCreateInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    poolCreateInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT * NUM_OF_DESCRIPTOR_SETS);
 
     if (vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor pool.");
@@ -878,8 +881,10 @@ void Base::createDescriptorPool() {
 }
 
 void Base::createDescriptorSets() {
-    std::array<VkWriteDescriptorSet, NUM_OF_DESCRIPTOR_SETS* MAX_FRAMES_IN_FLIGHT> descriptorWrites{};
+    std::array<VkWriteDescriptorSet, NUM_OF_DESCRIPTOR_SETS* MAX_FRAMES_IN_FLIGHT> descriptorWrites;
+    descriptorWrites.fill({});
     VkDescriptorBufferInfo bufferInfo{};
+    size_t targetIndex = -1;
 
     for (size_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; frame++) {
         VkDescriptorSetAllocateInfo allocInfo{};
@@ -894,7 +899,7 @@ void Base::createDescriptorSets() {
         }
 
         // Associate data with descriptors
-        size_t targetIndex = 0;
+        targetIndex += 1;
         // Model Matrix UBO
         bufferInfo = {};
         bufferInfo.buffer = uniformBuffers[frame][DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO];
