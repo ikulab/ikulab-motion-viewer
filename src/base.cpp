@@ -771,7 +771,16 @@ void Base::createIndexBuffer() {
 }
 
 void Base::createUniformBuffers() {
-    uniformBufferSizes[DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO] = sizeof(ModelMatUBO);
+    VkPhysicalDeviceProperties props;
+    vkGetPhysicalDeviceProperties(physicalDevice, &props);
+    VkDeviceSize uniBufOffsetAlignment = props.limits.minUniformBufferOffsetAlignment;
+
+    VkDeviceSize modelUboOffsetAlignment = 0;
+    for (uint i = 0; modelUboOffsetAlignment < sizeof(glm::mat4); i++) {
+        modelUboOffsetAlignment = uniBufOffsetAlignment * i;
+    }
+
+    uniformBufferSizes[DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO] = modelUboOffsetAlignment * MAX_ID;
     uniformBufferSizes[DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO] = sizeof(SceneMatUBO);
 
     for (size_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; frame++) {
@@ -833,8 +842,8 @@ void Base::createDescriptorSetLayout() {
     modelMatLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
     VkDescriptorSetLayoutBinding sceneMatLayoutBinding{};
-    sceneMatLayoutBinding.binding = 1;
-    sceneMatLayoutBinding.descriptorCount = 1U;
+    sceneMatLayoutBinding.binding = 0;
+    sceneMatLayoutBinding.descriptorCount = 1;
     sceneMatLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     sceneMatLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
@@ -885,6 +894,15 @@ void Base::createDescriptorSets() {
     descriptorWrites.fill({});
     VkDescriptorBufferInfo bufferInfo{};
 
+    VkPhysicalDeviceProperties props;
+    vkGetPhysicalDeviceProperties(physicalDevice, &props);
+    VkDeviceSize uniBufOffsetAlignment = props.limits.minUniformBufferOffsetAlignment;
+
+    VkDeviceSize modelUboOffsetAlignment = 0;
+    for (uint i = 0; modelUboOffsetAlignment < sizeof(glm::mat4); i++) {
+        modelUboOffsetAlignment = uniBufOffsetAlignment * i;
+    }
+
     for (size_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; frame++) {
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -903,8 +921,8 @@ void Base::createDescriptorSets() {
         bufferInfos.fill({});
         for (size_t descIndex = 0; descIndex < MAX_ID; descIndex++) {
             bufferInfos[descIndex].buffer = uniformBuffers[frame][DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO];
-            bufferInfos[descIndex].offset = descIndex * sizeof(ModelMatUBO);
-            bufferInfo.range = sizeof(ModelMatUBO);
+            bufferInfos[descIndex].offset = descIndex * modelUboOffsetAlignment;
+            bufferInfos[descIndex].range = sizeof(glm::mat4);
         }
         descriptorWrites[0] = {};
         descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
