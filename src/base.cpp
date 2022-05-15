@@ -1463,7 +1463,8 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
 
     float lookAtX = 0.0f;
     float lookAtY = 4.0f;
-    float lookAtZ = 2.0f;
+    // float lookAtZ = 2.0f;
+    float lookAtZ = (sin(M_PI * time / 4.0f)) * 4.0f;
 
     ModelMatUBO modelUbo;
     modelUbo.model[0] = glm::mat4(1.0);
