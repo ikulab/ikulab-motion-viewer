@@ -23,11 +23,12 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 const int MAX_ID = 3;
 
 // FIXME move to description.hpp
-const int NUM_OF_DESCRIPTOR_SETS = 2;
-#define DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO 0
-#define DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO 1
+const int NUM_OF_DESCRIPTOR_SETS = 1;
+const int NUM_OF_DESCRIPTORS = 2;
+// #define DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO 0
+// #define DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO 1
 #define DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO 0
-#define DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO 0
+#define DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO 1
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -174,7 +175,7 @@ class Base {
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
-	std::array<VkDescriptorSetLayout, NUM_OF_DESCRIPTOR_SETS> descriptorSetLayouts;
+	std::array<VkDescriptorSetLayout, 1> descriptorSetLayouts;
 
 	std::vector<VkFramebuffer> swapChainFrameBuffers;
 
@@ -194,7 +195,6 @@ class Base {
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
-	std::array<VkDeviceSize, NUM_OF_DESCRIPTOR_SETS> uniformBufferSizes;
 	std::array<std::vector<VkBuffer>, MAX_FRAMES_IN_FLIGHT> uniformBuffers;
 	std::array<std::vector<VkDeviceMemory>, MAX_FRAMES_IN_FLIGHT> uniformBufferMemories;
 	uint32_t mipLevels;

@@ -23,10 +23,16 @@ void App::init() {
 
 void App::createShapes() {
 	// "staging" array
-	std::array<std::unique_ptr<Shape>, 1> tmpShapes {
+	std::array<std::unique_ptr<Shape>, 2> tmpShapes {
 		std::make_unique<Cube>(
 			1.0, 1.0, 1.0,
-			glm::vec3(0.0, 0.0, 0.0)
+			glm::vec3(0.0, 0.0, 0.0),
+			0
+		),
+		std::make_unique<Cube>(
+			1.0, 1.0, 1.0,
+			glm::vec3(0.0, 0.0, 0.0),
+			1
 		)
 	};
 

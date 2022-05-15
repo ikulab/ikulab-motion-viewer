@@ -38,12 +38,12 @@ Bone::Bone(uint32_t id) {
 
 	// root and top Spheres
 	Sphere rootSphere(
-		glm::vec3(0.0, 0.0, 0.0),
-		0.05, 10, 10
+		0.05, 10, 10,
+		glm::vec3(0.0, 0.0, 0.0)
 	);
 	Sphere tipSphere(
-		glm::vec3(0.0, 0.0, 1.0),
-		0.05, 10, 10
+		0.05, 10, 10,
+		glm::vec3(0.0, 0.0, 1.0)
 	);
 
 	uint32_t baseIndex = static_cast<uint32_t>(vertices.size());

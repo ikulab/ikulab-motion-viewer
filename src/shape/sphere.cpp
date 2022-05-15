@@ -5,7 +5,7 @@
 
 #include "./sphere.hpp"
 
-Sphere::Sphere(glm::vec3 pos, float r, uint32_t numSplitH, uint32_t numSplitV)
+Sphere::Sphere(float r, uint32_t numSplitH, uint32_t numSplitV, glm::vec3 pos)
 	: pos(pos), r(r), numSplitH(numSplitH), numSplitV(numSplitV) {
 
 	// Top vertex (n = 0)

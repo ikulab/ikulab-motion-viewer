@@ -4,9 +4,10 @@
 #include "cube.hpp"
 
 
-Cube::Cube(float width, float height, float depth, glm::vec3 pos)
+Cube::Cube(float width, float height, float depth, glm::vec3 pos, uint32_t id)
 	: width(width), height(height), depth(depth), pos(pos) {
 
+	this->id = id;
 	glm::vec3 leftDownBottom{
 		-width / 2.0f + pos.x,
 		-height / 2.0f + pos.y,
@@ -50,35 +51,35 @@ Cube::Cube(float width, float height, float depth, glm::vec3 pos)
 
 	vertices.assign({
 		// 0-3 Top face - red
-		{leftUpTop, {1.0f, 0.0f, 0.0f}},
-		{leftDownTop, {1.0f, 0.0f, 0.0f}},
-		{rightDownTop, {1.0f, 0.0f, 0.0f}},
-		{rightUpTop, {1.0f, 0.0f, 0.0f}},
+		{leftUpTop, {1.0f, 0.0f, 0.0f}, id},
+		{leftDownTop, {1.0f, 0.0f, 0.0f}, id},
+		{rightDownTop, {1.0f, 0.0f, 0.0f}, id},
+		{rightUpTop, {1.0f, 0.0f, 0.0f}, id},
 		// 4-7 Bottom face - green
-		{leftUpBottom, {0.0f, 1.0f, 0.0f}},
-		{rightUpBottom, {0.0f, 1.0f, 0.0f}},
-		{rightDownBottom, {0.0f, 1.0f, 0.0f}},
-		{leftDownBottom, {0.0f, 1.0f, 0.0f}},
+		{leftUpBottom, {0.0f, 1.0f, 0.0f}, id},
+		{rightUpBottom, {0.0f, 1.0f, 0.0f}, id},
+		{rightDownBottom, {0.0f, 1.0f, 0.0f}, id},
+		{leftDownBottom, {0.0f, 1.0f, 0.0f}, id},
 		// 8-11 Left face - blue
-		{leftUpTop, {0.0f, 0.0f, 1.0f}},
-		{leftUpBottom, {0.0f, 0.0f, 1.0f}},
-		{leftDownBottom, {0.0f, 0.0f, 1.0f}},
-		{leftDownTop, {0.0f, 0.0f, 1.0f}},
+		{leftUpTop, {0.0f, 0.0f, 1.0f}, id},
+		{leftUpBottom, {0.0f, 0.0f, 1.0f}, id},
+		{leftDownBottom, {0.0f, 0.0f, 1.0f}, id},
+		{leftDownTop, {0.0f, 0.0f, 1.0f}, id},
 		// 12-15 Right face - purple
-		{rightUpTop, {1.0f, 0.0f, 1.0f}},
-		{rightDownTop, {1.0f, 0.0f, 1.0f}},
-		{rightDownBottom, {1.0f, 0.0f, 1.0f}},
-		{rightUpBottom, {1.0f, 0.0f, 1.0f}},
+		{rightUpTop, {1.0f, 0.0f, 1.0f}, id},
+		{rightDownTop, {1.0f, 0.0f, 1.0f}, id},
+		{rightDownBottom, {1.0f, 0.0f, 1.0f}, id},
+		{rightUpBottom, {1.0f, 0.0f, 1.0f}, id},
 		// 16-19 Front face - cyan
-		{leftDownTop, {0.0f, 1.0f, 1.0f}},
-		{leftDownBottom, {0.0f, 1.0f, 1.0f}},
-		{rightDownBottom, {0.0f, 1.0f, 1.0f}},
-		{rightDownTop, {0.0f, 1.0f, 1.0f}},
+		{leftDownTop, {0.0f, 1.0f, 1.0f}, id},
+		{leftDownBottom, {0.0f, 1.0f, 1.0f}, id},
+		{rightDownBottom, {0.0f, 1.0f, 1.0f}, id},
+		{rightDownTop, {0.0f, 1.0f, 1.0f}, id},
 		// 20-23 Back face - yellow
-		{rightUpTop, {1.0f, 1.0f, 0.0f}},
-		{rightUpBottom, {1.0f, 1.0f, 0.0f}},
-		{leftUpBottom, {1.0f, 1.0f, 0.0f}},
-		{leftUpTop, {1.0f, 1.0f, 0.0f}}
+		{rightUpTop, {1.0f, 1.0f, 0.0f}, id},
+		{rightUpBottom, {1.0f, 1.0f, 0.0f}, id},
+		{leftUpBottom, {1.0f, 1.0f, 0.0f}, id},
+		{leftUpTop, {1.0f, 1.0f, 0.0f}, id}
 	});
 
 	indices.assign({
