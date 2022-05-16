@@ -12,6 +12,7 @@
 #include <glm/glm.hpp>
 
 #include "./definition/vertex.hpp"
+#include "./definition/common.hpp"
 
 #ifdef NODEBUG
 const bool enableValidationLayers = false;
@@ -19,14 +20,9 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
-const int MAX_ID = 3;
-
 // FIXME move to description.hpp
 const int NUM_OF_DESCRIPTOR_SETS = 1;
 const int NUM_OF_DESCRIPTORS = 2;
-// #define DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO 0
-// #define DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO 1
 #define DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO 0
 #define DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO 1
 
