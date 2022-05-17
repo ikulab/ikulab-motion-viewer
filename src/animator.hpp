@@ -23,6 +23,35 @@
 #define TOKEN_BEGGIN_BRACKET "{"
 #define TOKEN_END_BRACKET "}"
 
+namespace Channel {
+	enum Channel {
+		Xposition, Yposition, Zposition,
+		Xrotation, Yrotation, Zrotation
+	};
+
+	bool isValidChannel(std::string str) {
+		return (
+			str == "Xposition" || str == "Yposition" || str == "Zposition" ||
+			str == "Xrotation" || str == "Yrotation" || str == "Zrotation"
+		);
+	}
+
+	Channel convertStr2Channel(std::string str) {
+		if (str == "Xposition")
+			return Xposition;
+		else if (str == "Yposition")
+			return Yposition;
+		else if (str == "Zposition")
+			return Zposition;
+		else if (str == "Xrotation")
+			return Xrotation;
+		else if (str == "Yrotation")
+			return Yrotation;
+		else if (str == "Zrotation")
+			return Zrotation;
+	}
+};
+
 class parse_failed_error : public std::runtime_error {
 	std::string errorLine;
 	uint errorLineNum;
@@ -71,7 +100,7 @@ class Animator {
 
 		static uint32_t currentId;
 	public:
-		Node(std::string name);
+		Node(std::string name, uint32_t id);
 	};
 
 	std::vector<std::unique_ptr<Animator::Node>> nodes;
