@@ -5,14 +5,8 @@
 #include <cstdlib>
 
 #include "app.hpp"
-#include "animator.hpp"
 
 int main() {
-	Animator anim;
-	anim.initFromBVH("./models/swing.bvh");
-
-	return 0;
-
 	App app;
 
 	try {

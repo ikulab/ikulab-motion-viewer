@@ -11,9 +11,15 @@
 #include "shape/cube.hpp"
 #include "shape/sphere.hpp"
 #include "shape/bone.hpp"
+#include "animator.hpp"
 
 void App::init() {
 	base = std::make_unique<Base>();
+
+	Animator anim;
+	anim.initFromBVH("./models/swing.bvh");
+	// anim.showSkeltonInfo();
+	// anim.showMotionInfo();
 
 	createShapes();
 	registerShapes();

@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include <fstream>
+#include <sstream>
 #include <memory>
 
 #include <glm/glm.hpp>
@@ -11,149 +12,322 @@
 #include "../animator.hpp"
 #include "../definition/animation.hpp"
 
-struct ParseCtx {
-	std::ifstream& currentInputStream;
-	bool isRootDefined;
-	JointID currentID;
-	std::vector<std::pair<JointID, Channel::Channel>> channels;
-	std::vector<JointID> currentNodeStructure;
-	std::vector<std::unique_ptr<Animator::Node>> result;
-};
+bool Channel::isValidChannel(std::string str) {
+	return (
+		str == "Xposition" || str == "Yposition" || str == "Zposition" ||
+		str == "Xrotation" || str == "Yrotation" || str == "Zrotation"
+	);
+}
 
-void parseNode(ParseCtx ctx) {
-	std::string input, nodeName;
+Channel::Channel Channel::convertStr2Channel(std::string str) {
+	if (str == "Xposition")
+		return Xposition;
+	else if (str == "Yposition")
+		return Yposition;
+	else if (str == "Zposition")
+		return Zposition;
+	else if (str == "Xrotation")
+		return Xrotation;
+	else if (str == "Yrotation")
+		return Yrotation;
+	else if (str == "Zrotation")
+		return Zrotation;
+
+	std::string msg;
+	msg += "Invalid channel '";
+	msg += str;
+	msg += "'.";
+	throw std::runtime_error(msg);
+}
+
+BVHParser::BVHParser(std::string filePath) {
+	inputStream = std::make_unique<std::ifstream>(filePath);
+
+	if (!inputStream->is_open()) {
+		std::string msg;
+		msg += "failed to open .bvh file '";
+		msg += filePath;
+		msg += "'.";
+		throw std::runtime_error(msg);
+	}
+}
+
+void BVHParser::parseJoints(bool isJointTokenRead) {
+	std::string input, jointName;
 	uint numOfChannels;
 	glm::vec3 pos;
+	bool isRoot = false;
 	bool isEndSite = false;
 
+	jointIDStack.push_back(currentID);
+
 	// Root / Joint / End Site definition
-	ctx.currentInputStream >> input;
-	if (input == TOKEN_ROOT && !ctx.isRootDefined) {
-		ctx.isRootDefined = true;
-	}
-	else if (input == TOKEN_END_SITE && ctx.isRootDefined) {
-		isEndSite = true;
-	}
-	else if (input == TOKEN_ROOT && ctx.isRootDefined) {
-		throw parse_failed_error("Multiple Root definition detected.", ctx.currentInputStream);
-	}
-	else if ((input == TOKEN_JOINT || input == TOKEN_END_SITE) && !ctx.isRootDefined) {
-		throw parse_failed_error("Root is not defined.", ctx.currentInputStream);
-	}
-	else {
-		std::string msg;
-		msg += "'";
-		msg += TOKEN_ROOT;
-		msg += "', '";
-		msg += TOKEN_JOINT;
-		msg += "' or '";
-		msg += TOKEN_END_SITE;
-		msg += "' are expected.";
-		throw parse_failed_error(msg, ctx.currentInputStream);
+	if (!isJointTokenRead) {
+		*inputStream >> input;
+		bool isInvalidToken = false;
+		if (isRootDefined) {
+			if (input == TOKEN_ROOT) {
+				throw parse_failed_error("Multiple Root definition detected.", inputStream);
+			}
+			else if (input == TOKEN_JOINT) {}
+			else if (input == TOKEN_END_SITE_END) {
+				*inputStream >> input;
+				if (input == TOKEN_END_SITE_SITE) {
+					isEndSite = true;
+					jointName = "<Edge Joint>";
+				}
+				else {
+					isInvalidToken = true;
+				}
+			}
+			else {
+				isInvalidToken = true;
+			}
+		}
+		else {
+			if (input == TOKEN_ROOT) {
+				isRootDefined = true;
+				isRoot = true;
+			}
+			else if (input == TOKEN_JOINT || input == TOKEN_END_SITE_END) {
+				throw parse_failed_error("Root is not defined.", inputStream);
+			}
+			else {
+				isInvalidToken = true;
+			}
+		}
+
+		if (isInvalidToken) {
+			std::string msg;
+			msg += "'";
+			msg += TOKEN_ROOT;
+			msg += "', '";
+			msg += TOKEN_JOINT;
+			msg += "' or '";
+			msg += TOKEN_END_SITE;
+			msg += "' are expected.";
+			throw parse_failed_error(msg, inputStream);
+		}
 	}
 
-	// node name
-	ctx.currentInputStream >> nodeName;
+	// joint name
+	if (!isEndSite) {
+		*inputStream >> jointName;
+		if (isRoot) {
+			jointName += " (Root)";
+		}
+	}
 
 	// Beggin bracket
-	ctx.currentInputStream >> input;
+	*inputStream >> input;
 	if (input != TOKEN_BEGGIN_BRACKET) {
-		throw parse_failed_error("Beggin bracket is expected.", ctx.currentInputStream);
+		throw parse_failed_error("Beggin bracket is expected.", inputStream);
 	}
 
 	// Offset token
-	ctx.currentInputStream >> input;
+	*inputStream >> input;
 	if (input != TOKEN_OFFSET) {
 		std::string msg;
 		msg += "'";
 		msg += TOKEN_OFFSET;
 		msg += "' is expected.";
-		throw parse_failed_error(msg, ctx.currentInputStream);
+		throw parse_failed_error(msg, inputStream);
 	}
 
 	// offset values
 	try {
-		ctx.currentInputStream >> pos.x >> pos.y >> pos.z;
+		*inputStream >> pos.x >> pos.y >> pos.z;
 	}
 	catch (std::exception e) {
-		throw parse_failed_error("Invalid Position format. 3 position value are expected.", ctx.currentInputStream);
-	}
-	if (isEndSite) {
-		return;
+		throw parse_failed_error("Invalid Position format. 3 position value are expected.", inputStream);
 	}
 
-	// Channels token
-	ctx.currentInputStream >> input;
-	if (input != TOKEN_CHANNELS) {
-		std::string msg;
-		msg += "'";
-		msg += TOKEN_CHANNELS;
-		msg += "' is expected.";
-		throw parse_failed_error(msg, ctx.currentInputStream);
-	}
-
-	// number of channels
-	try {
-		ctx.currentInputStream >> numOfChannels;
-	}
-	catch (std::exception e) {
-		std::string msg;
-		throw parse_failed_error("Number of channels (int value) is expected.", ctx.currentInputStream);
-	}
-
-	// register channels
-	for (uint i = 0; i < numOfChannels; i++) {
-		ctx.currentInputStream >> input;
-		if (!Channel::isValidChannel(input)) {
+	if (!isEndSite) {
+		// Channels token
+		*inputStream >> input;
+		if (input != TOKEN_CHANNELS) {
 			std::string msg;
-			msg += "Invalid Channel name at #";
-			msg += i;
-			msg += ".";
-			throw parse_failed_error(msg, ctx.currentInputStream);
+			msg += "'";
+			msg += TOKEN_CHANNELS;
+			msg += "' is expected.";
+			throw parse_failed_error(msg, inputStream);
 		}
 
-		ctx.channels.push_back({
-			ctx.currentID, Channel::convertStr2Channel(input)
-		});
+		// number of channels
+		try {
+			*inputStream >> numOfChannels;
+		}
+		catch (std::exception e) {
+			std::string msg;
+			throw parse_failed_error("Number of channels (int value) is expected.", inputStream);
+		}
+
+		// register channels
+		for (uint i = 0; i < numOfChannels; i++) {
+			*inputStream >> input;
+			if (!Channel::isValidChannel(input)) {
+				std::string msg;
+				msg += "Invalid Channel name at #";
+				msg += i;
+				msg += ".";
+				throw parse_failed_error(msg, inputStream);
+			}
+
+			channels.push_back({
+				currentID, Channel::convertStr2Channel(input)
+			});
+		}
+
+		currentID++;
+		parseJoints(false);
 	}
 
-	ctx.currentNodeStructure.push_back(ctx.currentID);
-
-	parseNode(ctx);
-
-	// End bracket
-	ctx.currentInputStream >> input;
-	if (input != TOKEN_END_BRACKET) {
-		throw parse_failed_error("End bracket is expected.", ctx.currentInputStream);
+	// End bracket / Joint token
+	while (true) {
+		*inputStream >> input;
+		if (input == TOKEN_JOINT) {
+			currentID++;
+			parseJoints(true);
+		}
+		else if (input == TOKEN_END_BRACKET && !inputStream->eof()) {
+			break;
+		}
+		else {
+			std::string msg;
+			msg += "End bracket or '";
+			msg += TOKEN_JOINT;
+			msg += "' are expected.";
+			throw parse_failed_error(msg, inputStream);
+		}
 	}
 
-	// create Node
-	ctx.currentNodeStructure.pop_back();
-	// ctx.result.push_back(std::move(std::make_unique<Animator::Node>(
-	// 	nodeName, ctx.currentID, pos, ctx.currentNodeStructure
-	// )));
-
-	ctx.currentID++;
+	// create Joint
+	JointID id = jointIDStack.back();
+	jointIDStack.pop_back();
+	skelton.push_back(std::move(std::make_unique<Animator::Joint>(
+		jointName,
+		id,
+		pos,
+		jointIDStack,
+		isEndSite
+	)));
 }
 
-std::vector<std::unique_ptr<Animator::Node>> parseBVH(std::string filePath) {
-	std::ifstream inputStream(filePath);
-	if (!inputStream) {
-		throw std::runtime_error("failed to open .bvh file.");
+void BVHParser::parseMotion() {
+	std::string input;
+
+	// Frames: token
+	*inputStream >> input;
+	if (input != TOKEN_FRAMES) {
+		std::string msg;
+		msg += "'";
+		msg += TOKEN_FRAMES;
+		msg += "' is expected";
+		throw parse_failed_error(msg, inputStream);
 	}
 
-	ParseCtx ctx{
-		.currentInputStream = inputStream,
-		.isRootDefined = false,
-		.currentID = 0U,
-		.channels = {},
-		.currentNodeStructure = {},
-		.result = {}
-	};
+	// frames value
+	try {
+		*inputStream >> numOfFrames;
+	}
+	catch (std::exception e) {
+		throw parse_failed_error("Number of frames (int value) is expected.", inputStream);
+	}
+
+	// allocate motion data
+	motion.resize(numOfFrames);
+	for (size_t frame=0; frame < numOfFrames; frame++) {
+		motion[frame].resize(skelton.size());
+		for (size_t joint = 0; joint < skelton.size(); joint++) {
+			motion[frame][joint] = std::move(std::make_unique<Motion>());
+		}
+	}
+
+	// Frame Time: token
+	*inputStream >> input;
+	if (input != TOKEN_FRAME_TIME_FRAME) {
+		std::string msg;
+		msg += "'";
+		msg += TOKEN_FRAME_TIME;
+		msg += "' is expected.";
+		throw parse_failed_error(msg, inputStream);
+	}
+	*inputStream >> input;
+	if (input != TOKEN_FRAME_TIME_TIME) {
+		std::string msg;
+		msg += "'";
+		msg += TOKEN_FRAME_TIME;
+		msg += "' is expected.";
+		throw parse_failed_error(msg, inputStream);
+	}
+
+	// frame time value
+	try {
+		*inputStream >> frameRate;
+	}
+	catch (std::exception e) {
+		throw parse_failed_error("Frame rate (float value) is expected.", inputStream);
+	}
+	// flush new line
+	std::getline(*inputStream, input);
+
+	std::stringstream strStream;
+	uint numOfChannels = static_cast<uint>(channels.size());
+	JointID id;
+	float value;
+	for (uint frame = 0; frame < numOfFrames; frame++) {
+		strStream.clear();
+		std::getline(*inputStream, input);
+		if (frame < numOfFrames - 1 && inputStream->eof()) {
+			std::string msg;
+			msg += "The number of frames is smaller than the Hierarchy section specification (";
+			msg += numOfFrames;
+			msg += ").";
+			throw parse_failed_error(msg, inputStream);
+		}
+
+		strStream << input;
+
+		for (uint i = 0; i < numOfChannels; i++) {
+			strStream >> value;
+			if (i < numOfChannels - 1 && strStream.eof()) {
+				std::string msg;
+				msg += "The number of channel values is smaller than the Hierarchy section specification (";
+				msg += numOfChannels;
+				msg += ").";
+				throw parse_failed_error(msg, inputStream);
+			}
+
+			id = channels[i].first;
+			switch (channels[i].second) {
+			case Channel::Channel::Xposition:
+				motion[frame][id]->pos.x = value;
+				break;
+			case Channel::Channel::Yposition:
+				motion[frame][id]->pos.y = value;
+				break;
+			case Channel::Channel::Zposition:
+				motion[frame][id]->pos.z = value;
+				break;
+			case Channel::Channel::Xrotation:
+				motion[frame][id]->rot.x = value;
+				break;
+			case Channel::Channel::Yrotation:
+				motion[frame][id]->rot.y = value;
+				break;
+			case Channel::Channel::Zrotation:
+				motion[frame][id]->rot.z = value;
+				break;
+			}
+		}
+	}
+}
+
+void BVHParser::parseBVH() {
 	try {
 		// Hierarchy section definition
 		std::string input;
-		inputStream >> input;
+		*inputStream >> input;
 		if (input != TOKEN_TOP) {
 			std::string msg;
 			msg += "Top of .bvh file should be '";
@@ -161,15 +335,23 @@ std::vector<std::unique_ptr<Animator::Node>> parseBVH(std::string filePath) {
 			msg += "'.";
 			throw parse_failed_error(msg, inputStream);
 		}
+		parseJoints(false);
+		std::cout << std::endl;
 
-		parseNode(ctx);
+		// Motion section definition
+		*inputStream >> input;
+		if (input != TOKEN_MOTION) {
+			std::string msg;
+			msg += "Start of motion section should be '";
+			msg += TOKEN_MOTION;
+			msg += "'.";
+			throw parse_failed_error(msg, inputStream);
+		}
+		parseMotion();
 	}
 	catch (parse_failed_error e) {
 		std::cerr << e.what() << std::endl;
 		std::cerr << e.where() << std::endl;
 		exit(1);
 	}
-
-	// return std::move(ctx.result);
-	return std::vector<std::unique_ptr<Animator::Node>>();
 }
