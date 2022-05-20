@@ -4,7 +4,7 @@
 #include "cube.hpp"
 
 
-Cube::Cube(float width, float height, float depth, glm::vec3 pos, uint32_t id)
+Cube::Cube(float width, float height, float depth, glm::vec3 pos, JointID id)
 	: width(width), height(height), depth(depth), pos(pos) {
 
 	this->id = id;

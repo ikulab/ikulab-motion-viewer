@@ -12,7 +12,7 @@ class Cube : public Shape {
 	float width, height, depth;
 	glm::vec3 pos;
 public:
-	Cube(float width, float height, float depth, glm::vec3 pos, uint32_t id=0);
+	Cube(float width, float height, float depth, glm::vec3 pos, JointID id=0);
 };
 
 class GradationCube : public Shape {

@@ -4,12 +4,13 @@
 #include <vector>
 
 #include "../definition/vertex.hpp"
+#include "../definition/animation.hpp"
 
 class Shape {
 protected:
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
-	uint32_t id = 0;
+	JointID id = 0;
 public:
 	inline const std::vector<Vertex>& getVertices() const {
 		return vertices;

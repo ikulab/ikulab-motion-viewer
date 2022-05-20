@@ -6,5 +6,5 @@
 
 class Bone : public Shape {
 public:
-	Bone(uint32_t id);
+	Bone(JointID id);
 };

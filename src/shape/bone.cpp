@@ -5,7 +5,7 @@
 #include "./bone.hpp"
 #include "./sphere.hpp"
 
-Bone::Bone(uint32_t id) {
+Bone::Bone(JointID id) {
 	this->id = id;
 
 	// Top vertex

@@ -19,13 +19,13 @@ class Animator {
 
 public:
 	class Joint {
-		uint32_t id;
+		JointID id;
 		std::string name;
 		glm::vec3 pos;
 		std::vector<JointID> parentIDs;
 		bool isEdge;
 
-		static uint32_t currentId;
+		static JointID currentId;
 	public:
 		Joint(std::string name, JointID id, glm::vec3 pos, std::vector<JointID> parentIDs, bool isEdge)
 			: name(name), id(id), pos(pos), parentIDs(parentIDs), isEdge(isEdge) {}
