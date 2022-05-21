@@ -35,7 +35,7 @@ namespace Channel {
 
 class parse_failed_error : public std::runtime_error {
 	std::string errorLine;
-	uint errorLineNum;
+	uint32_t errorLineNum;
 public:
 	parse_failed_error(std::string msg, const std::unique_ptr<std::ifstream>& ist)
 		: std::runtime_error("parse failed: " + msg) {
@@ -43,7 +43,7 @@ public:
 		errorLineNum = 0;
 		errorLine = {};
 
-		uint pos = ist->tellg();
+		uint32_t pos = ist->tellg();
 		ist->seekg(0);
 
 		std::string line;
@@ -85,7 +85,7 @@ class BVHParser {
 	std::vector<std::pair<JointID, Channel::Channel>> channels;
 	std::vector<JointID> jointIDStack;
 
-	uint numOfFrames;
+	uint32_t numOfFrames;
 	float frameRate;
 public:
 	BVHParser(std::string filePath);
@@ -97,6 +97,6 @@ public:
 	std::vector<std::vector<std::unique_ptr<Motion>>> getMotionData() {
 		return std::move(motion);
 	}
-	uint getNumOfFrames() { return numOfFrames; }
+	uint32_t getNumOfFrames() { return numOfFrames; }
 	float getFrameRate() { return frameRate; }
 };

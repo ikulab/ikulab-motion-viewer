@@ -54,7 +54,7 @@ BVHParser::BVHParser(std::string filePath) {
 
 void BVHParser::parseJoints(bool isJointTokenRead) {
 	std::string input, jointName;
-	uint numOfChannels;
+	uint32_t numOfChannels;
 	glm::vec3 pos;
 	bool isRoot = false;
 	bool isEndSite = false;
@@ -163,7 +163,7 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
 		}
 
 		// register channels
-		for (uint i = 0; i < numOfChannels; i++) {
+		for (uint32_t i = 0; i < numOfChannels; i++) {
 			*inputStream >> input;
 			if (!Channel::isValidChannel(input)) {
 				std::string msg;
@@ -272,10 +272,10 @@ void BVHParser::parseMotion() {
 	std::getline(*inputStream, input);
 
 	std::stringstream strStream;
-	uint numOfChannels = static_cast<uint>(channels.size());
+	uint32_t numOfChannels = static_cast<uint32_t>(channels.size());
 	JointID id;
 	float value;
-	for (uint frame = 0; frame < numOfFrames; frame++) {
+	for (uint32_t frame = 0; frame < numOfFrames; frame++) {
 		strStream.clear();
 		std::getline(*inputStream, input);
 		if (frame < numOfFrames - 1 && inputStream->eof()) {
@@ -288,7 +288,7 @@ void BVHParser::parseMotion() {
 
 		strStream << input;
 
-		for (uint i = 0; i < numOfChannels; i++) {
+		for (uint32_t i = 0; i < numOfChannels; i++) {
 			strStream >> value;
 			if (i < numOfChannels - 1 && strStream.eof()) {
 				std::string msg;

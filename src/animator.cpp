@@ -35,9 +35,9 @@ void Animator::showSkeltonInfo() {
 }
 
 void Animator::showMotionInfo() {
-	for (uint frame = 0; frame < numOfFrames; frame++) {
+	for (uint8_t frame = 0; frame < numOfFrames; frame++) {
 		std::cout << "frame:" << frame << std::endl;
-		for (uint joint = 0; joint < joints.size(); joint++) {
+		for (uint8_t joint = 0; joint < joints.size(); joint++) {
 			std::cout << "(("
 				<< motion[frame][joint]->pos.x << ","
 				<< motion[frame][joint]->pos.y << ","

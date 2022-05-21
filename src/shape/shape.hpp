@@ -10,14 +10,12 @@ class Shape {
 protected:
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
-	JointID id = 0;
+	JointID id;
 public:
-	inline const std::vector<Vertex>& getVertices() const {
-		return vertices;
-	};
-	inline const std::vector<uint32_t>& getIndices() const {
-		return indices;
-	};
+	Shape(JointID id = 0);
+
+	const std::vector<Vertex>& getVertices() const {};
+	const std::vector<uint32_t>& getIndices() const {};
 
 	void setBaseIndex(uint32_t baseIndex);
 };

@@ -14,7 +14,7 @@
 
 class Animator {
 	std::vector<std::vector<std::unique_ptr<Motion>>> motion;
-	uint numOfFrames;
+	uint32_t numOfFrames;
 	float frameRate;
 
 public:

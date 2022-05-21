@@ -776,7 +776,7 @@ void Base::createUniformBuffers() {
     VkDeviceSize uniBufOffsetAlignment = props.limits.minUniformBufferOffsetAlignment;
 
     VkDeviceSize modelUboOffsetAlignment = 0;
-    for (uint i = 0; modelUboOffsetAlignment < sizeof(glm::mat4); i++) {
+    for (uint8_t i = 0; modelUboOffsetAlignment < sizeof(glm::mat4); i++) {
         modelUboOffsetAlignment = uniBufOffsetAlignment * i;
     }
 
@@ -909,7 +909,7 @@ void Base::createDescriptorSets() {
     VkDeviceSize uniBufOffsetAlignment = props.limits.minUniformBufferOffsetAlignment;
 
     VkDeviceSize modelUboOffsetAlignment = 0;
-    for (uint i = 0; modelUboOffsetAlignment < sizeof(glm::mat4); i++) {
+    for (uint8_t i = 0; modelUboOffsetAlignment < sizeof(glm::mat4); i++) {
         modelUboOffsetAlignment = uniBufOffsetAlignment * i;
     }
 

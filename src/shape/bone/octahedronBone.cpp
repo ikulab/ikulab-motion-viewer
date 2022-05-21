@@ -1,13 +1,7 @@
-#include <cmath>
-#include <vector>
-#include <glm/glm.hpp>
+#include "./octahedronBone.hpp"
+#include "../sphere.hpp"
 
-#include "./bone.hpp"
-#include "./sphere.hpp"
-
-Bone::Bone(JointID id) {
-	this->id = id;
-
+OctahedronBone::OctahedronBone(float length, JointID id) : Bone(length, id) {
 	// Top vertex
 	vertices.push_back({
 		{0.0, 0.0, 1.0}, {0.8, 0.8, 0.8}, id

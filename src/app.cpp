@@ -10,7 +10,7 @@
 #include "shape/shape.hpp"
 #include "shape/cube.hpp"
 #include "shape/sphere.hpp"
-#include "shape/bone.hpp"
+#include "shape/bone/octahedronBone.hpp"
 #include "animator.hpp"
 
 void App::init() {
