@@ -5,6 +5,7 @@
 #include "./bone.hpp"
 
 class StickBone : public Bone {
+	int numSplit;
 public:
-	StickBone(uint8_t numSplit, float length, JointID id);
+	StickBone(int numSplit, float length, JointID id);
 };

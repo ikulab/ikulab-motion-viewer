@@ -2,6 +2,6 @@
 
 #include "./stickBone.hpp"
 
-StickBone::StickBone(uint8_t numSplit, float length, JointID id) : Bone(length, id) {
-
+StickBone::StickBone(int numSplit, float length, JointID id) : Bone(length, id), numSplit(numSplit) {
+	
 }
