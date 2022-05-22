@@ -7,11 +7,9 @@
 #include "app.hpp"
 #include "base.hpp"
 
-#include "shape/shape.hpp"
-#include "shape/cube.hpp"
-#include "shape/sphere.hpp"
-#include "shape/bone/octahedronBone.hpp"
 #include "animator.hpp"
+
+#include "./shape/cube/singleColorCube.hpp"
 
 void App::init() {
 	base = std::make_unique<Base>();
@@ -29,16 +27,24 @@ void App::init() {
 
 void App::createShapes() {
 	// "staging" array
-	std::array<std::unique_ptr<Shape>, 2> tmpShapes {
-		std::make_unique<Cube>(
-			1.0, 1.0, 1.0,
-			glm::vec3(0.0, 0.0, 0.0),
+	std::array<std::unique_ptr<Shape>, 3> tmpShapes{
+		std::make_unique<SingleColorCube>(
+			1.0, 0.2, 0.2,
+			glm::vec3(0.6, 0.0, 0.0),
+			glm::vec3(1.0, 0.0, 0.0),
 			0
 		),
-		std::make_unique<Cube>(
-			1.0, 1.0, 1.0,
-			glm::vec3(0.0, 0.0, 0.0),
-			1
+		std::make_unique<SingleColorCube>(
+			0.2, 1.0, 0.2,
+			glm::vec3(0.0, 0.6, 0.0),
+			glm::vec3(0.0, 1.0, 0.0),
+			0
+		),
+		std::make_unique<SingleColorCube>(
+			0.2, 0.2, 1.0,
+			glm::vec3(0.0, 0.0, 0.6),
+			glm::vec3(0.0, 0.0, 1.0),
+			0
 		)
 	};
 

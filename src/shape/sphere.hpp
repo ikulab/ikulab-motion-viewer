@@ -9,5 +9,5 @@ class Sphere : public Shape {
 	float r;
 	uint32_t numSplitH, numSplitV;
 public:
-	Sphere(float r, uint32_t numSplitH, uint32_t numSplitV, glm::vec3 pos);
+	Sphere(float r, uint32_t numSplitH, uint32_t numSplitV, glm::vec3 pos, JointID id);
 };

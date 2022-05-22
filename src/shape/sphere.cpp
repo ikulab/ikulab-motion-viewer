@@ -5,8 +5,8 @@
 
 #include "./sphere.hpp"
 
-Sphere::Sphere(float r, uint32_t numSplitH, uint32_t numSplitV, glm::vec3 pos)
-	: pos(pos), r(r), numSplitH(numSplitH), numSplitV(numSplitV) {
+Sphere::Sphere(float r, uint32_t numSplitH, uint32_t numSplitV, glm::vec3 pos, JointID id)
+	: Shape(id), pos(pos), r(r), numSplitH(numSplitH), numSplitV(numSplitV) {
 
 	// Top vertex (n = 0)
 	vertices.push_back({ {pos.x, pos.y, pos.z + r}, {0.8, 0.8, 0.8} });

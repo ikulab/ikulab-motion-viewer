@@ -12,10 +12,10 @@ protected:
 	std::vector<uint32_t> indices;
 	JointID id;
 public:
-	Shape(JointID id = 0);
+	Shape(JointID id);
 
-	const std::vector<Vertex>& getVertices() const {};
-	const std::vector<uint32_t>& getIndices() const {};
+	const std::vector<Vertex>& getVertices() const;
+	const std::vector<uint32_t>& getIndices() const;
 
 	void setBaseIndex(uint32_t baseIndex);
 };
