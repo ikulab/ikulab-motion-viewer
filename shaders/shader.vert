@@ -1,6 +1,6 @@
 #version 450
 
-const int MAX_ID = 64;
+const int MAX_ID = 65;
 
 layout(binding = 0) uniform ModelMat {
 	mat4 model[MAX_ID];
