@@ -14,8 +14,8 @@ protected:
 public:
 	Shape(JointID id);
 
-	const std::vector<Vertex>& getVertices() const;
-	const std::vector<uint32_t>& getIndices() const;
+	const virtual std::vector<Vertex>& getVertices() const;
+	const virtual std::vector<uint32_t>& getIndices() const;
 
-	void setBaseIndex(uint32_t baseIndex);
+	void virtual setBaseIndex(uint32_t baseIndex);
 };

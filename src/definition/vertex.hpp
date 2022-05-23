@@ -8,7 +8,7 @@
 struct Vertex {
 	glm::vec3 pos;
 	glm::vec3 color;
-	uint32_t id = 0;
+	uint32_t id;
 
 	static VkVertexInputBindingDescription getBindingDescription() {
 		VkVertexInputBindingDescription bindingDescription{};

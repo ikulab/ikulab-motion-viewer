@@ -33,11 +33,13 @@ OctahedronBone::OctahedronBone(float length, JointID id) : Bone(length, id) {
 	// root and top Spheres
 	Sphere rootSphere(
 		0.05, 10, 10,
-		glm::vec3(0.0, 0.0, 0.0)
+		glm::vec3(0.0, 0.0, 0.0),
+		id
 	);
 	Sphere tipSphere(
 		0.05, 10, 10,
-		glm::vec3(0.0, 0.0, 1.0)
+		glm::vec3(0.0, 0.0, 1.0),
+		id
 	);
 
 	uint32_t baseIndex = static_cast<uint32_t>(vertices.size());

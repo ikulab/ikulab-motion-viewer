@@ -1,8 +1,8 @@
 Cflags = -std=c++17 -fdiagnostics-color=always -g
 LdFlags = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
-SrcPaths := $(wildcard src/*.cpp) $(wildcard src/shape/*.cpp) $(wildcard src/shape/cube/*.cpp) $(wildcard src/definition/*.cpp) $(wildcard src/util/*.cpp)
-Ingredients := $(SrcPaths) $(wildcard src/*.hpp) $(wildcard src/shape/*.hpp) $(wildcard src/shape/cube/*hpp) $(wildcard src/definition/*.hpp) $(wildcard src/util/*.hpp) $(wildcard shaders/bin/*.spv)
+SrcPaths := $(wildcard src/*.cpp) $(wildcard src/shape/*.cpp) $(wildcard src/shape/cube/*.cpp) $(wildcard src/shape/bone/*.cpp) $(wildcard src/definition/*.cpp) $(wildcard src/util/*.cpp)
+Ingredients := $(SrcPaths) $(wildcard src/*.hpp) $(wildcard src/shape/*.hpp) $(wildcard src/shape/cube/*hpp) $(wildcard src/shape/bone/*.hpp) $(wildcard src/definition/*.hpp) $(wildcard src/util/*.hpp) $(wildcard shaders/bin/*.spv)
 IncludePath := ./includes
 
 

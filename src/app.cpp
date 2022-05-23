@@ -9,7 +9,7 @@
 
 #include "animator.hpp"
 
-#include "./shape/cube/singleColorCube.hpp"
+#include "./shape/bone/stickTetrahedronBone.hpp"
 
 void App::init() {
 	base = std::make_unique<Base>();
@@ -28,24 +28,30 @@ void App::init() {
 void App::createShapes() {
 	// "staging" array
 	std::array<std::unique_ptr<Shape>, 3> tmpShapes{
-		std::make_unique<SingleColorCube>(
-			1.0, 0.2, 0.2,
-			glm::vec3(0.6, 0.0, 0.0),
-			glm::vec3(1.0, 0.0, 0.0),
-			0
+		std::make_unique<StickTetrahedronBone>(
+			5, 1
+		),
+		std::make_unique<StickTetrahedronBone>(
+			0.5, 0
 		),
 		std::make_unique<SingleColorCube>(
-			0.2, 1.0, 0.2,
-			glm::vec3(0.0, 0.6, 0.0),
-			glm::vec3(0.0, 1.0, 0.0),
-			0
-		),
-		std::make_unique<SingleColorCube>(
-			0.2, 0.2, 1.0,
-			glm::vec3(0.0, 0.0, 0.6),
-			glm::vec3(0.0, 0.0, 1.0),
-			0
+			7, 7, 0.2,
+			glm::vec3(0, 0, -1.0),
+			glm::vec3(0.2, 0.2, 0.2),
+			2
 		)
+		// std::make_unique<SingleColorCube>(
+		// 	1.0, 1.0, 1.0,
+		// 	glm::vec3(0.0, 0.0, 0.0),
+		// 	glm::vec3(1.0, 0.0, 0.0),
+		// 	0
+		// ),
+		// std::make_unique<SingleColorCube>(
+		// 	1.0, 1.0, 1.0,
+		// 	glm::vec3(0.0, 0.0, 0.0),
+		// 	glm::vec3(0.0, 1.0, 0.0),
+		// 	1
+		// )
 	};
 
 	// set base index

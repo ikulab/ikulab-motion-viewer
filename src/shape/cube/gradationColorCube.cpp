@@ -14,22 +14,22 @@ void GradationColorCube::init() {
 	vertices.assign({
 		// Top face (Z = 0.5)
 		// 0: left top
-		{{xn, yn, zp}, {colors[0]}},
+		{{xn, yn, zp}, {colors[0]}, id},
 		// 1: right top
-		{{xp, yn, zp}, {colors[1]}},
+		{{xp, yn, zp}, {colors[1]}, id},
 		// 2: right bottom
-		{{xp, yp, zp}, {colors[2]}},
+		{{xp, yp, zp}, {colors[2]}, id},
 		// 3: left bottom
-		{{xn, yp, zp}, {colors[3]}},
+		{{xn, yp, zp}, {colors[3]}, id},
 		// Bottom face (Z = -0.5)
 		// 4: left top
-		{{xn, yn, zn}, {colors[4]}},
+		{{xn, yn, zn}, {colors[4]}, id},
 		// 5: right top
-		{{xp, yn, zn}, {colors[5]}},
+		{{xp, yn, zn}, {colors[5]}, id},
 		// 6: right bottom
-		{{xp, yp, zn}, {colors[6]}},
+		{{xp, yp, zn}, {colors[6]}, id},
 		// 7: left bottom
-		{{xn, yp, zn}, {colors[7]}}
+		{{xn, yp, zn}, {colors[7]}, id}
 	});
 
 	indices.assign({
