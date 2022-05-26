@@ -2,11 +2,11 @@
 
 const int MAX_ID = 65;
 
-layout(binding = 0) uniform ModelMat {
+layout(set = 0, binding = 0) uniform ModelMat {
 	mat4 model[MAX_ID];
 } modelMat;
 
-layout(binding = 1) uniform SceneMat {
+layout(set = 1, binding = 0) uniform SceneMat {
 	mat4 view;
 	mat4 proj;
 } sceneMat;

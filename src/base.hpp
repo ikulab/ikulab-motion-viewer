@@ -21,10 +21,12 @@ const bool enableValidationLayers = true;
 #endif
 
 // FIXME move to description.hpp
-const int NUM_OF_DESCRIPTOR_SETS = 1;
-const int NUM_OF_DESCRIPTORS = 2;
+const int NUM_OF_DESCRIPTOR_SETS = 2;
+const int NUM_OF_DESCRIPTORS = MAX_ID + 1;
+#define DESCRIPTOR_SET_SET_INDEX_MODEL_MATRIX_UBO 0
+#define DESCRIPTOR_SET_SET_INDEX_SCENE_MATRIX_UBO 1
 #define DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO 0
-#define DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO 1
+#define DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO 0
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -171,7 +173,7 @@ class Base {
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
-	std::array<VkDescriptorSetLayout, 1> descriptorSetLayouts;
+	std::array<VkDescriptorSetLayout, NUM_OF_DESCRIPTOR_SETS> descriptorSetLayouts;
 
 	std::vector<VkFramebuffer> swapChainFrameBuffers;
 
