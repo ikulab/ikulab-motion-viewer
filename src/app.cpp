@@ -10,7 +10,7 @@
 
 #include "animator.hpp"
 
-#include "./shape/cube/separatedColorCube.hpp"
+#include "./shape/bone/stickTetrahedronBone.hpp"
 
 void App::init() {
 	base = std::make_unique<Base>();
@@ -28,23 +28,20 @@ void App::init() {
 
 void App::createShapes() {
 	// "staging" array
-	std::array<std::unique_ptr<Shape>, 8> tmpShapes;
-	for (int i = 0; i < 8; i++) {
-		tmpShapes[i] = std::make_unique<SeparatedColorCube>(
-			0.1, 0.1, 0.1,
-			glm::vec3(0.0, 0.0, 0.0),
-			std::array{
-				glm::vec3(0.0, 0.0, 1.0),
-				glm::vec3(0.0, 1.0, 0.0),
-				glm::vec3(0.0, 1.0, 1.0),
-				glm::vec3(1.0, 0.0, 0.0),
-				glm::vec3(1.0, 0.0, 1.0),
-				glm::vec3(1.0, 1.0, 0.0),
-			},
-			i
-		);
-	}
-
+	std::array<std::unique_ptr<Shape>, 3> tmpShapes{
+		std::make_unique<StickTetrahedronBone>(
+			5, 1
+		),
+		std::make_unique<StickTetrahedronBone>(
+			0.5, 0
+		),
+		std::make_unique<SingleColorCube>(
+			7, 7, 0.2,
+			glm::vec3(0, 0, -1.0),
+			glm::vec3(0.2, 0.2, 0.2),
+			2
+		)
+	};
 	// set base index
 	uint32_t baseIndex = 0;
 	for (const auto& shape : tmpShapes) {
