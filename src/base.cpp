@@ -1435,26 +1435,35 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     // float lookAtZ = (sin(M_PI * time / 4.0f)) * 4.0f;
 
     ModelMatUBO modelUbo;
-    for (int i = 0; i < 8; i++) {
-        float x = ((float)i / 8.0f) * 2.0 - 1.0;
-        float z = x / 2.0f;
-        modelUbo.model[i] = glm::mat4(1.0);
-        modelUbo.model[i] *= glm::translate(
-            glm::mat4(1.0),
-            glm::vec3(x, 0.0, z)
-        );
-        modelUbo.model[i] *= glm::rotate(
-            glm::mat4(1.0f),
-            time * glm::radians(90.0f * (float)i),
-            glm::vec3(0.0f, 0.0f, 1.0f)
-        );
-    }
+    modelUbo.model[0] = glm::mat4(1.0);
+    modelUbo.model[0] *= glm::translate(
+        glm::mat4(1.0),
+        glm::vec3(1.0, 0.0, 0.0)
+    );
+    modelUbo.model[0] *= glm::rotate(
+        glm::mat4(1.0f),
+        time * glm::radians(720.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f)
+    );
+
+	modelUbo.model[1] = glm::mat4(1.0);
+    modelUbo.model[1] *= glm::translate(
+        glm::mat4(1.0),
+        glm::vec3(-1.0, 0.0, 0.0)
+    );
+    modelUbo.model[1] *= glm::rotate(
+        glm::mat4(1.0f),
+        -time * glm::radians(180.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f)
+    );
+
+    modelUbo.model[2] = glm::mat4(1.0);
 
     void* data;
     vkMapMemory(
         device,
         uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO],
-        0, sizeof(ModelMatUBO), 0, &data);
+        0, sizeof(SceneMatUBO), 0, &data);
     memcpy(data, &modelUbo, sizeof(ModelMatUBO));
     vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]);
 
@@ -1478,7 +1487,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     vkMapMemory(
         device,
         uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO],
-        0, sizeof(sceneUbo), 0, &data);
+        0, sizeof(SceneMatUBO), 0, &data);
     memcpy(data, &sceneUbo, sizeof(SceneMatUBO));
     vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]);
 }
