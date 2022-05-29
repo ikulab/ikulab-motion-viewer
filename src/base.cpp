@@ -771,23 +771,14 @@ void Base::createIndexBuffer() {
 }
 
 void Base::createUniformBuffers() {
-    VkPhysicalDeviceProperties props;
-    vkGetPhysicalDeviceProperties(physicalDevice, &props);
-    VkDeviceSize uniBufOffsetAlignment = props.limits.minUniformBufferOffsetAlignment;
-
-    VkDeviceSize modelUboOffsetAlignment = 0;
-    for (uint8_t i = 0; modelUboOffsetAlignment < sizeof(glm::mat4); i++) {
-        modelUboOffsetAlignment = uniBufOffsetAlignment * i;
-    }
-
-    std::array<VkDeviceSize, NUM_OF_DESCRIPTOR_SETS> uniformBufferSizes;
-    uniformBufferSizes[DESCRIPTOR_SET_SET_INDEX_MODEL_MATRIX_UBO] = modelUboOffsetAlignment * MAX_ID;
-    uniformBufferSizes[DESCRIPTOR_SET_SET_INDEX_SCENE_MATRIX_UBO] = sizeof(SceneMatUBO);
+    std::array<VkDeviceSize, NUM_OF_DESCRIPTORS> uniformBufferSizes;
+    uniformBufferSizes[DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO] = sizeof(ModelMatUBO);
+    uniformBufferSizes[DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO] = sizeof(SceneMatUBO);
 
     for (size_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; frame++) {
-        uniformBuffers[frame].resize(NUM_OF_DESCRIPTOR_SETS);
-        uniformBufferMemories[frame].resize(NUM_OF_DESCRIPTOR_SETS);
-        for (size_t descSetIndex = 0; descSetIndex < NUM_OF_DESCRIPTOR_SETS; descSetIndex++) {
+        uniformBuffers[frame].resize(NUM_OF_DESCRIPTORS);
+        uniformBufferMemories[frame].resize(NUM_OF_DESCRIPTORS);
+        for (size_t descSetIndex = 0; descSetIndex < NUM_OF_DESCRIPTORS; descSetIndex++) {
             createBuffer(
                 uniformBufferSizes[descSetIndex],
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
@@ -836,14 +827,11 @@ void Base::createSyncObjects() {
 }
 
 void Base::createDescriptorSetLayout() {
-    std::array<VkDescriptorSetLayoutBinding, MAX_ID> modelMatLayoutBindings;
-    modelMatLayoutBindings.fill({});
-    for (int binding = 0; binding < MAX_ID; binding++) {
-        modelMatLayoutBindings[binding].binding = DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO + binding;
-        modelMatLayoutBindings[binding].descriptorCount = 1;
-        modelMatLayoutBindings[binding].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        modelMatLayoutBindings[binding].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    }
+    VkDescriptorSetLayoutBinding modelMatLayoutBinding{};
+    modelMatLayoutBinding.binding = DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO;
+    modelMatLayoutBinding.descriptorCount = 1;
+    modelMatLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    modelMatLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
     VkDescriptorSetLayoutBinding sceneMatLayoutBinding{};
     sceneMatLayoutBinding.binding = DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO;
@@ -851,39 +839,33 @@ void Base::createDescriptorSetLayout() {
     sceneMatLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     sceneMatLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-    std::array<VkDescriptorSetLayoutCreateInfo, NUM_OF_DESCRIPTOR_SETS> layoutCreateInfos;
-    layoutCreateInfos.fill({});
-    layoutCreateInfos[DESCRIPTOR_SET_SET_INDEX_MODEL_MATRIX_UBO]
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutCreateInfos[DESCRIPTOR_SET_SET_INDEX_MODEL_MATRIX_UBO].bindingCount = MAX_ID;
-    layoutCreateInfos[DESCRIPTOR_SET_SET_INDEX_MODEL_MATRIX_UBO].pBindings = modelMatLayoutBindings.data();
+    std::array<VkDescriptorSetLayoutBinding, NUM_OF_DESCRIPTORS> layoutBindings = {
+        modelMatLayoutBinding, sceneMatLayoutBinding
+    };
+    VkDescriptorSetLayoutCreateInfo layoutCreateInfo{};
+    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutCreateInfo.bindingCount = NUM_OF_DESCRIPTORS;
+    layoutCreateInfo.pBindings = layoutBindings.data();
 
-    layoutCreateInfos[DESCRIPTOR_SET_SET_INDEX_SCENE_MATRIX_UBO]
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutCreateInfos[DESCRIPTOR_SET_SET_INDEX_SCENE_MATRIX_UBO].bindingCount = 1;
-    layoutCreateInfos[DESCRIPTOR_SET_SET_INDEX_SCENE_MATRIX_UBO].pBindings = &sceneMatLayoutBinding;
-
-    for (int i = 0; i < NUM_OF_DESCRIPTOR_SETS; i++) {
-        if (vkCreateDescriptorSetLayout(
-            device,
-            &layoutCreateInfos[i],
-            nullptr,
-            &descriptorSetLayouts[i]
-            ) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create descriptor set layout.");
-        }
+    if (vkCreateDescriptorSetLayout(
+        device,
+        &layoutCreateInfo,
+        nullptr,
+        descriptorSetLayouts.data()
+        ) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor set layout.");
     }
 }
 
 void Base::createDescriptorPool() {
     std::array<VkDescriptorPoolSize, 2> poolSizes;
-    poolSizes[DESCRIPTOR_SET_SET_INDEX_MODEL_MATRIX_UBO].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[DESCRIPTOR_SET_SET_INDEX_MODEL_MATRIX_UBO].descriptorCount = static_cast<uint32_t>(
-        MAX_FRAMES_IN_FLIGHT * MAX_ID
-    );
-    poolSizes[DESCRIPTOR_SET_SET_INDEX_SCENE_MATRIX_UBO].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[DESCRIPTOR_SET_SET_INDEX_SCENE_MATRIX_UBO].descriptorCount = static_cast<uint32_t>(
+    poolSizes[DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO].descriptorCount = static_cast<uint32_t>(
         MAX_FRAMES_IN_FLIGHT
+    );
+    poolSizes[DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO].descriptorCount = static_cast<uint32_t>(
+        MAX_FRAMES_IN_FLIGHT * NUM_OF_DESCRIPTORS
     );
 
     VkDescriptorPoolCreateInfo poolCreateInfo{};
@@ -903,15 +885,6 @@ void Base::createDescriptorSets() {
     descriptorWrites.fill({});
     VkDescriptorBufferInfo bufferInfo{};
 
-    VkPhysicalDeviceProperties props;
-    vkGetPhysicalDeviceProperties(physicalDevice, &props);
-    VkDeviceSize uniBufOffsetAlignment = props.limits.minUniformBufferOffsetAlignment;
-
-    VkDeviceSize modelUboOffsetAlignment = 0;
-    for (uint8_t i = 0; modelUboOffsetAlignment < sizeof(glm::mat4); i++) {
-        modelUboOffsetAlignment = uniBufOffsetAlignment * i;
-    }
-
     for (size_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; frame++) {
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -924,37 +897,34 @@ void Base::createDescriptorSets() {
             throw std::runtime_error("failed to allocate descriptor sets.");
         }
 
-        // Associate data with descriptors
         // Model Matrix UBO
-        VkDescriptorBufferInfo bufferInfo;
-        for (size_t binding = 0; binding < MAX_ID; binding++) {
-            bufferInfo.buffer = uniformBuffers[frame][DESCRIPTOR_SET_SET_INDEX_MODEL_MATRIX_UBO];
-            bufferInfo.offset = binding * modelUboOffsetAlignment;
-            bufferInfo.range = sizeof(glm::mat4);
-            descriptorWrites[0] = {};
-            descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[0].dstSet = descriptorSets[frame][DESCRIPTOR_SET_SET_INDEX_MODEL_MATRIX_UBO];
-            descriptorWrites[0].dstBinding = DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO + binding;
-            descriptorWrites[0].dstArrayElement = 0;
-            descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            descriptorWrites[0].descriptorCount = 1;
-            descriptorWrites[0].pBufferInfo = &bufferInfo;
-            vkUpdateDescriptorSets(
-                device,
-                1,
-                &descriptorWrites[0],
-                0, nullptr
-            );
-        }
-
-        // Scene Matrix UBO
         bufferInfo = {};
-        bufferInfo.buffer = uniformBuffers[frame][DESCRIPTOR_SET_SET_INDEX_SCENE_MATRIX_UBO];
+        bufferInfo.buffer = uniformBuffers[frame][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO];
         bufferInfo.offset = 0;
         bufferInfo.range = VK_WHOLE_SIZE;
         descriptorWrites[0] = {};
         descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet = descriptorSets[frame][DESCRIPTOR_SET_SET_INDEX_SCENE_MATRIX_UBO];
+        descriptorWrites[0].dstSet = descriptorSets[frame][DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO];
+        descriptorWrites[0].dstBinding = DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO;
+        descriptorWrites[0].dstArrayElement = 0;
+        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].pBufferInfo = &bufferInfo;
+        vkUpdateDescriptorSets(
+            device,
+            1,
+            &descriptorWrites[0],
+            0, nullptr
+        );
+
+        // Scene Matrix UBO
+        bufferInfo = {};
+        bufferInfo.buffer = uniformBuffers[frame][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO];
+        bufferInfo.offset = 0;
+        bufferInfo.range = VK_WHOLE_SIZE;
+        descriptorWrites[0] = {};
+        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[0].dstSet = descriptorSets[frame][DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO];
         descriptorWrites[0].dstBinding = DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO;
         descriptorWrites[0].dstArrayElement = 0;
         descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1465,35 +1435,26 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     // float lookAtZ = (sin(M_PI * time / 4.0f)) * 4.0f;
 
     ModelMatUBO modelUbo;
-    modelUbo.model[0] = glm::mat4(1.0);
-    modelUbo.model[0] *= glm::translate(
-        glm::mat4(1.0),
-        glm::vec3(1.0, 0.0, 0.0)
-    );
-    modelUbo.model[0] *= glm::rotate(
-        glm::mat4(1.0f),
-        time * glm::radians(720.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f)
-    );
-
-    modelUbo.model[1] = glm::mat4(1.0);
-    modelUbo.model[1] *= glm::translate(
-        glm::mat4(1.0),
-        glm::vec3(-1.0, 0.0, 0.0)
-    );
-    modelUbo.model[1] *= glm::rotate(
-        glm::mat4(1.0f),
-        -time * glm::radians(180.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f)
-    );
-
-    modelUbo.model[2] = glm::mat4(1.0);
+    for (int i = 0; i < 8; i++) {
+        float x = ((float)i / 8.0f) * 2.0 - 1.0;
+        float z = x / 2.0f;
+        modelUbo.model[i] = glm::mat4(1.0);
+        modelUbo.model[i] *= glm::translate(
+            glm::mat4(1.0),
+            glm::vec3(x, 0.0, z)
+        );
+        modelUbo.model[i] *= glm::rotate(
+            glm::mat4(1.0f),
+            time * glm::radians(90.0f * (float)i),
+            glm::vec3(0.0f, 0.0f, 1.0f)
+        );
+    }
 
     void* data;
     vkMapMemory(
         device,
         uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO],
-        0, sizeof(modelUbo), 0, &data);
+        0, sizeof(ModelMatUBO), 0, &data);
     memcpy(data, &modelUbo, sizeof(ModelMatUBO));
     vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]);
 
@@ -1518,7 +1479,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
         device,
         uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO],
         0, sizeof(sceneUbo), 0, &data);
-    memcpy(data, &sceneUbo, sizeof(ModelMatUBO));
+    memcpy(data, &sceneUbo, sizeof(SceneMatUBO));
     vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]);
 }
 
