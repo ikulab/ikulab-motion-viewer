@@ -1457,7 +1457,8 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
         glm::vec3(0.0f, 0.0f, 1.0f)
     );
 
-    modelUbo.model[2] = glm::mat4(1.0);
+    // Ground
+    modelUbo.model[MAX_ID-1] = glm::mat4(1.0);
 
     void* data;
     vkMapMemory(

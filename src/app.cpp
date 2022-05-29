@@ -17,8 +17,8 @@ void App::init() {
 
 	Animator anim;
 	anim.initFromBVH("./models/swing.bvh");
-	// anim.showSkeltonInfo();
-	// anim.showMotionInfo();
+	anim.showSkeltonInfo();
+	anim.showMotionInfo();
 
 	createShapes();
 	registerShapes();
@@ -39,7 +39,7 @@ void App::createShapes() {
 			7, 7, 0.2,
 			glm::vec3(0, 0, -1.0),
 			glm::vec3(0.2, 0.2, 0.2),
-			2
+			MAX_ID-1
 		)
 	};
 	// set base index
