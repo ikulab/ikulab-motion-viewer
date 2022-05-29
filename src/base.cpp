@@ -1446,7 +1446,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
         glm::vec3(0.0f, 0.0f, 1.0f)
     );
 
-	modelUbo.model[1] = glm::mat4(1.0);
+    modelUbo.model[1] = glm::mat4(1.0);
     modelUbo.model[1] *= glm::translate(
         glm::mat4(1.0),
         glm::vec3(-1.0, 0.0, 0.0)
@@ -1463,7 +1463,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     vkMapMemory(
         device,
         uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO],
-        0, sizeof(SceneMatUBO), 0, &data);
+        0, sizeof(ModelMatUBO), 0, &data);
     memcpy(data, &modelUbo, sizeof(ModelMatUBO));
     vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]);
 

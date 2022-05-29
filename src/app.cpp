@@ -11,7 +11,6 @@
 #include "animator.hpp"
 
 #include "./shape/bone/stickTetrahedronBone.hpp"
-#include "./shape/cube/singleColorCube.hpp"
 
 void App::init() {
 	base = std::make_unique<Base>();
@@ -42,18 +41,6 @@ void App::createShapes() {
 			glm::vec3(0.2, 0.2, 0.2),
 			2
 		)
-		// std::make_unique<SingleColorCube>(
-		// 	1.0, 1.0, 1.0,
-		// 	glm::vec3(0.0, 0.0, 0.0),
-		// 	glm::vec3(1.0, 0.0, 0.0),
-		// 	0
-		// ),
-		// std::make_unique<SingleColorCube>(
-		// 	1.0, 1.0, 1.0,
-		// 	glm::vec3(0.0, 0.0, 0.0),
-		// 	glm::vec3(0.0, 1.0, 0.0),
-		// 	1
-		// )
 	};
 	// set base index
 	uint32_t baseIndex = 0;
