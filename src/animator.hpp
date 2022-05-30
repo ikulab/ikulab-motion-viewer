@@ -12,6 +12,8 @@
 #include "./definition/common.hpp"
 #include "./definition/animation.hpp"
 
+#include "./shape/shape.hpp"
+
 class Animator {
 	std::vector<std::vector<std::unique_ptr<Motion>>> motions;
 	uint32_t numOfFrames;
@@ -32,6 +34,7 @@ public:
 			: name(name), id(id), pos(pos), parentIDs(parentIDs), isEdge(isEdge) {}
 
 		JointID getID() const;
+		glm::vec3 getPos() const;
 		std::vector<JointID> getParentIDs() const;
 		bool getIsEdge() const;
 
@@ -39,8 +42,11 @@ public:
 	};
 
 	void initFromBVH(std::string filePath);
-	std::array<glm::mat4, MAX_ID> generateModelMatrices(float time); // TODO: implement
+	std::array<std::unique_ptr<Shape>, MAX_ID> generateBones();
+	std::array<glm::mat4, MAX_ID> generateModelMatrices(float time);
 
+	uint32_t getNumOfJoints() const;
+ 
 	void showSkeltonInfo();
 	void showMotionInfo();
 

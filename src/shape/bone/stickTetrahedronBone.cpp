@@ -8,8 +8,8 @@
 
 StickTetrahedronBone::StickTetrahedronBone(float length, JointID id) : Bone(length, id) {
 	cube = std::make_unique<SingleColorCube>(
-		0.02, 0.02, length,
-		glm::vec3(0.0, 0.0, 0.0),
+		length, 1.0, 1.0,
+		glm::vec3(length / 2.0f, 0.0, 0.0),
 		glm::vec3(0.8, 0.8, 0.8),
 		id
 	);

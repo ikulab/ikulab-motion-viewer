@@ -1,6 +1,7 @@
 #include "base.hpp"
 
 #include <iostream>
+#include <memory>
 #include <fstream>
 #include <vector>
 #include <set>
@@ -27,6 +28,7 @@
 #include <tiny_obj_loader.h>
 
 #include "definition/vertex.hpp"
+#include "./animator.hpp"
 
 VkResult CreateDebugUtilsMessengerEXT(
     VkInstance instance,
@@ -1426,39 +1428,21 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+    time *= 0.1;
 
-    float lookAtX = (cos(M_PI * time / 10.0f)) * 4.0f;
-    // float lookAtX = 0.0f;
-    float lookAtY = (sin(M_PI * time / 10.0f)) * 4.0f;
-    // float lookAtY = 4.0f;
+    float lookAtX = (cos(M_PI * time / 10.0f)) * 8.0f;
+    float lookAtY = (sin(M_PI * time / 10.0f)) * 8.0f;
     float lookAtZ = 2.0f;
-    // float lookAtZ = (sin(M_PI * time / 4.0f)) * 4.0f;
+    // float lookAtX = -32.0f;
+    // float lookAtY = 80.0f;
+    // float lookAtZ = 8.0f;
 
     ModelMatUBO modelUbo;
-    modelUbo.model[0] = glm::mat4(1.0);
-    modelUbo.model[0] *= glm::translate(
-        glm::mat4(1.0),
-        glm::vec3(1.0, 0.0, 0.0)
-    );
-    modelUbo.model[0] *= glm::rotate(
-        glm::mat4(1.0f),
-        time * glm::radians(720.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f)
-    );
+    std::array<glm::mat4, MAX_ID> modelMats = anim->generateModelMatrices(time);
 
-    modelUbo.model[1] = glm::mat4(1.0);
-    modelUbo.model[1] *= glm::translate(
-        glm::mat4(1.0),
-        glm::vec3(-1.0, 0.0, 0.0)
-    );
-    modelUbo.model[1] *= glm::rotate(
-        glm::mat4(1.0f),
-        -time * glm::radians(180.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f)
-    );
-
-    // Ground
-    modelUbo.model[MAX_ID-1] = glm::mat4(1.0);
+    for (int i = 0; i < anim->getNumOfJoints(); i++) {
+        modelUbo.model[i] = modelMats[i];
+    }
 
     void* data;
     vkMapMemory(
@@ -1471,6 +1455,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     SceneMatUBO sceneUbo;
     sceneUbo.view = glm::lookAt(
         glm::vec3(lookAtX, lookAtY, lookAtZ),
+        // glm::vec3(-30.0f, 90.0f, 10.0f),
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, 1.0f)
     );
@@ -1653,4 +1638,8 @@ void Base::addindices(const std::vector<uint32_t>& indices) {
         this->indices.begin(),
         indices.begin(), indices.end()
     );
+}
+
+void Base::setAnimator(std::shared_ptr<Animator> anim) {
+    this->anim = anim;
 }

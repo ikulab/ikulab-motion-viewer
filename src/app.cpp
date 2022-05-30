@@ -15,38 +15,26 @@
 void App::init() {
 	base = std::make_unique<Base>();
 
-	Animator anim;
-	anim.initFromBVH("./models/swing.bvh");
-	anim.showSkeltonInfo();
-	anim.showMotionInfo();
+	anim = std::make_shared<Animator>();
+	anim->initFromBVH("./models/swing.bvh");
+	// anim->showSkeltonInfo();
+	// anim->showMotionInfo();
 
 	createShapes();
 	registerShapes();
 
+	base->setAnimator(anim);
 	base->initVulkan();
 }
 
 void App::createShapes() {
 	// "staging" array
-	std::array<std::unique_ptr<Shape>, 3> tmpShapes{
-		std::make_unique<StickTetrahedronBone>(
-			5, 1
-		),
-		std::make_unique<StickTetrahedronBone>(
-			0.5, 0
-		),
-		std::make_unique<SingleColorCube>(
-			7, 7, 0.2,
-			glm::vec3(0, 0, -1.0),
-			glm::vec3(0.2, 0.2, 0.2),
-			MAX_ID-1
-		)
-	};
+	std::array<std::unique_ptr<Shape>, MAX_ID> tmpShapes = anim->generateBones();
 	// set base index
 	uint32_t baseIndex = 0;
-	for (const auto& shape : tmpShapes) {
-		shape->setBaseIndex(baseIndex);
-		baseIndex += static_cast<uint32_t>(shape->getVertices().size());
+	for (int i = 0; i < anim->getNumOfJoints(); i++) {
+		tmpShapes[i]->setBaseIndex(baseIndex);
+		baseIndex += static_cast<uint32_t>(tmpShapes[i]->getVertices().size());
 	}
 
 	// move to shapes vector
@@ -57,9 +45,9 @@ void App::createShapes() {
 }
 
 void App::registerShapes() {
-	for (const auto& shape : shapes) {
-		base->addVertices(shape->getVertices());
-		base->addindices(shape->getIndices());
+	for (int i = 0; i < anim->getNumOfJoints(); i++) {
+		base->addVertices(shapes[i]->getVertices());
+		base->addindices(shapes[i]->getIndices());
 	}
 }
 

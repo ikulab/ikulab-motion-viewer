@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <optional>
+#include <functional>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -13,6 +14,7 @@
 
 #include "./definition/vertex.hpp"
 #include "./definition/common.hpp"
+#include "./animator.hpp"
 
 #ifdef NODEBUG
 const bool enableValidationLayers = false;
@@ -256,6 +258,7 @@ class Base {
 		app->framebufferResized = true;
 	}
 
+	std::shared_ptr<Animator> anim;
 public:
 	Base() {
 		initWindow();
@@ -276,4 +279,6 @@ public:
 	void addVertices(const std::vector<Vertex>& vertices);
 	void addIndex(uint32_t index);
 	void addindices(const std::vector<uint32_t>& indices);
+
+	void setAnimator(std::shared_ptr<Animator> anim);
 };
