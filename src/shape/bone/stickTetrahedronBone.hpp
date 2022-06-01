@@ -5,10 +5,10 @@
 #include <vector>
 
 #include "./bone.hpp"
-#include "../cube/singleColorCube.hpp"
+#include "../cube/cube.hpp"
 
 class StickTetrahedronBone : public Bone {
-	std::unique_ptr<SingleColorCube> cube;
+	std::unique_ptr<Cube> cube;
 public:
 	StickTetrahedronBone(float length, JointID id);
 

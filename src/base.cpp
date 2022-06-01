@@ -1428,14 +1428,16 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-    time *= 0.1;
+    time *= 0.4;
 
-    float lookAtX = (cos(M_PI * time / 10.0f)) * 8.0f;
-    float lookAtY = (sin(M_PI * time / 10.0f)) * 8.0f;
+    // float lookAtX = (cos(M_PI * time / 10.0f)) * 3.0f;
+    // float lookAtY = (sin(M_PI * time / 10.0f)) * 3.0f;
+    // float lookAtX = -10.0f;
+    // float lookAtY = 7.0f;
+    // float lookAtZ = 2.0f;
+    float lookAtX = -3.0f;
+    float lookAtY = 0.0f;
     float lookAtZ = 2.0f;
-    // float lookAtX = -32.0f;
-    // float lookAtY = 80.0f;
-    // float lookAtZ = 8.0f;
 
     ModelMatUBO modelUbo;
     std::array<glm::mat4, MAX_ID> modelMats = anim->generateModelMatrices(time);
@@ -1455,7 +1457,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     SceneMatUBO sceneUbo;
     sceneUbo.view = glm::lookAt(
         glm::vec3(lookAtX, lookAtY, lookAtZ),
-        // glm::vec3(-30.0f, 90.0f, 10.0f),
+        // glm::vec3(-1.5f, 4.5f, 0.5f),
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, 1.0f)
     );

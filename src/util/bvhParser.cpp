@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <memory>
+#include <algorithm>
 
 #include <glm/glm.hpp>
 
@@ -336,7 +337,13 @@ void BVHParser::parseBVH() {
 			throw parse_failed_error(msg, inputStream);
 		}
 		parseJoints(false);
-		std::cout << std::endl;
+
+		// sort by ID
+		std::sort(skelton.begin(), skelton.end(), [](
+			const std::unique_ptr<Animator::Joint>& a, const std::unique_ptr<Animator::Joint>& b
+		) {
+			return a->getID() < b->getID();
+		});
 
 		// Motion section definition
 		*inputStream >> input;

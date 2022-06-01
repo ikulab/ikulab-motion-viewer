@@ -28,7 +28,7 @@ public:
 		std::vector<JointID> parentIDs;
 		bool isEdge;
 
-		static JointID currentId;
+		static JointID currentID;
 	public:
 		Joint(std::string name, JointID id, glm::vec3 pos, std::vector<JointID> parentIDs, bool isEdge)
 			: name(name), id(id), pos(pos), parentIDs(parentIDs), isEdge(isEdge) {}

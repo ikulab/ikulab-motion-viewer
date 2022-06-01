@@ -2,11 +2,13 @@
 #include <algorithm>
 #include <cmath>
 
+#define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "./animator.hpp"
 #include "./util/bvhParser.hpp"
 #include "./shape/bone/stickTetrahedronBone.hpp"
+#include "./shape/cube/singleColorCube.hpp"
 
 void Animator::initFromBVH(std::string filePath) {
 	BVHParser parser(filePath);
@@ -76,75 +78,90 @@ void Animator::showMotionInfo() {
 	}
 }
 
-
 std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
-	float timeInLoop = std::fmod(time, loopDuration);
+	float timeInLoop = std::fmod(time, (loopDuration - frameRate));
 	int prevFrameIdx = std::floor(timeInLoop / frameRate);
 	int nextFrameIdx = prevFrameIdx + 1;
-	if (prevFrameIdx >= numOfFrames-1) {
-		prevFrameIdx -= 1;
-		nextFrameIdx -= 2;
-	}
 	float progressBetweenFrames = std::fmod(timeInLoop, frameRate) / frameRate;
 
 	// calculate current motion
 	std::vector<Motion> currentMotion;
-	for (int i = 0; i < joints.size(); i++) {
+	for (JointID id = 0; id < joints.size(); id++) {
 		glm::vec3 posDiff = (
-			(motions[nextFrameIdx][i]->pos - motions[prevFrameIdx][i]->pos)
+			(motions[nextFrameIdx][id]->pos - motions[prevFrameIdx][id]->pos)
 			* progressBetweenFrames
 		);
 		glm::vec3 rotDiff = (
-			(motions[nextFrameIdx][i]->rot - motions[prevFrameIdx][i]->rot)
+			(motions[nextFrameIdx][id]->rot - motions[prevFrameIdx][id]->rot)
 			* progressBetweenFrames
 		);
 		Motion m{};
-		m.pos = motions[prevFrameIdx][i]->pos + posDiff;
-		m.rot = motions[prevFrameIdx][i]->rot + rotDiff;
+		m.pos = motions[prevFrameIdx][id]->pos + posDiff;
+		m.rot = motions[prevFrameIdx][id]->rot + rotDiff;
 		currentMotion.push_back(m);
 	}
 
 	// generate result matrices
 	std::array<glm::mat4, MAX_ID> result;
-	auto multiplyMatrices = [&](glm::mat4& result, JointID id) {
-		// Motion position
-		// result *= glm::translate(
-		// 	glm::mat4(1.0),
-		// 	currentMotion[id].pos
-		// );
 
-		// Motion rotation
-		result *= glm::rotate(
+	for (JointID id = 0; id < joints.size(); id++) {
+		result[id] = glm::mat4(1.0);
+		// convert "right-hand Y-up" to "right-hand Z-up"
+		result[id] *= glm::rotate(
 			glm::mat4(1.0),
-			currentMotion[id].rot.y,
-			glm::vec3(0.0, 1.0, 0.0));
-		result *= glm::rotate(
-			glm::mat4(1.0),
-			currentMotion[id].rot.x,
-			glm::vec3(1.0, 0.0, 0.0));
-		result *= glm::rotate(
-			glm::mat4(1.0),
-			currentMotion[id].rot.z,
-			glm::vec3(0.0, 0.0, 1.0));
-	
-		// Joint offset
-		result *= glm::translate(
+			glm::radians(90.0f),
+			glm::vec3(1.0, 0.0, 0.0)
+		);
+		// scaling
+		result[id] *= glm::scale(glm::mat4(1.0), glm::vec3(0.01, 0.01, 0.01));
+
+		const std::vector<JointID>& parentIDs = joints[id]->getParentIDs();
+		for (size_t parentIdx = 0; parentIdx < parentIDs.size(); parentIdx++) {
+			JointID pID = parentIDs[parentIdx];
+			// Move to each parent's position
+			if (pID == 0) {
+				// Motion position
+				result[id] *= glm::translate(
+					glm::mat4(1.0),
+					// currentMotion[pID].pos
+					glm::vec3(0.0)
+				);
+			}
+			else {
+				// Joint offset
+				result[id] *= glm::translate(
+					glm::mat4(1.0),
+					joints[pID]->getPos()
+				);
+			}
+
+			// Motion rotation
+			result[id] *= glm::rotate(
+				glm::mat4(1.0),
+				glm::radians(currentMotion[pID].rot.y),
+				glm::vec3(0.0, 1.0, 0.0));
+			result[id] *= glm::rotate(
+				glm::mat4(1.0),
+				glm::radians(currentMotion[pID].rot.x),
+				glm::vec3(1.0, 0.0, 0.0));
+			result[id] *= glm::rotate(
+				glm::mat4(1.0),
+				glm::radians(currentMotion[pID].rot.z),
+				glm::vec3(0.0, 0.0, 1.0));
+		}
+
+		// Move to current joint's position
+		result[id] *= glm::translate(
 			glm::mat4(1.0),
 			joints[id]->getPos()
 		);
-	};
 
-	for (int jointIdx = 0; jointIdx < joints.size(); jointIdx++) {
-		result[jointIdx] = glm::mat4(1.0);
-		result[jointIdx] *= glm::scale(glm::mat4(1.0), glm::vec3(0.04, 0.04, 0.04));
-
-		const std::vector<JointID>& parents = joints[jointIdx]->getParentIDs();
-
-		// multiplyMatrices(result[jointIdx], joints[jointIdx]->getID());
-		for (int parentIdx = parents.size() - 1; parentIdx >= 0; parentIdx--) {
-		// for (int parentIdx = 0; parentIdx < parents.size(); parentIdx++) {
-			multiplyMatrices(result[jointIdx], parents[parentIdx]);
-		}
+		// rotate current joint object to turn to parent
+		// glm::vec3 cVec = joints[id]->getPos();
+		// glm::vec3 pVec = joints[joints[id]->getParentIDs().back()]->getPos();
+		// cVec = glm::normalize(cVec);
+		// pVec = glm::normalize(pVec);
+		// float angle = glm::radians(glm::acos(glm::dot(cVec, pVec)));
 	}
 
 	return result;
@@ -152,20 +169,21 @@ std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 
 std::array<std::unique_ptr<Shape>, MAX_ID> Animator::generateBones() {
 	std::array<std::unique_ptr<Shape>, MAX_ID> result;
-	for (int i = 0; i < joints.size(); i++) {
+	for (JointID id = 0; id < joints.size(); id++) {
 		// Root Joint
-		if (joints[i]->getParentIDs().empty()) {
-			result[i] = std::make_unique<Shape>(i);
-			continue;
+		if (joints[id]->getParentIDs().empty()) {
+			// result[i] = std::make_unique<Shape>(i);
+			result[id] = std::make_unique<SingleColorCube>(
+				2.0, 2.0, 2.0,
+				glm::vec3(0.0, 0.0, 0.0),
+				glm::vec3(1.0, 0.0, 0.0),
+				id
+			);
 		}
-
-		JointID p = joints[i]->getParentIDs().back();
-
-		glm::vec3 childJoint = joints[i]->getPos();
-		glm::vec3 parentJoint = joints[p]->getPos();
-		float length = std::fabs(glm::distance(childJoint, parentJoint));
-
-		result[i] = std::make_unique<StickTetrahedronBone>(length, i);
+		else {
+			float length = glm::length(joints[id]->getPos());
+			result[id] = std::make_unique<StickTetrahedronBone>(length, id);
+		}
 	}
 
 	return std::move(result);

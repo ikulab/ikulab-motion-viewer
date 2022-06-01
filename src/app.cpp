@@ -16,7 +16,7 @@ void App::init() {
 	base = std::make_unique<Base>();
 
 	anim = std::make_shared<Animator>();
-	anim->initFromBVH("./models/swing.bvh");
+	anim->initFromBVH("./models/test.bvh");
 	// anim->showSkeltonInfo();
 	// anim->showMotionInfo();
 
