@@ -1428,7 +1428,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-    time *= 0.4;
+    // time *= 0.2;
 
     // float lookAtX = (cos(M_PI * time / 10.0f)) * 3.0f;
     // float lookAtY = (sin(M_PI * time / 10.0f)) * 3.0f;

@@ -96,8 +96,8 @@ std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 			* progressBetweenFrames
 		);
 		Motion m{};
-		m.pos = motions[prevFrameIdx][id]->pos + posDiff;
-		m.rot = motions[prevFrameIdx][id]->rot + rotDiff;
+		m.pos = motions[prevFrameIdx][id]->pos;// + posDiff;
+		m.rot = motions[prevFrameIdx][id]->rot;// + rotDiff;
 		currentMotion.push_back(m);
 	}
 
@@ -116,6 +116,7 @@ std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 		result[id] *= glm::scale(glm::mat4(1.0), glm::vec3(0.01, 0.01, 0.01));
 
 		const std::vector<JointID>& parentIDs = joints[id]->getParentIDs();
+
 		for (size_t parentIdx = 0; parentIdx < parentIDs.size(); parentIdx++) {
 			JointID pID = parentIDs[parentIdx];
 			// Move to each parent's position
@@ -138,30 +139,42 @@ std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 			// Motion rotation
 			result[id] *= glm::rotate(
 				glm::mat4(1.0),
-				glm::radians(currentMotion[pID].rot.y),
-				glm::vec3(0.0, 1.0, 0.0));
+				glm::radians(currentMotion[pID].rot.z),
+				glm::vec3(0.0, 0.0, 1.0));
 			result[id] *= glm::rotate(
 				glm::mat4(1.0),
 				glm::radians(currentMotion[pID].rot.x),
 				glm::vec3(1.0, 0.0, 0.0));
 			result[id] *= glm::rotate(
 				glm::mat4(1.0),
-				glm::radians(currentMotion[pID].rot.z),
-				glm::vec3(0.0, 0.0, 1.0));
+				glm::radians(currentMotion[pID].rot.y),
+				glm::vec3(0.0, 1.0, 0.0));
 		}
 
 		// Move to current joint's position
 		result[id] *= glm::translate(
 			glm::mat4(1.0),
-			joints[id]->getPos()
+			id != 0 ? joints[id]->getPos() : glm::vec3(0.0)
 		);
 
 		// rotate current joint object to turn to parent
-		// glm::vec3 cVec = joints[id]->getPos();
-		// glm::vec3 pVec = joints[joints[id]->getParentIDs().back()]->getPos();
-		// cVec = glm::normalize(cVec);
-		// pVec = glm::normalize(pVec);
-		// float angle = glm::radians(glm::acos(glm::dot(cVec, pVec)));
+		glm::vec3 pos = glm::normalize(joints[id]->getPos());
+		glm::vec3 orig = glm::vec3(1.0, 0.0, 0.0);
+		glm::vec3 cross = glm::normalize(glm::cross(pos, orig));
+		if (glm::length(cross) > 0) {
+			result[id] *= glm::rotate(
+				glm::mat4(1.0),
+				glm::pi<float>() - glm::acos(glm::dot(pos, orig)),
+				cross
+			);
+		}
+		else if (pos.x > 0) {
+			result[id] *= glm::rotate(
+				glm::mat4(1.0),
+				glm::radians(180.0f),
+				glm::vec3(0.0, 1.0, 0.0)
+			);
+		}
 	}
 
 	return result;

@@ -5,26 +5,13 @@
 #include <glm/glm.hpp>
 
 #include "./stickTetrahedronBone.hpp"
-#include "../cube/separatedColorCube.hpp"
+#include "../cube/singleColorCube.hpp"
 
 StickTetrahedronBone::StickTetrahedronBone(float length, JointID id) : Bone(length, id) {
-	// cube = std::make_unique<SingleColorCube>(
-	// 	length, 1.0, 1.0,
-	// 	glm::vec3(-length / 2.0f, 0.0, 0.0),
-	// 	glm::vec3(0.8, 0.8, 0.8),
-	// 	id
-	// );
-	cube = std::make_unique<SeparatedColorCube>(
-		10, 5.0, 5.0,
-		glm::vec3(0.0, 0.0, 0.0),
-		std::array<glm::vec3, 6> {
-			glm::vec3(0.7, 0.7, 0.7),
-			glm::vec3(0.7, 0.7, 0.7),
-			glm::vec3(0.7, 0.7, 0.7),
-			glm::vec3(1.0, 0.0, 0.0),
-			glm::vec3(0.7, 0.7, 0.7),
-			glm::vec3(0.7, 0.7, 0.7)
-		},
+	cube = std::make_unique<SingleColorCube>(
+		length, 1.0, 1.0,
+		glm::vec3(length / 2.0f, 0.0, 0.0),
+		glm::vec3(0.8, 0.8, 0.8),
 		id
 	);
 }
