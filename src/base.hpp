@@ -14,6 +14,7 @@
 
 #include "./definition/vertex.hpp"
 #include "./definition/common.hpp"
+#include "./definition/descriptor.hpp"
 #include "./animator.hpp"
 
 #ifdef NODEBUG
@@ -21,14 +22,6 @@ const bool enableValidationLayers = false;
 #else
 const bool enableValidationLayers = true;
 #endif
-
-// FIXME move to description.hpp
-const int NUM_OF_DESCRIPTOR_SETS = 1;
-const int NUM_OF_DESCRIPTORS = 2;
-#define DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO 0
-#define DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO 0
-#define DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO 0
-#define DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO 1
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
