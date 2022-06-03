@@ -16,20 +16,24 @@ add_compile_options(
 )
 
 find_package(Vulkan REQUIRED)
-find_package(Glfl REQUIRED)
+find_package(glfw3 3.3 REQUIRED)
 
 add_executable(app ./src/main.cpp ./src/app.cpp ./src/base.cpp)
 target_compile_features(app PRIVATE cxx_std_17)
 
+target_link_libraries(app glfw)
 target_link_libraries(
-	glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi
+	app vulkan dl pthread X11 Xxf86vm Xrandr Xi
 )
-
-add_library(animator STATIC ./src/animator.cpp)
-target_link_libraries(app animator)
 
 add_subdirectory(./src/shape)
 target_link_libraries(shape)
 
 add_subdirectory(./src/util)
 target_link_libraries(bvh_parser)
+
+add_library(animator STATIC ./src/animator.cpp)
+target_link_libraries(animator shape)
+target_link_libraries(animator bvh_parser)
+
+target_link_libraries(app animator)
