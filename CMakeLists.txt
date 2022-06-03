@@ -1,0 +1,35 @@
+cmake_minimum_required(VERSION 3.18)
+project(
+	ikulab-motion-viwer
+	VERSION 0.1.0	
+	LANGUAGES CXX
+)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+exec_program(
+	make ./tool
+)
+
+add_compile_options(
+	-std=c++17 -fdiagnostics-color=always -g
+)
+
+find_package(Vulkan REQUIRED)
+find_package(Glfl REQUIRED)
+
+add_executable(app ./src/main.cpp ./src/app.cpp ./src/base.cpp)
+target_compile_features(app PRIVATE cxx_std_17)
+
+target_link_libraries(
+	glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi
+)
+
+add_library(animator STATIC ./src/animator.cpp)
+target_link_libraries(app animator)
+
+add_subdirectory(./src/shape)
+target_link_libraries(shape)
+
+add_subdirectory(./src/util)
+target_link_libraries(bvh_parser)
