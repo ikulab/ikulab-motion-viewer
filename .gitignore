@@ -1,7 +1,8 @@
 .vscode/*
 !.vscode/launch.json
 !.vscode/tasks.json
-bin/app
+build
+bin
 
 # template -------------
 # Prerequisites
