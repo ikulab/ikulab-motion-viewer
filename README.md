@@ -1,4 +1,4 @@
-# vulkan-ikulab
+# ikulab motion viwer
 
 目標: Vulkanでモーションビルダーを開発する
 
