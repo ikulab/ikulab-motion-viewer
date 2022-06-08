@@ -9,7 +9,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"preLaunchTask": "build_app",
-			"program": "${workspaceFolder}/bin/app",
+			"program": "${workspaceFolder}/build/bin/app",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",

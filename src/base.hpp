@@ -236,8 +236,6 @@ class Base {
 	void createInstance();
 	void cleanup();
 
-	void initImGui();
-
 	static std::vector<char> readFile(const std::string& fileName);
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -267,9 +265,11 @@ public:
 	}
 
 	void initVulkan();
+	void initImGui();
 
-	void pollWindowEvent() { glfwPollEvents(); };
-	int windowShouldClose() { return glfwWindowShouldClose(window); };
+	void pollWindowEvent();
+	int windowShouldClose();
+	void drawImGuiFrame();
 	void drawFrame();
 
 	void addVertex(Vertex vertex);

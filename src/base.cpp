@@ -1067,10 +1067,9 @@ void Base::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageInde
 
     VkBuffer vertexBuffers[] = { vertexBuffer };
     VkDeviceSize offsets[] = { 0 };
+
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
     vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
     vkCmdBindDescriptorSets(
         commandBuffer,
         VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -1082,6 +1081,9 @@ void Base::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageInde
         nullptr
     );
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+
+    ImDrawData* drawData = ImGui::GetDrawData();
+    ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffers[currentFrame]);
 
     vkCmdEndRenderPass(commandBuffer);
 
@@ -1171,6 +1173,10 @@ void Base::cleanupSwapChain() {
 }
 
 void Base::cleanup() {
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     cleanupSwapChain();
 
     for (size_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; frame++) {
@@ -1241,6 +1247,25 @@ void Base::initImGui() {
     }
 
     ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForVulkan(window, /* install_callbacks */ true);
+
+    ImGui_ImplVulkan_InitInfo initInfo{};
+    initInfo.Instance = instance;
+    initInfo.PhysicalDevice = physicalDevice;
+    initInfo.Device = device;
+    initInfo.Queue = graphicsQueue;
+    initInfo.DescriptorPool = imguiDescriptorPool;
+    initInfo.MinImageCount = 3;
+    initInfo.ImageCount = 3;
+    initInfo.MSAASamples = getMaxUsableSampleCount();
+
+    ImGui_ImplVulkan_Init(&initInfo, renderPass);
+
+    VkCommandBuffer cmd = beginSingleTimeCommands();
+    ImGui_ImplVulkan_CreateFontsTexture(cmd);
+    endSingleTimeCommands(cmd);
+
+    ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
 std::vector<const char*> Base::getRequiredExtensions() {
@@ -1385,6 +1410,23 @@ std::vector<char> Base::readFile(const std::string& fileName) {
     return buffer;
 }
 
+void Base::pollWindowEvent() {
+    glfwPollEvents();
+}
+
+int Base::windowShouldClose() {
+    return glfwWindowShouldClose(window);
+}
+
+void Base::drawImGuiFrame() {
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::ShowDemoWindow();
+    ImGui::Render();
+}
+
 void Base::drawFrame() {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
@@ -1402,7 +1444,6 @@ void Base::drawFrame() {
 
     vkResetCommandBuffer(commandBuffers[currentFrame], 0);
     recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
-
     updateUniformBuffer(currentFrame);
 
     VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
@@ -1433,12 +1474,9 @@ void Base::drawFrame() {
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
-    presentInfo.pResults = nullptr;
 
-    // GPU hung on one of our command buffers (VK_ERROR_DEVICE_LOST)
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-    // failed to present swap chain image.
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
         framebufferResized = false;
         recreateSwapChain();
