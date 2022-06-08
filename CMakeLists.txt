@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.16)
 project(
 	ikulab-motion-viwer
 	VERSION 0.1.0	
@@ -35,5 +35,7 @@ target_link_libraries(bvh_parser)
 add_library(animator STATIC ./src/animator.cpp)
 target_link_libraries(animator shape)
 target_link_libraries(animator bvh_parser)
-
 target_link_libraries(app animator)
+
+add_subdirectory(./includes/imgui)
+target_link_libraries(app imgui)

@@ -4,9 +4,10 @@
 		{
 			"label": "build_app",
 			"type": "shell",
-			"command": "make",
+			"command": "cmake",
 			"args": [
-				"bin/app"
+				"--build",
+				"build"
 			],
 			"problemMatcher": [
 				"$gcc"

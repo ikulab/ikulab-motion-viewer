@@ -194,6 +194,8 @@ class Base {
 
 	VkDescriptorPool descriptorPool;
 	std::array<std::vector<VkDescriptorSet>, MAX_FRAMES_IN_FLIGHT> descriptorSets;
+	VkDescriptorPool imguiDescriptorPool;
+	
 
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
@@ -263,9 +265,11 @@ public:
 	}
 
 	void initVulkan();
+	void initImGui();
 
-	void pollWindowEvent() { glfwPollEvents(); };
-	int windowShouldClose() { return glfwWindowShouldClose(window); };
+	void pollWindowEvent();
+	int windowShouldClose();
+	void drawImGuiFrame();
 	void drawFrame();
 
 	void addVertex(Vertex vertex);

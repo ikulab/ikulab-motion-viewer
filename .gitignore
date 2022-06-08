@@ -1,8 +1,13 @@
+# VSCode seting
 .vscode/*
 !.vscode/launch.json
 !.vscode/tasks.json
+!.vscode/c_cpp_properties.json
+
+# build binary
 build
 bin
+
 
 # template -------------
 # Prerequisites

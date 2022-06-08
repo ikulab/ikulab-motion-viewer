@@ -25,6 +25,7 @@ void App::init() {
 
 	base->setAnimator(anim);
 	base->initVulkan();
+	base->initImGui();
 }
 
 void App::createShapes() {
@@ -54,6 +55,7 @@ void App::registerShapes() {
 void App::run() {
 	while (!base->windowShouldClose()) {
 		base->pollWindowEvent();
+		base->drawImGuiFrame();
 		base->drawFrame();
 	}
 }
