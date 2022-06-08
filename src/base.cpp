@@ -21,6 +21,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/hash.hpp>
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_vulkan.h>
+
 #include "definition/vertex.hpp"
 #include "./animator.hpp"
 
@@ -1176,6 +1180,8 @@ void Base::cleanup() {
         }
     }
 
+    vkDestroyDescriptorPool(device, imguiDescriptorPool, nullptr);
+
     vkDestroyDescriptorPool(device, descriptorPool, nullptr);
     for (size_t descSetIndex = 0; descSetIndex < NUM_OF_DESCRIPTOR_SETS; descSetIndex++) {
         vkDestroyDescriptorSetLayout(device, descriptorSetLayouts[descSetIndex], nullptr);
@@ -1205,6 +1211,36 @@ void Base::cleanup() {
 
     glfwDestroyWindow(window);
     glfwTerminate();
+}
+
+void Base::initImGui() {
+    // create descriptor pool
+    VkDescriptorPoolSize poolSizes[] = {
+        { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+        { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+        { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+    };
+
+    VkDescriptorPoolCreateInfo poolCreateInfo{};
+    poolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    poolCreateInfo.maxSets = 1000;
+    poolCreateInfo.poolSizeCount = std::size(poolSizes);
+    poolCreateInfo.pPoolSizes = poolSizes;
+
+    if (vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &imguiDescriptorPool) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor pool for imgui.");
+    }
+
+    ImGui::CreateContext();
 }
 
 std::vector<const char*> Base::getRequiredExtensions() {

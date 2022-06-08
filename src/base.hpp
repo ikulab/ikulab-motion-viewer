@@ -194,6 +194,8 @@ class Base {
 
 	VkDescriptorPool descriptorPool;
 	std::array<std::vector<VkDescriptorSet>, MAX_FRAMES_IN_FLIGHT> descriptorSets;
+	VkDescriptorPool imguiDescriptorPool;
+	
 
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
@@ -233,6 +235,8 @@ class Base {
 	void initWindow();
 	void createInstance();
 	void cleanup();
+
+	void initImGui();
 
 	static std::vector<char> readFile(const std::string& fileName);
 
