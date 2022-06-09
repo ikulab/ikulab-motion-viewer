@@ -1426,7 +1426,8 @@ void Base::drawImGuiFrame() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::ShowDemoWindow();
+	// TODO: ImGui render code
+
     ImGui::Render();
 }
 
