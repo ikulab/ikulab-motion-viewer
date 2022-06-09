@@ -8,6 +8,9 @@
 build
 bin
 
+# imgui file
+imgui.ini
+
 
 # template -------------
 # Prerequisites

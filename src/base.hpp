@@ -88,8 +88,8 @@ class Base {
 
 	VkSurfaceKHR surface;
 
-	const uint32_t WINDOW_WIDTH = 800;
-	const uint32_t WINDOW_HEIGHT = 600;
+	int windowWidth = 0;
+	int windowHeight = 0;
 
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();

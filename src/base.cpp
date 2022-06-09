@@ -102,10 +102,13 @@ void Base::createInstance() {
 
 void Base::initWindow() {
     glfwInit();
-
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "ikulab 2022", nullptr, nullptr);
+    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+    int xpos, ypos;
+    glfwGetMonitorWorkarea(primaryMonitor, &xpos, &ypos, &windowWidth, &windowHeight);
+
+    window = glfwCreateWindow(windowWidth, windowHeight, "ikulab 2022", nullptr, nullptr);
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
@@ -365,10 +368,10 @@ void Base::recreateSwapChain() {
     createColorResource();
     createDepthResources();
     createFramebuffers();
-    createUniformBuffers();
-    createDescriptorPool();
-    createDescriptorSets();
-    createCommandBuffers();
+    // createUniformBuffers();
+    // createDescriptorPool();
+    // createDescriptorSets();
+    // createCommandBuffers();
 }
 
 void Base::createImageViews() {
