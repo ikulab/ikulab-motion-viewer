@@ -1264,6 +1264,10 @@ void Base::initImGui() {
 
     ImGui_ImplVulkan_Init(&initInfo, renderPass);
 
+    // font
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->AddFontFromFileTTF("./fonts/NotoSansJP-Medium.otf", 20.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+
     VkCommandBuffer cmd = beginSingleTimeCommands();
     ImGui_ImplVulkan_CreateFontsTexture(cmd);
     endSingleTimeCommands(cmd);
