@@ -92,7 +92,8 @@ class Base {
 	int windowHeight = 0;
 
 	// ImGui status
-	bool showDemoWindow;
+	bool showDemoWindow = false;
+	bool windowSizeInitialized = false;
 
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();

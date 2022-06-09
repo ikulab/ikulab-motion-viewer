@@ -28,6 +28,8 @@
 #include "definition/vertex.hpp"
 #include "./animator.hpp"
 
+#define PADDING(pad) ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (pad))
+
 VkResult CreateDebugUtilsMessengerEXT(
     VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateinfo,
@@ -1266,7 +1268,7 @@ void Base::initImGui() {
 
     // font
     ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF("./fonts/NotoSansJP-Medium.otf", 20.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+    io.Fonts->AddFontFromFileTTF("./fonts/NotoSansJP-Medium.otf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
 
     VkCommandBuffer cmd = beginSingleTimeCommands();
     ImGui_ImplVulkan_CreateFontsTexture(cmd);
@@ -1432,10 +1434,30 @@ void Base::drawImGuiFrame() {
 
     // ImGui windows
     // Indicator window
-    ImGui::Begin("インジケーターにょ");
+    if (!windowSizeInitialized) {
+        windowSizeInitialized = true;
+        ImGui::SetNextWindowSize(ImVec2(300, 300));
+    }
+    ImGui::Begin("インジケーター");
 
-    ImGui::Text("Hello");
-    ImGui::Checkbox("Show DemoWindow", &showDemoWindow);
+#ifndef NODEBUG
+    ImGui::Checkbox("ImGui DemoWindowを表示する", &showDemoWindow);
+    PADDING(20);
+#endif
+
+    ImGui::Text("Joints: %d", anim->getNumOfJoints());
+
+	auto total = anim->getNumOfFrames();
+    auto current = anim->getCurrentFrame();
+    ImGui::Text("Frame: %d / %d", current, total);
+    ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0));
+
+    PADDING(40);
+
+    if (ImGui::Button("ファイルを開く...")) {
+        std::cout << "TODO: implement!!" << std::endl;
+    }
+    ImGui::Text("未実装です m(_ _)m");
 
     ImGui::End();
 
