@@ -91,6 +91,9 @@ class Base {
 	int windowWidth = 0;
 	int windowHeight = 0;
 
+	// ImGui status
+	bool showDemoWindow;
+
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);

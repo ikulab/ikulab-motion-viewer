@@ -1426,7 +1426,19 @@ void Base::drawImGuiFrame() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-	// TODO: ImGui render code
+    // ImGui windows
+    // Indicator window
+    ImGui::Begin("インジケーターにょ");
+
+    ImGui::Text("Hello");
+    ImGui::Checkbox("Show DemoWindow", &showDemoWindow);
+
+    ImGui::End();
+
+    // Demo window
+    if (showDemoWindow) {
+        ImGui::ShowDemoWindow();
+    }
 
     ImGui::Render();
 }
