@@ -10,6 +10,7 @@
 #include <limits>
 #include <algorithm>
 #include <chrono>
+#include <thread>
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -137,6 +138,8 @@ void Base::initVulkan() {
     createDescriptorSets();
     createCommandBuffers();
     createSyncObjects();
+
+    startTime = std::chrono::high_resolution_clock::now();
 }
 
 void Base::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
@@ -1432,6 +1435,8 @@ void Base::drawImGuiFrame() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    ImGuiIO& io = ImGui::GetIO();
+
     // ImGui windows
     // Indicator window
     if (!windowSizeInitialized) {
@@ -1530,13 +1535,28 @@ void Base::drawFrame() {
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
+void Base::updateClock() {
+    currentTime = std::chrono::high_resolution_clock::now();
+    secondsFromStart = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+}
+
+void Base::vSync() {
+    auto rightNow = std::chrono::high_resolution_clock::now();
+
+    // time taken to prev drawing process
+    // currentTime must be updated previous frame
+    auto delta = std::chrono::duration<float, std::chrono::nanoseconds::period>(rightNow - currentTime);
+
+    auto waitTime = std::chrono::duration<
+        float, std::chrono::nanoseconds::period
+    >(
+        std::chrono::nanoseconds(uint32_t(1000.0 * 1000.0 * 1000.0 * 1.0 / fps)) - delta
+    );
+
+    std::this_thread::sleep_for(waitTime);
+}
+
 void Base::updateUniformBuffer(uint32_t currentImage) {
-    static auto startTime = std::chrono::high_resolution_clock::now();
-
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-    // time *= 0.2;
-
     // float lookAtX = (cos(M_PI * time / 10.0f)) * 3.0f;
     // float lookAtY = (sin(M_PI * time / 10.0f)) * 3.0f;
     // float lookAtX = -10.0f;
@@ -1547,7 +1567,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     float lookAtZ = 2.0f;
 
     ModelMatUBO modelUbo;
-    std::array<glm::mat4, MAX_ID> modelMats = anim->generateModelMatrices(time);
+    std::array<glm::mat4, MAX_ID> modelMats = anim->generateModelMatrices(secondsFromStart);
 
     for (int i = 0; i < anim->getNumOfJoints(); i++) {
         modelUbo.model[i] = modelMats[i];

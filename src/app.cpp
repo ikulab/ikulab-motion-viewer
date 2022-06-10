@@ -54,6 +54,8 @@ void App::registerShapes() {
 
 void App::run() {
 	while (!base->windowShouldClose()) {
+		base->vSync();
+		base->updateClock();
 		base->pollWindowEvent();
 		base->drawImGuiFrame();
 		base->drawFrame();
