@@ -1450,14 +1450,15 @@ void Base::drawImGuiFrame() {
     PADDING(20);
 #endif
 
+    ImGui::Text("FPS: %.1f", io.Framerate);
     ImGui::Text("Joints: %d", anim->getNumOfJoints());
 
-	auto total = anim->getNumOfFrames();
+    auto total = anim->getNumOfFrames();
     auto current = anim->getCurrentFrame();
     ImGui::Text("Frame: %d / %d", current, total);
     ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0));
 
-    PADDING(40);
+    PADDING(30);
 
     if (ImGui::Button("ファイルを開く...")) {
         std::cout << "TODO: implement!!" << std::endl;
