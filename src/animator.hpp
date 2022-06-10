@@ -17,6 +17,7 @@
 class Animator {
 	std::vector<std::vector<std::unique_ptr<Motion>>> motions;
 	uint32_t numOfFrames;
+	uint32_t currentFrame;
 	float frameRate;
 	float loopDuration;
 
@@ -46,6 +47,8 @@ public:
 	std::array<glm::mat4, MAX_ID> generateModelMatrices(float time);
 
 	uint32_t getNumOfJoints() const;
+	uint32_t getNumOfFrames() const;
+	uint32_t getCurrentFrame() const;
  
 	void showSkeltonInfo();
 	void showMotionInfo();

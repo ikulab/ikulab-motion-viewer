@@ -5,6 +5,7 @@
 #include <array>
 #include <optional>
 #include <functional>
+#include <chrono>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -90,6 +91,16 @@ class Base {
 
 	int windowWidth = 0;
 	int windowHeight = 0;
+
+	std::chrono::_V2::system_clock::time_point startTime;
+	std::chrono::_V2::system_clock::time_point currentTime;
+	float secondsFromStart;
+
+	float fps = 60.0;
+
+	// ImGui status
+	bool showDemoWindow = false;
+	bool windowSizeInitialized = false;
 
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();
@@ -271,6 +282,10 @@ public:
 	int windowShouldClose();
 	void drawImGuiFrame();
 	void drawFrame();
+
+	void vSync();
+	/// call this after vSync()
+	void updateClock();
 
 	void addVertex(Vertex vertex);
 	void addVertices(const std::vector<Vertex>& vertices);

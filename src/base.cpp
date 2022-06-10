@@ -10,6 +10,7 @@
 #include <limits>
 #include <algorithm>
 #include <chrono>
+#include <thread>
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -27,6 +28,8 @@
 
 #include "definition/vertex.hpp"
 #include "./animator.hpp"
+
+#define PADDING(pad) ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (pad))
 
 VkResult CreateDebugUtilsMessengerEXT(
     VkInstance instance,
@@ -135,6 +138,8 @@ void Base::initVulkan() {
     createDescriptorSets();
     createCommandBuffers();
     createSyncObjects();
+
+    startTime = std::chrono::high_resolution_clock::now();
 }
 
 void Base::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
@@ -1264,6 +1269,10 @@ void Base::initImGui() {
 
     ImGui_ImplVulkan_Init(&initInfo, renderPass);
 
+    // font
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->AddFontFromFileTTF("./fonts/NotoSansJP-Medium.otf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+
     VkCommandBuffer cmd = beginSingleTimeCommands();
     ImGui_ImplVulkan_CreateFontsTexture(cmd);
     endSingleTimeCommands(cmd);
@@ -1426,7 +1435,46 @@ void Base::drawImGuiFrame() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::ShowDemoWindow();
+    ImGuiIO& io = ImGui::GetIO();
+
+    // ImGui windows
+    // Indicator window
+    if (!windowSizeInitialized) {
+        windowSizeInitialized = true;
+        ImGui::SetNextWindowSize(ImVec2(300, 300));
+    }
+    ImGui::Begin("インジケーター");
+
+#ifndef NODEBUG
+    ImGui::Checkbox("ImGui DemoWindowを表示する", &showDemoWindow);
+    PADDING(20);
+#endif
+
+    ImGui::Text("FPS: %.1f", io.Framerate);
+    ImGui::Text("Joints: %d", anim->getNumOfJoints());
+
+    auto total = anim->getNumOfFrames();
+    auto current = anim->getCurrentFrame();
+    ImGui::Text("Frame: %d / %d", current, total);
+
+    ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0), "");
+    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
+    ImGui::Text("%.1f%%", (float)current / total * 100);
+
+    PADDING(30);
+
+    if (ImGui::Button("ファイルを開く...")) {
+        std::cout << "TODO: implement!!" << std::endl;
+    }
+    ImGui::Text("未実装です m(_ _)m");
+
+    ImGui::End();
+
+    // Demo window
+    if (showDemoWindow) {
+        ImGui::ShowDemoWindow();
+    }
+
     ImGui::Render();
 }
 
@@ -1491,13 +1539,28 @@ void Base::drawFrame() {
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
+void Base::updateClock() {
+    currentTime = std::chrono::high_resolution_clock::now();
+    secondsFromStart = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+}
+
+void Base::vSync() {
+    auto rightNow = std::chrono::high_resolution_clock::now();
+
+    // time taken to prev drawing process
+    // currentTime must be updated previous frame
+    auto delta = std::chrono::duration<float, std::chrono::nanoseconds::period>(rightNow - currentTime);
+
+    auto waitTime = std::chrono::duration<
+        float, std::chrono::nanoseconds::period
+    >(
+        std::chrono::nanoseconds(uint32_t(1000.0 * 1000.0 * 1000.0 * 1.0 / fps)) - delta
+    );
+
+    std::this_thread::sleep_for(waitTime);
+}
+
 void Base::updateUniformBuffer(uint32_t currentImage) {
-    static auto startTime = std::chrono::high_resolution_clock::now();
-
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-    // time *= 0.2;
-
     // float lookAtX = (cos(M_PI * time / 10.0f)) * 3.0f;
     // float lookAtY = (sin(M_PI * time / 10.0f)) * 3.0f;
     // float lookAtX = -10.0f;
@@ -1508,7 +1571,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     float lookAtZ = 2.0f;
 
     ModelMatUBO modelUbo;
-    std::array<glm::mat4, MAX_ID> modelMats = anim->generateModelMatrices(time);
+    std::array<glm::mat4, MAX_ID> modelMats = anim->generateModelMatrices(secondsFromStart);
 
     for (int i = 0; i < anim->getNumOfJoints(); i++) {
         modelUbo.model[i] = modelMats[i];

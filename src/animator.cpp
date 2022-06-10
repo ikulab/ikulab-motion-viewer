@@ -40,6 +40,14 @@ uint32_t Animator::getNumOfJoints() const {
 	return joints.size();
 }
 
+uint32_t Animator::getNumOfFrames() const {
+    return numOfFrames;
+}
+
+uint32_t Animator::getCurrentFrame() const {
+	return currentFrame;
+}
+
 void Animator::Joint::showInfo() {
 	std::cout << id << ": " << name << std::ends;
 	std::cout << (isEdge ? " (Edge)" : " ") << std::endl;
@@ -80,24 +88,19 @@ void Animator::showMotionInfo() {
 
 std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 	float timeInLoop = std::fmod(time, (loopDuration - frameRate));
-	int prevFrameIdx = std::floor(timeInLoop / frameRate);
-	int nextFrameIdx = prevFrameIdx + 1;
+	uint32_t prevFrameIdx = std::floor(timeInLoop / frameRate);
+	uint32_t nextFrameIdx = prevFrameIdx + 1;
 	float progressBetweenFrames = std::fmod(timeInLoop, frameRate) / frameRate;
+
+	// TODO: define updateFrame() and call it every frame in main loop
+	currentFrame = prevFrameIdx;
 
 	// calculate current motion
 	std::vector<Motion> currentMotion;
 	for (JointID id = 0; id < joints.size(); id++) {
-		glm::vec3 posDiff = (
-			(motions[nextFrameIdx][id]->pos - motions[prevFrameIdx][id]->pos)
-			* progressBetweenFrames
-		);
-		glm::vec3 rotDiff = (
-			(motions[nextFrameIdx][id]->rot - motions[prevFrameIdx][id]->rot)
-			* progressBetweenFrames
-		);
 		Motion m{};
-		m.pos = motions[prevFrameIdx][id]->pos;// + posDiff;
-		m.rot = motions[prevFrameIdx][id]->rot;// + rotDiff;
+		m.pos = motions[prevFrameIdx][id]->pos;
+		m.rot = motions[prevFrameIdx][id]->rot;
 		currentMotion.push_back(m);
 	}
 
