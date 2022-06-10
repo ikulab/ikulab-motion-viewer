@@ -1456,7 +1456,10 @@ void Base::drawImGuiFrame() {
     auto total = anim->getNumOfFrames();
     auto current = anim->getCurrentFrame();
     ImGui::Text("Frame: %d / %d", current, total);
-    ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0));
+
+    ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0), "");
+    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
+    ImGui::Text("%.1f%%", (float)current / total * 100);
 
     PADDING(30);
 
