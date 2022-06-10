@@ -2,43 +2,84 @@
 #include "../sphere.hpp"
 
 OctahedronBone::OctahedronBone(float length, JointID id) : Bone(length, id) {
-	// Top vertex
-	vertices.push_back({
-		{0.0, 0.0, 1.0}, {0.8, 0.8, 0.8}, id
-	});
+	glm::vec3 root(length, 0.0, 0.0);
+	glm::vec3 tip(0, 0.0, 0.0);
 
+	glm::vec3 midTop(length * 0.9, 0.0, length * 0.1);
+	glm::vec3 midBottom(length * 0.9, 0.0, -length * 0.1);
+	glm::vec3 midLeft(length * 0.9, -length * 0.1, 0.0);
+	glm::vec3 midRight(length * 0.9, length * 0.1, 0.0);
+
+	glm::vec3 rootColorGray(0.3, 0.3, 0.3);		// top-right and bottom-left area
+	glm::vec3 rootColorWhite(0.7, 0.7, 0.7);	// top-left and bottom-right area
+	glm::vec3 tipColorGray(0.5, 0.5, 0.5);		// top-right and bottom-left area
+	glm::vec3 tipColorWhite(0.9, 0.9, 0.9);		// top-left and bottom-right area
+
+	// root side ---
+	// top-right area
 	vertices.insert(vertices.end(), {
-		{{-0.1, -0.1, 0.9}, {0.8, 0.8, 0.8}, id},
-		{{-0.1,  0.1, 0.9}, {0.8, 0.8, 0.8}, id},
-		{{ 0.1,  0.1, 0.9}, {0.8, 0.8, 0.8}, id},
-		{{ 0.1, -0.1, 0.9}, {0.8, 0.8, 0.8}, id}
+		{root, rootColorGray, id},
+		{midRight, rootColorGray, id},
+		{midTop, rootColorGray, id}
+	});
+	// bottom-right area
+	vertices.insert(vertices.end(), {
+		{root, rootColorWhite, id},
+		{midBottom, rootColorWhite, id},
+		{midRight, rootColorWhite, id},
+	});
+	// bottom-left area
+	vertices.insert(vertices.end(), {
+		{root, rootColorGray, id},
+		{midLeft, rootColorGray, id},
+		{midBottom, rootColorGray, id}
+	});
+	// top-left area
+	vertices.insert(vertices.end(), {
+		{root, rootColorWhite, id},
+		{midTop, rootColorWhite, id},
+		{midLeft, rootColorWhite, id}
 	});
 
-	// Bottom vertex
-	vertices.push_back({
-		{0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}, id
+	// tip side ---
+	vertices.insert(vertices.end(), {
+		{tip, tipColorGray, id},
+		{midTop, tipColorGray, id},
+		{midRight, tipColorGray, id}
+	});
+	// bottom-right area
+	vertices.insert(vertices.end(), {
+		{tip, tipColorWhite, id},
+		{midRight, tipColorWhite, id},
+		{midBottom, tipColorWhite, id}
+	});
+	// bottom-left area
+	vertices.insert(vertices.end(), {
+		{tip, tipColorGray, id},
+		{midBottom, tipColorGray, id},
+		{midLeft, tipColorGray, id}
+	});
+	// top-left area
+	vertices.insert(vertices.end(), {
+		{tip, tipColorWhite, id},
+		{midLeft, tipColorWhite, id},
+		{midTop, tipColorWhite, id}
 	});
 
-	indices.assign({
-		0, 1, 2,
-		0, 2, 3,
-		0, 3, 4,
-		0, 4, 1,
-		5, 2, 1,
-		5, 3, 2,
-		5, 4, 3,
-		5, 1, 4
-	});
+	// add indices
+	for (int i = 0; i < vertices.size(); i++) {
+		indices.push_back(i);
+	}
 
-	// root and top Spheres
+	// root and tip Spheres ---
 	Sphere rootSphere(
-		0.05, 10, 10,
-		glm::vec3(0.0, 0.0, 0.0),
+		length * 0.03, 10, 10,
+		glm::vec3(length, 0.0, 0.0),
 		id
 	);
 	Sphere tipSphere(
-		0.05, 10, 10,
-		glm::vec3(0.0, 0.0, 1.0),
+		length * 0.02, 10, 10,
+		glm::vec3(0.0, 0.0, 0.0),
 		id
 	);
 

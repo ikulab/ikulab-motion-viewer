@@ -7,8 +7,8 @@
 
 #include "./animator.hpp"
 #include "./util/bvhParser.hpp"
-#include "./shape/bone/stickTetrahedronBone.hpp"
 #include "./shape/cube/singleColorCube.hpp"
+#include "./shape/bone/octahedronBone.hpp"
 
 void Animator::initFromBVH(std::string filePath) {
 	BVHParser parser(filePath);
@@ -195,7 +195,7 @@ std::array<std::unique_ptr<Shape>, MAX_ID> Animator::generateBones() {
 		}
 		else {
 			float length = glm::length(joints[id]->getPos());
-			result[id] = std::make_unique<StickTetrahedronBone>(length, id);
+			result[id] = std::make_unique<OctahedronBone>(length, id);
 		}
 	}
 
