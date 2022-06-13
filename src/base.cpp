@@ -362,6 +362,8 @@ void Base::recreateSwapChain() {
         glfwGetFramebufferSize(window, &width, &height);
         glfwWaitEvents();
     }
+    windowWidth = width;
+    windowHeight = height;
 
     vkDeviceWaitIdle(device);
 
@@ -1467,7 +1469,12 @@ void Base::drawImGuiFrame() {
     ImGui::Text("DragEnd: (%.1f, %.1f)", mouseCtx.dragEndX, mouseCtx.dragEndY);
     ImGui::Text("Button L/R/M: (%d / %d / %d)", mouseCtx.leftButton, mouseCtx.rightButton, mouseCtx.middleButton);
     PADDING(20);
+
+    // window status
+    ImGui::Text("Window size: (%d, %d)", windowWidth, windowHeight);
+    PADDING(20);
 #endif
+
     if (ImGui::Button("ファイルを開く...")) {
         std::cout << "TODO: implement!!" << std::endl;
     }
@@ -1566,15 +1573,6 @@ void Base::vSync() {
 }
 
 void Base::updateUniformBuffer(uint32_t currentImage) {
-    // float lookAtX = (cos(M_PI * time / 10.0f)) * 3.0f;
-    // float lookAtY = (sin(M_PI * time / 10.0f)) * 3.0f;
-    // float lookAtX = -10.0f;
-    // float lookAtY = 7.0f;
-    // float lookAtZ = 2.0f;
-    float lookAtX = 3.0f;
-    float lookAtY = 0.0f;
-    float lookAtZ = 0.0f;
-
     ModelMatUBO modelUbo;
     std::array<glm::mat4, MAX_ID> modelMats = anim->generateModelMatrices(secondsFromStart);
 
@@ -1591,12 +1589,12 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]);
 
     SceneMatUBO sceneUbo;
-    sceneUbo.view = glm::lookAt(
-        glm::vec3(lookAtX, lookAtY, lookAtZ),
-        // glm::vec3(-1.5f, 4.5f, 0.5f),
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f)
-    );
+    // sceneUbo.view = glm::lookAt(
+    //     glm::vec3(lookAtX, lookAtY, lookAtZ),
+    //     // glm::vec3(-1.5f, 4.5f, 0.5f),
+    //     glm::vec3(0.0f, 0.0f, 0.0f),
+    //     glm::vec3(0.0f, 0.0f, 1.0f)
+    // );
     sceneUbo.proj = glm::perspective(
         glm::radians(45.0f),
         swapChainExtent.width / (float)swapChainExtent.height,

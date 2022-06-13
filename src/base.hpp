@@ -79,6 +79,14 @@ struct MouseInputContext {
 	double currentX = 0.0;
 	double currentY = 0.0;
 };
+
+struct CameraContext {
+	glm::vec3 lookAt{0.0, 0.0, 0.0};
+	float hRotation = 0.0;
+	float vRotation = 0.0;
+	float distance = 3.0;
+};
+
 class Base {
 	GLFWwindow* window;
 	VkInstance instance;
