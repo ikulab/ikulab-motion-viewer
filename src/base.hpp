@@ -85,6 +85,10 @@ struct CameraContext {
 	float hRotation = 0.0;
 	float vRotation = 0.0;
 	float distance = 3.0;
+
+	glm::vec3 getCameraPos() {
+		return glm::vec3(0.0);
+	}
 };
 
 class Base {
@@ -290,9 +294,11 @@ class Base {
 	// GLFW event callbacks ---
 	static void cursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
 	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-
 	void registerInputEvents();
 	// ---
+
+	CameraContext cameraCtx;
+
 public:
 	Base() {
 		initWindow();

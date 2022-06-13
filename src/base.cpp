@@ -1589,12 +1589,11 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]);
 
     SceneMatUBO sceneUbo;
-    // sceneUbo.view = glm::lookAt(
-    //     glm::vec3(lookAtX, lookAtY, lookAtZ),
-    //     // glm::vec3(-1.5f, 4.5f, 0.5f),
-    //     glm::vec3(0.0f, 0.0f, 0.0f),
-    //     glm::vec3(0.0f, 0.0f, 1.0f)
-    // );
+    sceneUbo.view = glm::lookAt(
+        cameraCtx.getCameraPos(),
+        cameraCtx.lookAt,
+        glm::vec3(0.0f, 0.0f, 1.0f)
+    );
     sceneUbo.proj = glm::perspective(
         glm::radians(45.0f),
         swapChainExtent.width / (float)swapChainExtent.height,
