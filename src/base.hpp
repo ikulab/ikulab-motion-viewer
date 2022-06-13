@@ -68,6 +68,17 @@ struct SceneMatUBO {
 	alignas(16) glm::mat4 proj;
 };
 
+struct MouseInputContext {
+	bool leftButton = false;
+	bool rightButton = false;
+	bool middleButton = false;
+	double dragStartX = 0.0;
+	double dragStartY = 0.0;
+	double dragEndX = 0.0;
+	double dragEndY = 0.0;
+	double currentX = 0.0;
+	double currentY = 0.0;
+};
 class Base {
 	GLFWwindow* window;
 	VkInstance instance;
@@ -206,7 +217,7 @@ class Base {
 	VkDescriptorPool descriptorPool;
 	std::array<std::vector<VkDescriptorSet>, MAX_FRAMES_IN_FLIGHT> descriptorSets;
 	VkDescriptorPool imguiDescriptorPool;
-	
+
 
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
@@ -265,9 +276,19 @@ class Base {
 	}
 
 	std::shared_ptr<Animator> anim;
+
+	MouseInputContext mouseCtx;
+
+	// GLFW event callbacks ---
+	static void cursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
+	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+
+	void registerInputEvents();
+	// ---
 public:
 	Base() {
 		initWindow();
+		registerInputEvents();
 	}
 
 	~Base() {

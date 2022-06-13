@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <chrono>
 #include <thread>
+#include <functional>
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -373,10 +374,6 @@ void Base::recreateSwapChain() {
     createColorResource();
     createDepthResources();
     createFramebuffers();
-    // createUniformBuffers();
-    // createDescriptorPool();
-    // createDescriptorSets();
-    // createCommandBuffers();
 }
 
 void Base::createImageViews() {
@@ -1463,6 +1460,14 @@ void Base::drawImGuiFrame() {
 
     PADDING(30);
 
+#ifndef NODEBUG
+    // mouse input status
+    ImGui::Text("Mouse Pos: (%.1f, %.1f)", mouseCtx.currentX, mouseCtx.currentY);
+    ImGui::Text("DragStart: (%.1f, %.1f)", mouseCtx.dragStartX, mouseCtx.dragStartY);
+    ImGui::Text("DragEnd: (%.1f, %.1f)", mouseCtx.dragEndX, mouseCtx.dragEndY);
+    ImGui::Text("Button L/R/M: (%d / %d / %d)", mouseCtx.leftButton, mouseCtx.rightButton, mouseCtx.middleButton);
+    PADDING(20);
+#endif
     if (ImGui::Button("ファイルを開く...")) {
         std::cout << "TODO: implement!!" << std::endl;
     }
@@ -1775,4 +1780,48 @@ void Base::addindices(const std::vector<uint32_t>& indices) {
 
 void Base::setAnimator(std::shared_ptr<Animator> anim) {
     this->anim = anim;
+}
+
+void Base::cursorPositionCallback(GLFWwindow* window, double xPos, double yPos) {
+    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
+    basePtr->mouseCtx.currentX = xPos;
+    basePtr->mouseCtx.currentY = yPos;
+
+    // record drag end position
+    if (basePtr->mouseCtx.leftButton) {
+        basePtr->mouseCtx.dragEndX = xPos;
+        basePtr->mouseCtx.dragEndY = yPos;
+    }
+}
+
+void Base::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
+    switch (button) {
+    case GLFW_MOUSE_BUTTON_LEFT:
+        basePtr->mouseCtx.leftButton = (action == GLFW_PRESS);
+        break;
+    case GLFW_MOUSE_BUTTON_RIGHT:
+        basePtr->mouseCtx.rightButton = (action == GLFW_PRESS);
+        break;
+    case GLFW_MOUSE_BUTTON_MIDDLE:
+        basePtr->mouseCtx.middleButton = (action == GLFW_PRESS);
+        break;
+    default:
+        break;
+    }
+
+    // init drag position
+    if (basePtr->mouseCtx.leftButton) {
+        basePtr->mouseCtx.dragStartX = basePtr->mouseCtx.currentX;
+        basePtr->mouseCtx.dragStartY = basePtr->mouseCtx.currentY;
+        basePtr->mouseCtx.dragEndX = basePtr->mouseCtx.currentX;
+        basePtr->mouseCtx.dragEndY = basePtr->mouseCtx.currentY;
+    }
+}
+
+void Base::registerInputEvents() {
+    glfwSetWindowUserPointer(window, this);
+
+    glfwSetCursorPosCallback(window, cursorPositionCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
 }
