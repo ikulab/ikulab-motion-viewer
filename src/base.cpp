@@ -1566,9 +1566,9 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     // float lookAtX = -10.0f;
     // float lookAtY = 7.0f;
     // float lookAtZ = 2.0f;
-    float lookAtX = -3.0f;
+    float lookAtX = 3.0f;
     float lookAtY = 0.0f;
-    float lookAtZ = 2.0f;
+    float lookAtZ = 0.0f;
 
     ModelMatUBO modelUbo;
     std::array<glm::mat4, MAX_ID> modelMats = anim->generateModelMatrices(secondsFromStart);
