@@ -1469,7 +1469,13 @@ void Base::drawImGuiFrame() {
     ImGui::Text("Scroll offset: (%.1f, %.1f)", mouseCtx.scrollOffsetX, mouseCtx.scrollOffsetY);
     ImGui::Text("DragStart: (%.1f, %.1f)", mouseCtx.dragStartX, mouseCtx.dragStartY);
     ImGui::Text("DragEnd: (%.1f, %.1f)", mouseCtx.dragEndX, mouseCtx.dragEndY);
+    ImGui::Text("Delta: (%.1f, %.1f)", mouseCtx.deltaX, mouseCtx.deltaY);
     ImGui::Text("Button L/R/M: (%d / %d / %d)", mouseCtx.leftButton, mouseCtx.rightButton, mouseCtx.middleButton);
+    ImGui::Text(
+        "Camera rotation (degrees) H/V: (%.2f, %.2f)",
+        glm::degrees(cameraCtx.hRotation),
+        glm::degrees(cameraCtx.vRotation)
+    );
     PADDING(20);
 
     // window status
@@ -1784,6 +1790,10 @@ void Base::setAnimator(std::shared_ptr<Animator> anim) {
 
 void Base::cursorPositionCallback(GLFWwindow* window, double xPos, double yPos) {
     Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
+
+    basePtr->mouseCtx.deltaX = xPos - basePtr->mouseCtx.currentX;
+    basePtr->mouseCtx.deltaY = yPos - basePtr->mouseCtx.currentY;
+
     basePtr->mouseCtx.currentX = xPos;
     basePtr->mouseCtx.currentY = yPos;
 
@@ -1834,15 +1844,25 @@ void Base::registerInputEvents() {
 }
 
 void Base::updateCamera() {
-    double xDiff = mouseCtx.dragEndX - mouseCtx.dragStartX;
-    double yDiff = mouseCtx.dragEndY - mouseCtx.dragStartY;
-    cameraCtx.hRotation = std::fmod(cameraCtx.hRotation + xDiff, 2*M_PI);
-    cameraCtx.vRotation = std::fmod(cameraCtx.hRotation + yDiff, 2*M_PI);
+    const double DIFF_RATIO = 0.01;
+    const double SCROLL_RATIO = 0.1;
+    if (mouseCtx.leftButton) {
+        double xDiff = mouseCtx.deltaX * DIFF_RATIO;
+        double yDiff = mouseCtx.deltaY * DIFF_RATIO;
+        cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - xDiff, 2 * M_PI);
+        cameraCtx.vRotation = std::clamp(
+            std::fmod(cameraCtx.vRotation + yDiff, 2 * M_PI),
+            -M_PI/2.0 + 0.0001,
+            M_PI/2.0 - 0.0001
+        );
+    }
 
-    cameraCtx.distance += mouseCtx.scrollOffsetY * 1.0;
+    cameraCtx.distance -= mouseCtx.scrollOffsetY * SCROLL_RATIO;
 }
 
 void Base::resetMouseCtx() {
-     mouseCtx.scrollOffsetX = 0.0;   
-     mouseCtx.scrollOffsetY = 0.0;   
+    mouseCtx.scrollOffsetX = 0.0;
+    mouseCtx.scrollOffsetY = 0.0;
+    mouseCtx.deltaX = 0.0;
+    mouseCtx.deltaY = 0.0;
 }

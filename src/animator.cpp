@@ -127,8 +127,8 @@ std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 				// Motion position
 				result[id] *= glm::translate(
 					glm::mat4(1.0),
-					// currentMotion[pID].pos
-					glm::vec3(0.0)
+					currentMotion[pID].pos
+					// glm::vec3(0.0)
 				);
 			}
 			else {

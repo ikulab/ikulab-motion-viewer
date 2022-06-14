@@ -11,7 +11,11 @@
 #include <GLFW/glfw3.h>
 
 #include <vulkan/vulkan.h>
+
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "./definition/vertex.hpp"
 #include "./definition/common.hpp"
@@ -72,12 +76,18 @@ struct MouseInputContext {
 	bool leftButton = false;
 	bool rightButton = false;
 	bool middleButton = false;
+
 	double dragStartX = 0.0;
 	double dragStartY = 0.0;
 	double dragEndX = 0.0;
 	double dragEndY = 0.0;
+
 	double currentX = 0.0;
 	double currentY = 0.0;
+
+	double deltaX = 0.0;
+	double deltaY = 0.0;
+
 	double scrollOffsetX = 0.0;
 	double scrollOffsetY = 0.0;
 };
@@ -87,30 +97,18 @@ struct CameraContext {
 	// in Radian
 	float hRotation = 0.0;
 	float vRotation = 0.0;
-	float distance = 3.0;
+	float distance = 5.0;
 
 	glm::mat4 generateViewMat() {
-		glm::mat4 transToDistance = glm::translate(
-			glm::mat4(1.0),
-			glm::vec3(distance, 0.0, 0.0)
-		);
-		glm::mat4 rotAroundZ = glm::rotate(
-			glm::mat4(1.0),
-			hRotation,
-			glm::vec3(0.0, 0.0, 1.0)
-		);
-		glm::vec3 cross = glm::cross(
-			glm::vec3(rotAroundZ * transToDistance * glm::vec4(0.0, 0.0, 0.0, 1.0)),
-			glm::vec3(0.0, 0.0, 1.0)
-		);
-		glm::mat4 rotAroundHCross = glm::rotate(
-			glm::mat4(1.0),
-			vRotation,
-			cross
-		);
+		float x = distance * std::cos(hRotation) * std::cos(vRotation);
+		float y = distance * std::sin(hRotation) * std::cos(vRotation);
+		float z = distance * std::sin(vRotation);
 
-		glm::mat4 res = rotAroundHCross * rotAroundZ * transToDistance * glm::mat4(1.0);
-		return res;
+		return glm::lookAt(
+			glm::vec3(x, y, z),
+			glm::vec3(0.0f),
+			glm::vec3(0.0f, 0.0f, 1.0f)
+		);
 	}
 };
 
