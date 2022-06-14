@@ -56,8 +56,11 @@ void App::run() {
 	while (!base->windowShouldClose()) {
 		base->vSync();
 		base->updateClock();
+		base->updateCamera();
 		base->pollWindowEvent();
 		base->drawImGuiFrame();
 		base->drawFrame();
+
+		base->resetMouseCtx();
 	}
 }

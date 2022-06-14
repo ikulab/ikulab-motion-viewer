@@ -12,6 +12,7 @@
 #include <chrono>
 #include <thread>
 #include <functional>
+#include <cmath>
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -1440,7 +1441,7 @@ void Base::drawImGuiFrame() {
     // Indicator window
     if (!windowSizeInitialized) {
         windowSizeInitialized = true;
-        ImGui::SetNextWindowSize(ImVec2(300, 300));
+        ImGui::SetNextWindowSize(ImVec2(300, 500));
     }
     ImGui::Begin("インジケーター");
 
@@ -1464,7 +1465,8 @@ void Base::drawImGuiFrame() {
 
 #ifndef NODEBUG
     // mouse input status
-    ImGui::Text("Mouse Pos: (%.1f, %.1f)", mouseCtx.currentX, mouseCtx.currentY);
+    ImGui::Text("Cursor Pos: (%.1f, %.1f)", mouseCtx.currentX, mouseCtx.currentY);
+    ImGui::Text("Scroll offset: (%.1f, %.1f)", mouseCtx.scrollOffsetX, mouseCtx.scrollOffsetY);
     ImGui::Text("DragStart: (%.1f, %.1f)", mouseCtx.dragStartX, mouseCtx.dragStartY);
     ImGui::Text("DragEnd: (%.1f, %.1f)", mouseCtx.dragEndX, mouseCtx.dragEndY);
     ImGui::Text("Button L/R/M: (%d / %d / %d)", mouseCtx.leftButton, mouseCtx.rightButton, mouseCtx.middleButton);
@@ -1589,11 +1591,12 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]);
 
     SceneMatUBO sceneUbo;
-    sceneUbo.view = glm::lookAt(
-        cameraCtx.getCameraPos(),
-        cameraCtx.lookAt,
-        glm::vec3(0.0f, 0.0f, 1.0f)
-    );
+    sceneUbo.view = cameraCtx.generateViewMat();
+    // sceneUbo.view = glm::lookAt(
+    //     cameraCtx.getCameraPos(),
+    //     cameraCtx.lookAt,
+    //     glm::vec3(0.0f, 0.0f, 1.0f)
+    // );
     sceneUbo.proj = glm::perspective(
         glm::radians(45.0f),
         swapChainExtent.width / (float)swapChainExtent.height,
@@ -1816,9 +1819,30 @@ void Base::mouseButtonCallback(GLFWwindow* window, int button, int action, int m
     }
 }
 
+void Base::scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
+    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
+    basePtr->mouseCtx.scrollOffsetX = xOffset;
+    basePtr->mouseCtx.scrollOffsetY = yOffset;
+}
+
 void Base::registerInputEvents() {
     glfwSetWindowUserPointer(window, this);
 
     glfwSetCursorPosCallback(window, cursorPositionCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetScrollCallback(window, scrollCallback);
+}
+
+void Base::updateCamera() {
+    double xDiff = mouseCtx.dragEndX - mouseCtx.dragStartX;
+    double yDiff = mouseCtx.dragEndY - mouseCtx.dragStartY;
+    cameraCtx.hRotation = std::fmod(cameraCtx.hRotation + xDiff, 2*M_PI);
+    cameraCtx.vRotation = std::fmod(cameraCtx.hRotation + yDiff, 2*M_PI);
+
+    cameraCtx.distance += mouseCtx.scrollOffsetY * 1.0;
+}
+
+void Base::resetMouseCtx() {
+     mouseCtx.scrollOffsetX = 0.0;   
+     mouseCtx.scrollOffsetY = 0.0;   
 }
