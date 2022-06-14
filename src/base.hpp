@@ -322,6 +322,8 @@ public:
 	/// call this after vSync()
 	void updateClock();
 
+	void updateCamera(); // TODO: impl
+
 	void addVertex(Vertex vertex);
 	void addVertices(const std::vector<Vertex>& vertices);
 	void addIndex(uint32_t index);
