@@ -157,7 +157,7 @@ std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 		// Move to current joint's position
 		result[id] *= glm::translate(
 			glm::mat4(1.0),
-			id != 0 ? joints[id]->getPos() : glm::vec3(0.0)
+			id != 0 ? joints[id]->getPos() : currentMotion[id].pos
 		);
 
 		// rotate current joint object to turn to parent
