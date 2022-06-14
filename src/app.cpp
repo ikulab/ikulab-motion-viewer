@@ -11,6 +11,7 @@
 #include "animator.hpp"
 
 #include "./shape/bone/stickTetrahedronBone.hpp"
+#include "./shape/floor/filledFloor.hpp"
 
 void App::init() {
 	base = std::make_unique<Base>();
@@ -30,7 +31,19 @@ void App::init() {
 
 void App::createShapes() {
 	// "staging" array
-	std::array<std::unique_ptr<Shape>, MAX_ID> tmpShapes = anim->generateBones();
+	std::vector<std::unique_ptr<Shape>> tmpShapes;
+	// bones
+	std::array<std::unique_ptr<Shape>, NUM_OF_JOINT_ID> tmpBones = anim->generateBones();
+	for (auto& elm : tmpBones) {
+		tmpShapes.push_back(std::move(elm));
+	}
+	// floor
+	tmpShapes.push_back(std::move(std::make_unique<FilledFloor>(
+		7.0, 7.0,
+		glm::vec3(0.8f, 0.8f, 0.8f),
+		FLOOR_ID
+	)));
+
 	// set base index
 	uint32_t baseIndex = 0;
 	for (int i = 0; i < anim->getNumOfJoints(); i++) {

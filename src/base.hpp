@@ -64,7 +64,7 @@ struct SwapChainSupportDetails {
 };
 
 struct ModelMatUBO {
-	alignas(16) glm::mat4 model[MAX_ID];
+	alignas(16) glm::mat4 model[NUM_OF_ID];
 };
 
 struct SceneMatUBO {

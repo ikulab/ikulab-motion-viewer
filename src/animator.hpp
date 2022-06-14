@@ -43,8 +43,8 @@ public:
 	};
 
 	void initFromBVH(std::string filePath);
-	std::array<std::unique_ptr<Shape>, MAX_ID> generateBones();
-	std::array<glm::mat4, MAX_ID> generateModelMatrices(float time);
+	std::array<std::unique_ptr<Shape>, NUM_OF_JOINT_ID> generateBones();
+	std::array<glm::mat4, NUM_OF_JOINT_ID> generateModelMatrices(float time);
 
 	uint32_t getNumOfJoints() const;
 	uint32_t getNumOfFrames() const;

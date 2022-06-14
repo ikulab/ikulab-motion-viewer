@@ -1582,11 +1582,14 @@ void Base::vSync() {
 
 void Base::updateUniformBuffer(uint32_t currentImage) {
     ModelMatUBO modelUbo;
-    std::array<glm::mat4, MAX_ID> modelMats = anim->generateModelMatrices(secondsFromStart);
+    std::array<glm::mat4, NUM_OF_JOINT_ID> modelMats = anim->generateModelMatrices(secondsFromStart);
 
+    // bone transformation
     for (int i = 0; i < anim->getNumOfJoints(); i++) {
         modelUbo.model[i] = modelMats[i];
     }
+    // floor
+    modelUbo.model[FLOOR_ID] = glm::mat4(1.0);
 
     void* data;
     vkMapMemory(
@@ -1598,11 +1601,6 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
 
     SceneMatUBO sceneUbo;
     sceneUbo.view = cameraCtx.generateViewMat();
-    // sceneUbo.view = glm::lookAt(
-    //     cameraCtx.getCameraPos(),
-    //     cameraCtx.lookAt,
-    //     glm::vec3(0.0f, 0.0f, 1.0f)
-    // );
     sceneUbo.proj = glm::perspective(
         glm::radians(45.0f),
         swapChainExtent.width / (float)swapChainExtent.height,
