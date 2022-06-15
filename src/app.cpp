@@ -30,23 +30,27 @@ void App::init() {
 }
 
 void App::createShapes() {
-	// "staging" array
+	// staging shapes vector
 	std::vector<std::unique_ptr<Shape>> tmpShapes;
-	// bones
+	// staging bones array
 	std::array<std::unique_ptr<Shape>, NUM_OF_JOINT_ID> tmpBones = anim->generateBones();
+	// move only existing bones to shapes vector
 	for (auto& elm : tmpBones) {
+		if (elm == nullptr) {
+			continue;
+		}
 		tmpShapes.push_back(std::move(elm));
 	}
-	// floor
+	// push floor to shapes vector
 	tmpShapes.push_back(std::move(std::make_unique<FilledFloor>(
 		7.0, 7.0,
-		glm::vec3(0.8f, 0.8f, 0.8f),
+		glm::vec3(0.15f),
 		FLOOR_ID
 	)));
 
 	// set base index
 	uint32_t baseIndex = 0;
-	for (int i = 0; i < anim->getNumOfJoints(); i++) {
+	for (int i = 0; i < anim->getNumOfJoints() + NUM_OF_ID_OTHER_THAN_JOINTS; i++) {
 		tmpShapes[i]->setBaseIndex(baseIndex);
 		baseIndex += static_cast<uint32_t>(tmpShapes[i]->getVertices().size());
 	}
@@ -59,9 +63,9 @@ void App::createShapes() {
 }
 
 void App::registerShapes() {
-	for (int i = 0; i < anim->getNumOfJoints(); i++) {
-		base->addVertices(shapes[i]->getVertices());
-		base->addindices(shapes[i]->getIndices());
+	for (const auto& shape : shapes) {
+		base->addVertices(shape->getVertices());
+		base->addIndices(shape->getIndices());
 	}
 }
 

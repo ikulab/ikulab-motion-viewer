@@ -96,7 +96,7 @@ struct CameraContext {
 	glm::vec3 lookAt{ 0.0, 0.0, 0.0 };
 	// in Radian
 	float hRotation = 0.0;
-	float vRotation = 0.0;
+	float vRotation = glm::radians(10.0);
 	float distance = 5.0;
 
 	glm::mat4 generateViewMat() {
@@ -349,7 +349,7 @@ public:
 	void addVertex(Vertex vertex);
 	void addVertices(const std::vector<Vertex>& vertices);
 	void addIndex(uint32_t index);
-	void addindices(const std::vector<uint32_t>& indices);
+	void addIndices(const std::vector<uint32_t>& indices);
 
 	void setAnimator(std::shared_ptr<Animator> anim);
 };

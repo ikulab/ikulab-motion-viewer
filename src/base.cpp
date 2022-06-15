@@ -1476,6 +1476,7 @@ void Base::drawImGuiFrame() {
         glm::degrees(cameraCtx.hRotation),
         glm::degrees(cameraCtx.vRotation)
     );
+    ImGui::Text("Camera distance: %.2f", cameraCtx.distance);
     PADDING(20);
 
     // window status
@@ -1775,7 +1776,7 @@ void Base::addIndex(uint32_t index) {
     indices.push_back(index);
 }
 
-void Base::addindices(const std::vector<uint32_t>& indices) {
+void Base::addIndices(const std::vector<uint32_t>& indices) {
     this->indices.insert(
         this->indices.begin(),
         indices.begin(), indices.end()
