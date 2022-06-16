@@ -11,6 +11,8 @@
 #include "animator.hpp"
 
 #include "./shape/bone/stickTetrahedronBone.hpp"
+#include "./shape/floor/filledFloor.hpp"
+#include "./shape/floor/gridFloor.hpp"
 
 void App::init() {
 	base = std::make_unique<Base>();
@@ -29,11 +31,33 @@ void App::init() {
 }
 
 void App::createShapes() {
-	// "staging" array
-	std::array<std::unique_ptr<Shape>, MAX_ID> tmpShapes = anim->generateBones();
+	// staging shapes vector
+	std::vector<std::unique_ptr<Shape>> tmpShapes;
+	// staging bones array
+	std::array<std::unique_ptr<Shape>, NUM_OF_JOINT_ID> tmpBones = anim->generateBones();
+	// move only existing bones to shapes vector
+	for (auto& elm : tmpBones) {
+		if (elm == nullptr) {
+			continue;
+		}
+		tmpShapes.push_back(std::move(elm));
+	}
+	// push floor to shapes vector
+	// tmpShapes.push_back(std::move(std::make_unique<FilledFloor>(
+	// 	7.0, 7.0,
+	// 	glm::vec3(0.15f),
+	// 	FLOOR_ID
+	// )));
+	tmpShapes.push_back(std::move(std::make_unique<GridFloor>(
+		7.0, 7.0,
+		0.01, 10, 10,
+		glm::vec3(0.2, 0.9, 0.2),
+		FLOOR_ID
+	)));
+
 	// set base index
 	uint32_t baseIndex = 0;
-	for (int i = 0; i < anim->getNumOfJoints(); i++) {
+	for (int i = 0; i < anim->getNumOfJoints() + NUM_OF_ID_OTHER_THAN_JOINTS; i++) {
 		tmpShapes[i]->setBaseIndex(baseIndex);
 		baseIndex += static_cast<uint32_t>(tmpShapes[i]->getVertices().size());
 	}
@@ -46,9 +70,9 @@ void App::createShapes() {
 }
 
 void App::registerShapes() {
-	for (int i = 0; i < anim->getNumOfJoints(); i++) {
-		base->addVertices(shapes[i]->getVertices());
-		base->addindices(shapes[i]->getIndices());
+	for (const auto& shape : shapes) {
+		base->addVertices(shape->getVertices());
+		base->addIndices(shape->getIndices());
 	}
 }
 
@@ -56,8 +80,13 @@ void App::run() {
 	while (!base->windowShouldClose()) {
 		base->vSync();
 		base->updateClock();
+
 		base->pollWindowEvent();
+		base->updateCamera();
+
 		base->drawImGuiFrame();
 		base->drawFrame();
+
+		base->resetMouseCtx();
 	}
 }

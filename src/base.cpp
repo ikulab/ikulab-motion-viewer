@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <chrono>
 #include <thread>
+#include <functional>
+#include <cmath>
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -361,6 +363,8 @@ void Base::recreateSwapChain() {
         glfwGetFramebufferSize(window, &width, &height);
         glfwWaitEvents();
     }
+    windowWidth = width;
+    windowHeight = height;
 
     vkDeviceWaitIdle(device);
 
@@ -373,10 +377,6 @@ void Base::recreateSwapChain() {
     createColorResource();
     createDepthResources();
     createFramebuffers();
-    // createUniformBuffers();
-    // createDescriptorPool();
-    // createDescriptorSets();
-    // createCommandBuffers();
 }
 
 void Base::createImageViews() {
@@ -1441,7 +1441,7 @@ void Base::drawImGuiFrame() {
     // Indicator window
     if (!windowSizeInitialized) {
         windowSizeInitialized = true;
-        ImGui::SetNextWindowSize(ImVec2(300, 300));
+        ImGui::SetNextWindowSize(ImVec2(300, 500));
     }
     ImGui::Begin("インジケーター");
 
@@ -1462,6 +1462,27 @@ void Base::drawImGuiFrame() {
     ImGui::Text("%.1f%%", (float)current / total * 100);
 
     PADDING(30);
+
+#ifndef NODEBUG
+    // mouse input status
+    ImGui::Text("Cursor Pos: (%.1f, %.1f)", mouseCtx.currentX, mouseCtx.currentY);
+    ImGui::Text("Scroll offset: (%.1f, %.1f)", mouseCtx.scrollOffsetX, mouseCtx.scrollOffsetY);
+    ImGui::Text("DragStart: (%.1f, %.1f)", mouseCtx.dragStartX, mouseCtx.dragStartY);
+    ImGui::Text("DragEnd: (%.1f, %.1f)", mouseCtx.dragEndX, mouseCtx.dragEndY);
+    ImGui::Text("Delta: (%.1f, %.1f)", mouseCtx.deltaX, mouseCtx.deltaY);
+    ImGui::Text("Button L/R/M: (%d / %d / %d)", mouseCtx.leftButton, mouseCtx.rightButton, mouseCtx.middleButton);
+    ImGui::Text(
+        "Camera rotation (degrees) H/V: (%.2f, %.2f)",
+        glm::degrees(cameraCtx.hRotation),
+        glm::degrees(cameraCtx.vRotation)
+    );
+    ImGui::Text("Camera distance: %.2f", cameraCtx.distance);
+    PADDING(20);
+
+    // window status
+    ImGui::Text("Window size: (%d, %d)", windowWidth, windowHeight);
+    PADDING(20);
+#endif
 
     if (ImGui::Button("ファイルを開く...")) {
         std::cout << "TODO: implement!!" << std::endl;
@@ -1561,21 +1582,15 @@ void Base::vSync() {
 }
 
 void Base::updateUniformBuffer(uint32_t currentImage) {
-    // float lookAtX = (cos(M_PI * time / 10.0f)) * 3.0f;
-    // float lookAtY = (sin(M_PI * time / 10.0f)) * 3.0f;
-    // float lookAtX = -10.0f;
-    // float lookAtY = 7.0f;
-    // float lookAtZ = 2.0f;
-    float lookAtX = 3.0f;
-    float lookAtY = 0.0f;
-    float lookAtZ = 0.0f;
-
     ModelMatUBO modelUbo;
-    std::array<glm::mat4, MAX_ID> modelMats = anim->generateModelMatrices(secondsFromStart);
+    std::array<glm::mat4, NUM_OF_JOINT_ID> modelMats = anim->generateModelMatrices(secondsFromStart);
 
+    // bone transformation
     for (int i = 0; i < anim->getNumOfJoints(); i++) {
         modelUbo.model[i] = modelMats[i];
     }
+    // floor
+    modelUbo.model[FLOOR_ID] = glm::mat4(1.0);
 
     void* data;
     vkMapMemory(
@@ -1586,12 +1601,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]);
 
     SceneMatUBO sceneUbo;
-    sceneUbo.view = glm::lookAt(
-        glm::vec3(lookAtX, lookAtY, lookAtZ),
-        // glm::vec3(-1.5f, 4.5f, 0.5f),
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f)
-    );
+    sceneUbo.view = cameraCtx.generateViewMat();
     sceneUbo.proj = glm::perspective(
         glm::radians(45.0f),
         swapChainExtent.width / (float)swapChainExtent.height,
@@ -1766,7 +1776,7 @@ void Base::addIndex(uint32_t index) {
     indices.push_back(index);
 }
 
-void Base::addindices(const std::vector<uint32_t>& indices) {
+void Base::addIndices(const std::vector<uint32_t>& indices) {
     this->indices.insert(
         this->indices.begin(),
         indices.begin(), indices.end()
@@ -1775,4 +1785,83 @@ void Base::addindices(const std::vector<uint32_t>& indices) {
 
 void Base::setAnimator(std::shared_ptr<Animator> anim) {
     this->anim = anim;
+}
+
+void Base::cursorPositionCallback(GLFWwindow* window, double xPos, double yPos) {
+    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
+
+    basePtr->mouseCtx.deltaX = xPos - basePtr->mouseCtx.currentX;
+    basePtr->mouseCtx.deltaY = yPos - basePtr->mouseCtx.currentY;
+
+    basePtr->mouseCtx.currentX = xPos;
+    basePtr->mouseCtx.currentY = yPos;
+
+    // record drag end position
+    if (basePtr->mouseCtx.leftButton) {
+        basePtr->mouseCtx.dragEndX = xPos;
+        basePtr->mouseCtx.dragEndY = yPos;
+    }
+}
+
+void Base::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
+    switch (button) {
+    case GLFW_MOUSE_BUTTON_LEFT:
+        basePtr->mouseCtx.leftButton = (action == GLFW_PRESS);
+        break;
+    case GLFW_MOUSE_BUTTON_RIGHT:
+        basePtr->mouseCtx.rightButton = (action == GLFW_PRESS);
+        break;
+    case GLFW_MOUSE_BUTTON_MIDDLE:
+        basePtr->mouseCtx.middleButton = (action == GLFW_PRESS);
+        break;
+    default:
+        break;
+    }
+
+    // init drag position
+    if (basePtr->mouseCtx.leftButton) {
+        basePtr->mouseCtx.dragStartX = basePtr->mouseCtx.currentX;
+        basePtr->mouseCtx.dragStartY = basePtr->mouseCtx.currentY;
+        basePtr->mouseCtx.dragEndX = basePtr->mouseCtx.currentX;
+        basePtr->mouseCtx.dragEndY = basePtr->mouseCtx.currentY;
+    }
+}
+
+void Base::scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
+    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
+    basePtr->mouseCtx.scrollOffsetX = xOffset;
+    basePtr->mouseCtx.scrollOffsetY = yOffset;
+}
+
+void Base::registerInputEvents() {
+    glfwSetWindowUserPointer(window, this);
+
+    glfwSetCursorPosCallback(window, cursorPositionCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetScrollCallback(window, scrollCallback);
+}
+
+void Base::updateCamera() {
+    const double DIFF_RATIO = 0.01;
+    const double SCROLL_RATIO = 0.1;
+    if (mouseCtx.leftButton) {
+        double xDiff = mouseCtx.deltaX * DIFF_RATIO;
+        double yDiff = mouseCtx.deltaY * DIFF_RATIO;
+        cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - xDiff, 2 * M_PI);
+        cameraCtx.vRotation = std::clamp(
+            std::fmod(cameraCtx.vRotation + yDiff, 2 * M_PI),
+            -M_PI/2.0 + 0.0001,
+            M_PI/2.0 - 0.0001
+        );
+    }
+
+    cameraCtx.distance -= mouseCtx.scrollOffsetY * SCROLL_RATIO;
+}
+
+void Base::resetMouseCtx() {
+    mouseCtx.scrollOffsetX = 0.0;
+    mouseCtx.scrollOffsetY = 0.0;
+    mouseCtx.deltaX = 0.0;
+    mouseCtx.deltaY = 0.0;
 }

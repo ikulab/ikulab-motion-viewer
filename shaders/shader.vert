@@ -1,9 +1,9 @@
 #version 450
 
-const int MAX_ID = 256;
+const int NUM_OF_ID = 256;
 
 layout(set = 0, binding = 0) uniform ModelMat {
-	mat4 model[MAX_ID];
+	mat4 model[NUM_OF_ID];
 } modelMat;
 
 layout(set = 0, binding = 1) uniform SceneMat {

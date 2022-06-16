@@ -11,7 +11,11 @@
 #include <GLFW/glfw3.h>
 
 #include <vulkan/vulkan.h>
+
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "./definition/vertex.hpp"
 #include "./definition/common.hpp"
@@ -60,12 +64,52 @@ struct SwapChainSupportDetails {
 };
 
 struct ModelMatUBO {
-	alignas(16) glm::mat4 model[MAX_ID];
+	alignas(16) glm::mat4 model[NUM_OF_ID];
 };
 
 struct SceneMatUBO {
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
+};
+
+struct MouseInputContext {
+	bool leftButton = false;
+	bool rightButton = false;
+	bool middleButton = false;
+
+	double dragStartX = 0.0;
+	double dragStartY = 0.0;
+	double dragEndX = 0.0;
+	double dragEndY = 0.0;
+
+	double currentX = 0.0;
+	double currentY = 0.0;
+
+	double deltaX = 0.0;
+	double deltaY = 0.0;
+
+	double scrollOffsetX = 0.0;
+	double scrollOffsetY = 0.0;
+};
+
+struct CameraContext {
+	glm::vec3 lookAt{ 0.0, 0.0, 0.0 };
+	// in Radian
+	float hRotation = 0.0;
+	float vRotation = glm::radians(10.0);
+	float distance = 5.0;
+
+	glm::mat4 generateViewMat() {
+		float x = distance * std::cos(hRotation) * std::cos(vRotation);
+		float y = distance * std::sin(hRotation) * std::cos(vRotation);
+		float z = distance * std::sin(vRotation);
+
+		return glm::lookAt(
+			glm::vec3(x, y, z),
+			glm::vec3(0.0f),
+			glm::vec3(0.0f, 0.0f, 1.0f)
+		);
+	}
 };
 
 class Base {
@@ -206,7 +250,7 @@ class Base {
 	VkDescriptorPool descriptorPool;
 	std::array<std::vector<VkDescriptorSet>, MAX_FRAMES_IN_FLIGHT> descriptorSets;
 	VkDescriptorPool imguiDescriptorPool;
-	
+
 
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
@@ -265,9 +309,22 @@ class Base {
 	}
 
 	std::shared_ptr<Animator> anim;
+
+	MouseInputContext mouseCtx;
+
+	// GLFW event callbacks ---
+	static void cursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
+	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+	static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+	void registerInputEvents();
+	// ---
+
+	CameraContext cameraCtx;
+
 public:
 	Base() {
 		initWindow();
+		registerInputEvents();
 	}
 
 	~Base() {
@@ -284,13 +341,15 @@ public:
 	void drawFrame();
 
 	void vSync();
-	/// call this after vSync()
-	void updateClock();
+	void updateClock();		// call this after vSync()
+	void updateCamera();
+
+	void resetMouseCtx();
 
 	void addVertex(Vertex vertex);
 	void addVertices(const std::vector<Vertex>& vertices);
 	void addIndex(uint32_t index);
-	void addindices(const std::vector<uint32_t>& indices);
+	void addIndices(const std::vector<uint32_t>& indices);
 
 	void setAnimator(std::shared_ptr<Animator> anim);
 };

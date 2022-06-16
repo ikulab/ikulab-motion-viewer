@@ -86,7 +86,7 @@ void Animator::showMotionInfo() {
 	}
 }
 
-std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
+std::array<glm::mat4, NUM_OF_JOINT_ID> Animator::generateModelMatrices(float time) {
 	float timeInLoop = std::fmod(time, (loopDuration - frameRate));
 	uint32_t prevFrameIdx = std::floor(timeInLoop / frameRate);
 	uint32_t nextFrameIdx = prevFrameIdx + 1;
@@ -105,7 +105,7 @@ std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 	}
 
 	// generate result matrices
-	std::array<glm::mat4, MAX_ID> result;
+	std::array<glm::mat4, NUM_OF_JOINT_ID> result;
 
 	for (JointID id = 0; id < joints.size(); id++) {
 		result[id] = glm::mat4(1.0);
@@ -127,8 +127,8 @@ std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 				// Motion position
 				result[id] *= glm::translate(
 					glm::mat4(1.0),
-					// currentMotion[pID].pos
-					glm::vec3(0.0)
+					currentMotion[pID].pos
+					// glm::vec3(0.0)
 				);
 			}
 			else {
@@ -157,7 +157,7 @@ std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 		// Move to current joint's position
 		result[id] *= glm::translate(
 			glm::mat4(1.0),
-			id != 0 ? joints[id]->getPos() : glm::vec3(0.0)
+			id != 0 ? joints[id]->getPos() : currentMotion[id].pos
 		);
 
 		// rotate current joint object to turn to parent
@@ -183,8 +183,8 @@ std::array<glm::mat4, MAX_ID> Animator::generateModelMatrices(float time) {
 	return result;
 }
 
-std::array<std::unique_ptr<Shape>, MAX_ID> Animator::generateBones() {
-	std::array<std::unique_ptr<Shape>, MAX_ID> result;
+std::array<std::unique_ptr<Shape>, NUM_OF_JOINT_ID> Animator::generateBones() {
+	std::array<std::unique_ptr<Shape>, NUM_OF_JOINT_ID> result;
 	for (JointID id = 0; id < joints.size(); id++) {
 		// Root Joint
 		if (joints[id]->getParentIDs().empty()) {
