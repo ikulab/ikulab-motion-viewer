@@ -12,6 +12,7 @@
 
 #include "./shape/bone/stickTetrahedronBone.hpp"
 #include "./shape/floor/gridFloor.hpp"
+#include "./shape/floor/filledFloor.hpp"
 
 #include "./shape/debug/directionDebugObject.hpp"
 
@@ -45,8 +46,8 @@ void App::createShapes() {
 	}
 	// push floor to shapes vector
 	// tmpShapes.push_back(std::move(std::make_unique<FilledFloor>(
-	// 	7.0, 7.0,
-	// 	glm::vec3(0.15f),
+	// 	1000.0, 1000.0,
+	// 	glm::vec3(0.15f), true,
 	// 	FLOOR_ID
 	// )));
 	tmpShapes.push_back(std::move(std::make_unique<GridFloor>(
