@@ -1441,12 +1441,13 @@ void Base::drawImGuiFrame() {
     // Indicator window
     if (!windowSizeInitialized) {
         windowSizeInitialized = true;
-        ImGui::SetNextWindowSize(ImVec2(300, 500));
+        ImGui::SetNextWindowSize(ImVec2(300, 600));
     }
     ImGui::Begin("インジケーター");
 
 #ifndef NODEBUG
     ImGui::Checkbox("ImGui DemoWindowを表示する", &showDemoWindow);
+    ImGui::Text("IsWindowFocused: %d", ImGui::IsWindowFocused());
     PADDING(20);
 #endif
 
@@ -1596,7 +1597,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     modelUbo.model[DEBUG_OBJECT_ID] = glm::mat4(0.0);
 #endif
 
-// global scaling
+    // global scaling
     for (auto& m : modelUbo.model) {
         m = glm::scale(glm::mat4(1.0), glm::vec3(0.01)) * m;
     }
@@ -1874,38 +1875,42 @@ void Base::registerInputEvents() {
 }
 
 void Base::updateCamera() {
-    const double DIFF_RATIO = 0.01;
-    const double SCROLL_RATIO = 1.1;
-    if (mouseCtx.leftButton) {
-        double xDiff = mouseCtx.deltaX * DIFF_RATIO;
-        double yDiff = mouseCtx.deltaY * DIFF_RATIO;
+    const static double DIFF_RATIO = 0.01;
+    const static double SCROLL_RATIO = 1.1;
 
-        if (keyCtx.shift) {
-            glm::mat4 r(1.0);
-            r *= glm::rotate(
-                glm::mat4(1.0),
-                cameraCtx.hRotation,
-                glm::vec3(0.0, 0.0, 1.0)
-            );
-            r *= glm::rotate(
-                glm::mat4(1.0),
-                -cameraCtx.vRotation,
-                glm::vec3(0.0, 1.0, 0.0)
-            );
-            glm::vec4 shift(0.0, -(float)xDiff, (float)yDiff, 1.0);
-            cameraCtx.center += glm::vec3(r * shift);
+    bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow);
+
+    if (!isWindowFocused) {
+        if (mouseCtx.leftButton) {
+            double xDiff = mouseCtx.deltaX * DIFF_RATIO;
+            double yDiff = mouseCtx.deltaY * DIFF_RATIO;
+
+            if (keyCtx.shift) {
+                glm::mat4 r(1.0);
+                r *= glm::rotate(
+                    glm::mat4(1.0),
+                    cameraCtx.hRotation,
+                    glm::vec3(0.0, 0.0, 1.0)
+                );
+                r *= glm::rotate(
+                    glm::mat4(1.0),
+                    -cameraCtx.vRotation,
+                    glm::vec3(0.0, 1.0, 0.0)
+                );
+                glm::vec4 shift(0.0, -(float)xDiff, (float)yDiff, 1.0);
+                cameraCtx.center += glm::vec3(r * shift);
+            }
+            else {
+                cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - xDiff, 2 * M_PI);
+                cameraCtx.vRotation = std::clamp(
+                    std::fmod(cameraCtx.vRotation + yDiff, 2 * M_PI),
+                    -M_PI / 2.0 + 0.0001,
+                    M_PI / 2.0 - 0.0001
+                );
+            }
         }
-        else {
-            cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - xDiff, 2 * M_PI);
-            cameraCtx.vRotation = std::clamp(
-                std::fmod(cameraCtx.vRotation + yDiff, 2 * M_PI),
-                -M_PI / 2.0 + 0.0001,
-                M_PI / 2.0 - 0.0001
-            );
-        }
+        cameraCtx.distance *= std::pow(SCROLL_RATIO, -mouseCtx.scrollOffsetY);
     }
-
-    cameraCtx.distance *= std::pow(SCROLL_RATIO, -mouseCtx.scrollOffsetY);
 }
 
 void Base::resetMouseInputContext() {
