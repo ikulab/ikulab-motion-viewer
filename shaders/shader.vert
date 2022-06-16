@@ -1,6 +1,6 @@
 #version 450
 
-const int NUM_OF_ID = 256;
+const int NUM_OF_ID = 258;
 
 layout(set = 0, binding = 0) uniform ModelMat {
 	mat4 model[NUM_OF_ID];
@@ -19,7 +19,6 @@ layout(location = 0) out vec3 flagColor;
 
 void main() {
 	gl_Position = sceneMat.proj * sceneMat.view * modelMat.model[inId] * vec4(inPosition, 1.0);
-	// gl_Position = sceneMat.proj * sceneMat.view * vec4(inPosition, 1.0);
 
 	flagColor = inColor;
 }

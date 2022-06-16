@@ -92,21 +92,32 @@ struct MouseInputContext {
 	double scrollOffsetY = 0.0;
 };
 
+struct KeyboardInputContext {
+	bool ctrl = false;
+	bool alt = false;
+	bool shift = false;
+};
+
 struct CameraContext {
-	glm::vec3 lookAt{ 0.0, 0.0, 0.0 };
+	glm::vec3 center{ 0.0, 0.0, 0.0 };
 	// in Radian
 	float hRotation = 0.0;
 	float vRotation = glm::radians(20.0);
 	float distance = 10.0;
 
-	glm::mat4 generateViewMat() {
-		float x = distance * std::cos(hRotation) * std::cos(vRotation);
-		float y = distance * std::sin(hRotation) * std::cos(vRotation);
-		float z = distance * std::sin(vRotation);
+	glm::vec3 generatePos() {
+		glm::vec3 pos;
+		pos.x = distance * std::cos(hRotation) * std::cos(vRotation);
+		pos.y = distance * std::sin(hRotation) * std::cos(vRotation);
+		pos.z = distance * std::sin(vRotation);
+		pos += center;
+		return pos;
+	}
 
+	glm::mat4 generateViewMat() {
 		return glm::lookAt(
-			glm::vec3(x, y, z),
-			glm::vec3(0.0f),
+			generatePos(),
+			center,
 			glm::vec3(0.0f, 0.0f, 1.0f)
 		);
 	}
@@ -132,6 +143,8 @@ class Base {
 	std::vector<VkImageView> swapChainImageViews;
 
 	VkSurfaceKHR surface;
+
+    ModelMatUBO modelUbo;
 
 	int windowWidth = 0;
 	int windowHeight = 0;
@@ -311,11 +324,13 @@ class Base {
 	std::shared_ptr<Animator> anim;
 
 	MouseInputContext mouseCtx;
+	KeyboardInputContext keyCtx;
 
 	// GLFW event callbacks ---
 	static void cursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
 	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 	static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+	static void keyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods);
 	void registerInputEvents();
 	// ---
 
@@ -344,7 +359,9 @@ public:
 	void updateClock();		// call this after vSync()
 	void updateCamera();
 
-	void resetMouseCtx();
+	void resetMouseInputContext();
+
+	void resetModelMat();
 
 	void addVertex(Vertex vertex);
 	void addVertices(const std::vector<Vertex>& vertices);

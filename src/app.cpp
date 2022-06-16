@@ -11,8 +11,9 @@
 #include "animator.hpp"
 
 #include "./shape/bone/stickTetrahedronBone.hpp"
-#include "./shape/floor/filledFloor.hpp"
 #include "./shape/floor/gridFloor.hpp"
+
+#include "./shape/debug/directionDebugObject.hpp"
 
 void App::init() {
 	base = std::make_unique<Base>();
@@ -54,6 +55,9 @@ void App::createShapes() {
 		glm::vec3(0.2, 0.9, 0.2),
 		FLOOR_ID
 	)));
+	tmpShapes.push_back(std::move(std::make_unique<DirectionDebugObject>(
+		40.0, DEBUG_OBJECT_ID
+	)));
 
 	// set base index
 	uint32_t baseIndex = 0;
@@ -81,12 +85,14 @@ void App::run() {
 		base->vSync();
 		base->updateClock();
 
+		base->resetModelMat();
+
 		base->pollWindowEvent();
 		base->updateCamera();
 
 		base->drawImGuiFrame();
 		base->drawFrame();
 
-		base->resetMouseCtx();
+		base->resetMouseInputContext();
 	}
 }

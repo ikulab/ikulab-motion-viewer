@@ -1477,6 +1477,8 @@ void Base::drawImGuiFrame() {
         glm::degrees(cameraCtx.vRotation)
     );
     ImGui::Text("Camera distance: %.2f", cameraCtx.distance);
+    glm::vec3 cameraPos = cameraCtx.generatePos();
+    ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", cameraPos.x, cameraPos.y, cameraPos.z);
     PADDING(20);
 
     // window status
@@ -1582,17 +1584,19 @@ void Base::vSync() {
 }
 
 void Base::updateUniformBuffer(uint32_t currentImage) {
-    ModelMatUBO modelUbo;
     std::array<glm::mat4, NUM_OF_JOINT_ID> modelMats = anim->generateModelMatrices(secondsFromStart);
 
     // bone transformation
     for (int i = 0; i < anim->getNumOfJoints(); i++) {
         modelUbo.model[i] = modelMats[i];
     }
-    // floor
-    modelUbo.model[FLOOR_ID] = glm::mat4(1.0);
 
-    // global scaling
+    // debug
+#ifndef NODEBUG
+    modelUbo.model[DEBUG_OBJECT_ID] = glm::mat4(0.0);
+#endif
+
+// global scaling
     for (auto& m : modelUbo.model) {
         m = glm::scale(glm::mat4(1.0), glm::vec3(0.01)) * m;
     }
@@ -1839,12 +1843,34 @@ void Base::scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
     basePtr->mouseCtx.scrollOffsetY = yOffset;
 }
 
+void Base::keyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods) {
+    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
+
+    switch (key) {
+    case GLFW_KEY_LEFT_CONTROL:
+    case GLFW_KEY_RIGHT_CONTROL:
+        basePtr->keyCtx.ctrl = (action == GLFW_PRESS);
+        break;
+    case GLFW_KEY_LEFT_ALT:
+    case GLFW_KEY_RIGHT_ALT:
+        basePtr->keyCtx.alt = (action == GLFW_PRESS);
+        break;
+    case GLFW_KEY_LEFT_SHIFT:
+    case GLFW_KEY_RIGHT_SHIFT:
+        basePtr->keyCtx.shift = (action == GLFW_PRESS);
+        break;
+    default:
+        break;
+    }
+}
+
 void Base::registerInputEvents() {
     glfwSetWindowUserPointer(window, this);
 
     glfwSetCursorPosCallback(window, cursorPositionCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetScrollCallback(window, scrollCallback);
+    glfwSetKeyCallback(window, keyCallback);
 }
 
 void Base::updateCamera() {
@@ -1853,20 +1879,44 @@ void Base::updateCamera() {
     if (mouseCtx.leftButton) {
         double xDiff = mouseCtx.deltaX * DIFF_RATIO;
         double yDiff = mouseCtx.deltaY * DIFF_RATIO;
-        cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - xDiff, 2 * M_PI);
-        cameraCtx.vRotation = std::clamp(
-            std::fmod(cameraCtx.vRotation + yDiff, 2 * M_PI),
-            -M_PI/2.0 + 0.0001,
-            M_PI/2.0 - 0.0001
-        );
+
+        if (keyCtx.shift) {
+            glm::mat4 r(1.0);
+            r *= glm::rotate(
+                glm::mat4(1.0),
+                cameraCtx.hRotation,
+                glm::vec3(0.0, 0.0, 1.0)
+            );
+            r *= glm::rotate(
+                glm::mat4(1.0),
+                -cameraCtx.vRotation,
+                glm::vec3(0.0, 1.0, 0.0)
+            );
+            glm::vec4 shift(0.0, -(float)xDiff, (float)yDiff, 1.0);
+            cameraCtx.center += glm::vec3(r * shift);
+        }
+        else {
+            cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - xDiff, 2 * M_PI);
+            cameraCtx.vRotation = std::clamp(
+                std::fmod(cameraCtx.vRotation + yDiff, 2 * M_PI),
+                -M_PI / 2.0 + 0.0001,
+                M_PI / 2.0 - 0.0001
+            );
+        }
     }
 
     cameraCtx.distance *= std::pow(SCROLL_RATIO, -mouseCtx.scrollOffsetY);
 }
 
-void Base::resetMouseCtx() {
+void Base::resetMouseInputContext() {
     mouseCtx.scrollOffsetX = 0.0;
     mouseCtx.scrollOffsetY = 0.0;
     mouseCtx.deltaX = 0.0;
     mouseCtx.deltaY = 0.0;
+}
+
+void Base::resetModelMat() {
+    for (auto& m : modelUbo.model) {
+        m = glm::mat4(1.0);
+    }
 }
