@@ -12,6 +12,7 @@
 
 #include "./shape/bone/stickTetrahedronBone.hpp"
 #include "./shape/floor/filledFloor.hpp"
+#include "./shape/floor/gridFloor.hpp"
 
 void App::init() {
 	base = std::make_unique<Base>();
@@ -42,9 +43,15 @@ void App::createShapes() {
 		tmpShapes.push_back(std::move(elm));
 	}
 	// push floor to shapes vector
-	tmpShapes.push_back(std::move(std::make_unique<FilledFloor>(
+	// tmpShapes.push_back(std::move(std::make_unique<FilledFloor>(
+	// 	7.0, 7.0,
+	// 	glm::vec3(0.15f),
+	// 	FLOOR_ID
+	// )));
+	tmpShapes.push_back(std::move(std::make_unique<GridFloor>(
 		7.0, 7.0,
-		glm::vec3(0.15f),
+		0.01, 10, 10,
+		glm::vec3(0.2, 0.9, 0.2),
 		FLOOR_ID
 	)));
 
