@@ -115,8 +115,6 @@ std::array<glm::mat4, NUM_OF_JOINT_ID> Animator::generateModelMatrices(float tim
 			glm::radians(90.0f),
 			glm::vec3(1.0, 0.0, 0.0)
 		);
-		// scaling
-		result[id] *= glm::scale(glm::mat4(1.0), glm::vec3(0.01, 0.01, 0.01));
 
 		const std::vector<JointID>& parentIDs = joints[id]->getParentIDs();
 

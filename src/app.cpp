@@ -49,8 +49,8 @@ void App::createShapes() {
 	// 	FLOOR_ID
 	// )));
 	tmpShapes.push_back(std::move(std::make_unique<GridFloor>(
-		7.0, 7.0,
-		0.01, 10, 10,
+		1000.0, 1000.0,
+		1, 10, 10,
 		glm::vec3(0.2, 0.9, 0.2),
 		FLOOR_ID
 	)));

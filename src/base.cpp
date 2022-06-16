@@ -1592,6 +1592,11 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     // floor
     modelUbo.model[FLOOR_ID] = glm::mat4(1.0);
 
+    // global scaling
+    for (auto& m : modelUbo.model) {
+        m = glm::scale(glm::mat4(1.0), glm::vec3(0.01)) * m;
+    }
+
     void* data;
     vkMapMemory(
         device,
@@ -1605,8 +1610,8 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     sceneUbo.proj = glm::perspective(
         glm::radians(45.0f),
         swapChainExtent.width / (float)swapChainExtent.height,
-        0.1f,
-        10.0f
+        0.01f,
+        1000.0f
     );
 
     // デフォルトでは 左手系 Z-down になっている
@@ -1844,7 +1849,7 @@ void Base::registerInputEvents() {
 
 void Base::updateCamera() {
     const double DIFF_RATIO = 0.01;
-    const double SCROLL_RATIO = 0.1;
+    const double SCROLL_RATIO = 1.1;
     if (mouseCtx.leftButton) {
         double xDiff = mouseCtx.deltaX * DIFF_RATIO;
         double yDiff = mouseCtx.deltaY * DIFF_RATIO;
@@ -1856,7 +1861,7 @@ void Base::updateCamera() {
         );
     }
 
-    cameraCtx.distance -= mouseCtx.scrollOffsetY * SCROLL_RATIO;
+    cameraCtx.distance *= std::pow(SCROLL_RATIO, -mouseCtx.scrollOffsetY);
 }
 
 void Base::resetMouseCtx() {

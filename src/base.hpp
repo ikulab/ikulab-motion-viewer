@@ -96,8 +96,8 @@ struct CameraContext {
 	glm::vec3 lookAt{ 0.0, 0.0, 0.0 };
 	// in Radian
 	float hRotation = 0.0;
-	float vRotation = glm::radians(10.0);
-	float distance = 5.0;
+	float vRotation = glm::radians(20.0);
+	float distance = 10.0;
 
 	glm::mat4 generateViewMat() {
 		float x = distance * std::cos(hRotation) * std::cos(vRotation);
