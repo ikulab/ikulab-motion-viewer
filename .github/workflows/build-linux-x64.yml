@@ -30,12 +30,12 @@ jobs:
           tar -xf install.tgz
           sudo cp install/bin/glslc /usr/local/bin/
           rm -rf install
-      
+
       - name: cmake
         run: |
           cmake -S . -B build
           cmake --build build
-      
+
       - name: upload artifact
         uses: actions/upload-artifact@v3
         with:

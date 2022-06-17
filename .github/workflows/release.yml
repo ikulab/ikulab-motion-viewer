@@ -1,0 +1,13 @@
+name: release
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    uses: ./.github/workflows/build-linux-x64.yml
+  release:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: hello
+        run: echo hello
