@@ -2,6 +2,7 @@ name: release
 on:
   release:
     types: [published]
+  workflow_dispatch:
 jobs:
   build:
     uses: ./.github/workflows/build-linux-x64.yml
