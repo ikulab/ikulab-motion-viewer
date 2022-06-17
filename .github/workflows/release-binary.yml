@@ -17,6 +17,7 @@ jobs:
 
     - name: upload to release page
       run: |
+        ls ikulab-motion-viewer-linux-x64
         hub release create \
           -a ./ikulab-motion-viewer-linux-x64/ikulab-motion-viewer-linux-x64 \
           -m "this is test release" \
