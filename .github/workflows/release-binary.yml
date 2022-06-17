@@ -18,6 +18,6 @@ jobs:
     - name: upload to release page
       run: |
         hub release create \
-          -a ./ikulab-motion-viewer-linux-x64
-          -m "this is test release"
+          -a ./ikulab-motion-viewer-linux-x64 \
+          -m "this is test release" \
           ${{ github.event.head_commit.message }}
