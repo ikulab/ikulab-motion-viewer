@@ -1,15 +1,15 @@
 name: release-binary
 on:
-  # release:
-  #   types: [published]
+  release:
+    types: [published]
   workflow_dispatch:
-  # push:
+  push: # for debug
 jobs:
-  # build:
-  #   uses: ./.github/workflows/build-linux-x64.yml
+  build:
+    uses: ./.github/workflows/build-linux-x64.yml
   release:
     runs-on: ubuntu-latest
-    # needs: [build]
+    needs: [build]
     steps:
-      - name: hello
-        run: echo hello
+      - name: message
+        run: echo "build done"
