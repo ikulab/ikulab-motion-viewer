@@ -24,8 +24,7 @@ jobs:
       
       - name: install glslc
         run: |
-          curl https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_gcc_release/382/20220602-094524/install.tgz --output glslc_install.tgz
-          tar -xf glslc_install.tgz
-          ls
-          sudo cp glslc_install/bin/glslc /usr/local/bin/
+          curl https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_gcc_release/382/20220602-094524/install.tgz --output install.tgz
+          tar -xf install.tgz
+          sudo cp install/bin/glslc /usr/local/bin/
           cd ..
