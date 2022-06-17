@@ -8,13 +8,13 @@ jobs:
         uses: actions/checkout@v3
 
       - name: install vulkan
-        run: apt install libvulkan-dev -y
+        run: sudo apt install libvulkan-dev -y
       - name: install vulkan-validation-layers
-        run: apt install vulkan-validationlayers-dev -y
+        run: sudo apt install vulkan-validationlayers-dev -y
       - name: install spirv-tools
-        run: apt install spirv-tools -y
+        run: sudo apt install spirv-tools -y
 
       - name: install glfw3
-        run: apt install libglfw3-dev -y
+        run: sudo apt install libglfw3-dev -y
       - name: install glm
-        run: apt install libglm-dev -y
+        run: sudo apt install libglm-dev -y
