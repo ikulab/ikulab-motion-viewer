@@ -2,7 +2,7 @@ name: release-binary
 on:
   # release:
   #   types: [published]
-  # workflow_dispatch:
+  workflow_dispatch:
   push:
 jobs:
   # build:
