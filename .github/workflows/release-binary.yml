@@ -11,5 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-      - name: message
-        run: echo "build done"
+    - uses: actions/checkout@v3
+    - name: download artifact
+      uses: actions/download-artifact@v3
+
+    - run: ls

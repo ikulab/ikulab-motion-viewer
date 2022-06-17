@@ -1,6 +1,6 @@
 name: build-linux-x64
 on:
-  push:
+  # push: <- uncomment when deploy
   workflow_call:
 jobs:
   build:
