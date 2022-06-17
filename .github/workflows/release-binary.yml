@@ -21,3 +21,5 @@ jobs:
           -a ./ikulab-motion-viewer-linux-x64 \
           -m "this is test release" \
           ${{ github.event.head_commit.message }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
