@@ -18,3 +18,16 @@ jobs:
         run: sudo apt install libglfw3-dev -y
       - name: install glm
         run: sudo apt install libglm-dev -y
+
+      - name: install Xxf and Xi
+        run: sudo apt install libxxf86vm-dev libxi-dev -y
+      
+      - name: install glslc
+        run: |
+          mkdir ./.github/workflows/tmp
+          cd ./.github/workflows/tmp
+          curl https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_gcc_release/382/20220602-094524/install.tgz --output glslc_install.tgz
+          tar -xf glslc_install
+          sudo cp glslc_install/bin/glslc /usr/local/bin/
+          cd ..
+          rm -rf tmp
