@@ -1,9 +1,20 @@
 name: build-linux-x64
 on: [push]
 jobs:
-  test:
+  install-dependencies:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - run: cmake -S . -B build
-      - run: cmake --build build
+      - name: checkout code
+        uses: actions/checkout@v3
+
+      - name: install vulkan
+        run: sudo apt install libvulkan-dev
+      - name: install vulkan-validation-layers
+        run: sudo apt install vulkan-validationlayers-dev
+      - name: install spirv-tools
+        run: sudo apt install spirv-tools
+
+      - name: install glfw3
+        run: sudo apt install libglfw3-dev
+      - name: install glm
+        run: sudo apt install libglm-dev
