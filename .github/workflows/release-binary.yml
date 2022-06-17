@@ -1,8 +1,9 @@
 name: release-binary
-on: [workflow_dispatch]
+on:
   # release:
   #   types: [published]
   # workflow_dispatch:
+  push:
 jobs:
   # build:
   #   uses: ./.github/workflows/build-linux-x64.yml
