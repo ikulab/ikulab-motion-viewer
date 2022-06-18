@@ -6,18 +6,12 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - run: git clone https://github.com/KhronosGroup/Vulkan-Headers.git
-    - name: install vulkan header
-      run: |
-        mkdir module
-        cd Vulkan-Headers
-        mkdir build
-        cmake -S . -B build -DCMAKE_INSTALL_PREFIX=../module
-        cmake --build build --target install
-    - name: clean vulkan-header
-      run: |
-        Remove-Item Vulkan-Headers -Recurse -Force
-    - run: tree
+    - name: Prepare Vulkan SDK
+      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      with:
+        vulkan-query-version: 1.3.204.0
+        vulkan-components: Vulkan-Headers, Vulkan-Loader, SPIRV-Tools
+        vulkan-use-cache: true
 
     - uses: actions/checkout@v3
     - run: cmake -S . -B build
