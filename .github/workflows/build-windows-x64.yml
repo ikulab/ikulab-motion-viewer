@@ -6,7 +6,8 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - run: git clone https://github.com/KhronosGroup/Vulkan-Headers.git
+    #- run: git clone https://github.com/KhronosGroup/Vulkan-Headers.git
+    - run: mkdir Vulkan-Headers
     - name: install vulkan header
       run: |
         cd Vulkan-Headers
@@ -14,12 +15,11 @@ jobs:
         cd build
         # cmake ..
         # cmake --build . --target install
+    - run: pwd
+    - run: ls
     - name: clean vulkan-header
       run: |
-        pwd
-        ls
-        cd ../..
-        ls
+        cd ..
         Remove-Item Vulkan-Headers -Recurse -Force
 
     - uses: actions/checkout@v3
