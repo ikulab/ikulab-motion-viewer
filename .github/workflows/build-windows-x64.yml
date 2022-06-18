@@ -9,16 +9,17 @@ jobs:
     - run: git clone https://github.com/KhronosGroup/Vulkan-Headers.git
     - name: install vulkan header
       run: |
-        ls
         cd Vulkan-Headers
-        ls
         mkdir build
         cd build
-        cmake ..
-        cmake --build . --target install
+        # cmake ..
+        # cmake --build . --target install
     - name: clean vulkan-header
       run: |
+        pwd
+        ls
         cd ../..
+        ls
         Remove-Item Vulkan-Headers -Recurse -Force
 
     - uses: actions/checkout@v3
