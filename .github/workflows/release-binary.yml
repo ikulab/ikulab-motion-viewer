@@ -3,10 +3,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
-  push: # for debug
 jobs:
   build:
-    uses: ./.github/workflows/build-linux-x64.yml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/build-linux-x64.yml
   release:
     runs-on: ubuntu-latest
     needs: [build]
