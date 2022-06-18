@@ -1,0 +1,9 @@
+name: build-windows-x64
+on:
+  push:
+  workflow_call:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - run: cl.exe --version
