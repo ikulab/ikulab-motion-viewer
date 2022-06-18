@@ -8,7 +8,7 @@ jobs:
     steps:
     - run: git clone https://github.com/KhronosGroup/Vulkan-Headers.git
     - name: install vulkan header
-    - run: |
+      run: |
         cd Vulkan-Headers
         mkdir build
         cd build
