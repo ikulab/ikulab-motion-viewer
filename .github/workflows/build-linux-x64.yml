@@ -40,7 +40,7 @@ jobs:
           rm -rf install
       
       - name: install glslc
-        run: sudo mv ./glslc /usr/local/bin/
+        run: sudo cp ./glslc /usr/local/bin/
 
       - name: cmake
         run: |
