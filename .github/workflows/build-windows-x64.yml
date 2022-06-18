@@ -9,7 +9,9 @@ jobs:
     - run: git clone https://github.com/KhronosGroup/Vulkan-Headers.git
     - name: install vulkan header
       run: |
+        ls
         cd Vulkan-Headers
+        ls
         mkdir build
         cd build
         cmake ..
