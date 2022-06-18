@@ -6,4 +6,5 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - run: cl.exe --version
+    - run: cmake -S . -B build
+    - run: cmake --build build
