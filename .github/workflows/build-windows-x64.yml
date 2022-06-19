@@ -13,14 +13,14 @@ jobs:
         vulkan-components: Vulkan-Headers, Vulkan-Loader, SPIRV-Tools
         vulkan-use-cache: true
     
-    - name: Cache GLFW3.3.7 library
-      id: cache-glfw3.3.7-lib
+    - name: Cache GLFW3 library
+      id: cache-glfw3-lib
       uses: actions/cache@v3
       with:
         path: ./glfw3-lib
-        key: glfw3-lib-3.3.7
+        key: glfw3-lib
     
-    - name: Download GLFW3.3.7 library
+    - name: Download GLFW3 library
       if: steps.cache-glfw3.3.7-lib.outputs.cache-hit != 'true'
       run: |
         Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN64.zip" -Outfile "./download.zip"
