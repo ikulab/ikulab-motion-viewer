@@ -66,9 +66,8 @@ target_link_libraries(app
 )
 
 if(WIN32)
-	target_include_directories(app
-		PRIVATE ${vulkan_include_path} ${glfw_include_path}
-	)
+	include_directories(${vulkan_include_path})
+	include_directories(${glfw_include_path})
 endif()
 
 if(UNIX)
