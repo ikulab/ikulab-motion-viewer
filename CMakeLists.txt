@@ -12,11 +12,12 @@ add_compile_options(
 if(WIN32)
 	find_library(vulkan_lib
 		NAMES vulkan vulkan-1
-		PATHS ./VULKAN-SDK/lib
+		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/lib
 	)
-	if(NOT vulkan_lib)
-		message(FATAL_ERROR "cannot find vulkan library.")
-	endif()
+	# if(NOT vulkan_lib)
+	# 	message(FATAL_ERROR "cannot find vulkan library.")
+	# endif()
+	link_libraries(vulkan_lib)
 elseif(UNIX)
 	find_package(Vulkan REQUIRED)
 endif()
