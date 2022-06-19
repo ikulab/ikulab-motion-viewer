@@ -20,15 +20,15 @@ jobs:
         path: ./glfw3-lib
         key: glfw3-lib
     
-    - name: Download GLFW3 library
-      if: steps.cache-glfw3-lib.outputs.cache-hit != 'true'
-      run: |
-        Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN64.zip" -Outfile "./download.zip"
-        Expand-Archive -Path "./download.zip"
-        mv download/glfw-3.3.7.bin.WIN64 ./glfw3-lib
-        rm download.zip
-        Remove-Item download -Recurse -Force
+    # - name: Download GLFW3 library
+    #   if: steps.cache-glfw3-lib.outputs.cache-hit != 'true'
+    #   run: |
+    #     Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN64.zip" -Outfile "./download.zip"
+    #     Expand-Archive -Path "./download.zip"
+    #     mv download/glfw-3.3.7.bin.WIN64 ./glfw3-lib
+    #     rm download.zip
+    #     Remove-Item download -Recurse -Force
 
-    - uses: actions/checkout@v3
-    - run: cmake -S . -B build
-    - run: cmake --build build
+    # - uses: actions/checkout@v3
+    # - run: cmake -S . -B build
+    # - run: cmake --build build
