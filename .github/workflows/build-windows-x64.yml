@@ -6,6 +6,8 @@ jobs:
   build:
     runs-on: windows-2022
     steps:
+    - uses: actions/checkout@v3
+
     - name: Install Vulkan SDK by humbletim/setup-vulkan-sdk
       uses: humbletim/setup-vulkan-sdk@v1.2.0
       with:
@@ -29,8 +31,6 @@ jobs:
         rm download.zip
         Remove-Item download -Recurse -Force
 
-    - run: tree /f
-    - uses: actions/checkout@v3
     - run: tree /f
     - run: cmake -S . -B build
     - run: cmake --build build
