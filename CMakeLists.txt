@@ -24,7 +24,7 @@ if(WIN32)
 		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
 	)
 	target_include_directories(vulkan
-		PUBLIC ${vulkan_include_path}
+		INTERFACE ${vulkan_include_path}
 	)
 
 elseif(UNIX)
@@ -36,6 +36,13 @@ if(WIN32)
 	find_library(glfw3
 		NAMES glfw3
 		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/lib-vc2022
+	)
+	find_path(glfw3_include_path
+		NAMES GLFW/glfw3.h
+		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/include
+	)
+	target_include_directories(glfw3
+		INTERFACE ${glfw3_include_path}
 	)
 
 elseif(UNIX)
