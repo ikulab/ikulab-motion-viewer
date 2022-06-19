@@ -54,13 +54,15 @@ target_link_libraries(app
 	vulkan_lib glfw3_lib
 )
 
+if(WIN32)
+	target_include_directories(app
+		PRIVATE ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include/vulkan
+	)
+endif()
+
 if(UNIX)
 	target_link_libraries(app
 		dl pthread X11 Xxf86vm Xrandr Xi
-	)
-
-	target_include_directories(app
-		PRIVATE ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include/vulkan
 	)
 endif()
 
