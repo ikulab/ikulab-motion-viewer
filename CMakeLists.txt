@@ -16,11 +16,12 @@ if(WIN32)
 		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/lib
 	)
 
-	if(NOT vulkan_lib)
+	if(vulkan_lib)
+		link_libraries(vulkan_lib)
+	else()
 		message(FATAL_ERROR "cannot find vulkan library.")
 	endif()
 
-	link_libraries(vulkan_lib)
 elseif(UNIX)
 	find_package(Vulkan REQUIRED)
 endif()
@@ -32,11 +33,11 @@ if(WIN32)
 		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/lib-vc2022
 	)
 
-	if(NOT glfw3_lib)
+	if(glfw3_lib)
+		link_libraries(glfw3_lib)
+	else()
 		message(FATAL_ERROR "cannot find glfw3 library.")
 	endif()
-
-	link_libraries(glfw3_lib)
 
 elseif(UNIX)
 	find_package(glfw3 3.3 REQUIRED)
