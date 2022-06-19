@@ -17,14 +17,12 @@ if(WIN32)
 	find_library(vulkan
 		NAMES vulkan vulkan-1
 		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/lib
+		REQUIRED
 	)
 	find_path(
 		vulkan_include_path
 		NAMES vulkan/vulkan.h
 		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
-	)
-	target_include_directories(vulkan
-		INTERFACE ${vulkan_include_path}
 	)
 
 elseif(UNIX)
@@ -33,16 +31,14 @@ endif()
 
 # glfw3 library
 if(WIN32)
-	find_library(glfw3
+	find_library(glfw
 		NAMES glfw3
 		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/lib-vc2022
+		REQUIRED
 	)
-	find_path(glfw3_include_path
+	find_path(glfw_include_path
 		NAMES GLFW/glfw3.h
 		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/include
-	)
-	target_include_directories(glfw3
-		INTERFACE ${glfw3_include_path}
 	)
 
 elseif(UNIX)
@@ -68,6 +64,12 @@ add_dependencies(
 target_link_libraries(app
 	vulkan glfw
 )
+
+if(WIN32)
+	target_include_directories(app
+		PRIVATE ${vulkan_include_path} ${glfw_include_path}
+	)
+endif()
 
 if(UNIX)
 	target_link_libraries(app
