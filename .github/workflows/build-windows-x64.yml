@@ -46,7 +46,7 @@ jobs:
         mv download/glm ./
         rm download.zip
         Remove-Item download -Recurse -Force
-    - run: tree \f
+    - run: tree /f
 
     - run: cmake -S . -B build
     - run: cmake --build build
