@@ -31,5 +31,21 @@ jobs:
         rm download.zip
         Remove-Item download -Recurse -Force
 
+    - name: Cache GLM library
+      id: cache-glm-lib
+      uses: actions/cache@v3
+      with:
+        path: ./glm
+        key: glm-lib
+    
+    - name: Download GLM library
+      if: steps.cache-glm-lib.outputs.cache-hit != 'true'
+      run: |
+        Invoke-WebRequest -Uri "https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip" -Outfile "./download.zip"
+        Expand-Archive -Path "./download.zip"
+        mv download/glm ./
+        rm download.zip
+        Remove-Item download -Recurse -Force
+
     - run: cmake -S . -B build
     - run: cmake --build build

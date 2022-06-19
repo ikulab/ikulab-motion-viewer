@@ -45,6 +45,12 @@ elseif(UNIX)
 	find_package(glfw3 3.3 REQUIRED)
 endif()
 
+# glm library
+if(WIN32)
+	set(glm_DIR ${CMAKE_SOURCE_DIR}/glm/cmake/glm)
+	find_package(glm)
+endif()
+
 # shader compile
 add_custom_target(
 	shaders
@@ -73,6 +79,10 @@ endif()
 if(UNIX)
 	target_link_libraries(app
 		dl pthread X11 Xxf86vm Xrandr Xi
+	)
+else()
+	target_link_libraries(app
+		glm
 	)
 endif()
 
