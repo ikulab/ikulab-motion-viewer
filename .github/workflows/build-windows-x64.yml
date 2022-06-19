@@ -26,7 +26,7 @@ jobs:
         Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN64.zip" -Outfile "./download.zip"
         Expand-Archive -Path "./download.zip"
         mv download/glfw-3.3.7.bin.WIN64 ./glfw3-lib
-        rm download.zip
+        rm download.zip download
         ls
 
     - uses: actions/checkout@v3

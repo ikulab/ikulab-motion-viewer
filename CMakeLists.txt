@@ -5,23 +5,22 @@ project(
 	LANGUAGES CXX
 )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-add_compile_options(
-	-std=c++17 -fdiagnostics-color=always -g
-)
+
+if(UNIX)
+	add_compile_options(
+		-std=c++17 -fdiagnostics-color=always -g
+	)
+endif()
 
 # vulkan library
 if(WIN32)
-	find_library(vulkan_lib
+	find_library(vulkan
 		NAMES vulkan vulkan-1
 		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/lib
 	)
-
-	link_libraries(vulkan_lib)
-	# if(vulkan_lib)
-	# 	link_libraries(vulkan_lib)
-	# else()
-	# 	message(FATAL_ERROR "cannot find vulkan library.")
-	# endif()
+	target_include_directories(vulkan
+		${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
+	)
 
 elseif(UNIX)
 	find_package(Vulkan REQUIRED)
@@ -29,17 +28,10 @@ endif()
 
 # glfw3 library
 if(WIN32)
-	find_library(glfw3_lib
+	find_library(glfw3
 		NAMES glfw3
 		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/lib-vc2022
 	)
-
-	link_libraries(glfw3_lib)
-	# if(glfw3_lib)
-	# 	link_libraries(glfw3_lib)
-	# else()
-	# 	message(FATAL_ERROR "cannot find glfw3 library.")
-	# endif()
 
 elseif(UNIX)
 	find_package(glfw3 3.3 REQUIRED)
@@ -61,10 +53,15 @@ add_dependencies(
 	shaders
 )
 
-target_link_libraries(app glfw)
-target_link_libraries(
-	app vulkan dl pthread X11 Xxf86vm Xrandr Xi
+target_link_libraries(app
+	vulkan_lib glfw3_lib
 )
+
+if(UNIX)
+	target_link_libraries(app
+		dl pthread X11 Xxf86vm Xrandr Xi
+	)
+endif()
 
 add_subdirectory(./src/shape)
 target_link_libraries(shape)
