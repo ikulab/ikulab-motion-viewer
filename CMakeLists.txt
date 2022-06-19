@@ -23,7 +23,9 @@ if(WIN32)
 		NAMES vulkan/vulkan.h
 		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
 	)
-	message(${vulkan_include_path})
+	target_include_directories(vulkan
+		PUBLIC ${vulkan_include_path}
+	)
 
 elseif(UNIX)
 	find_package(Vulkan REQUIRED)
@@ -59,12 +61,6 @@ add_dependencies(
 target_link_libraries(app
 	vulkan glfw
 )
-
-if(WIN32)
-	target_include_directories(app
-		PRIVATE ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
-	)
-endif()
 
 if(UNIX)
 	target_link_libraries(app
