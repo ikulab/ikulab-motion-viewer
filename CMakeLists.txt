@@ -9,20 +9,38 @@ add_compile_options(
 	-std=c++17 -fdiagnostics-color=always -g
 )
 
+# vulkan library
 if(WIN32)
 	find_library(vulkan_lib
 		NAMES vulkan vulkan-1
 		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/lib
 	)
-	# if(NOT vulkan_lib)
-	# 	message(FATAL_ERROR "cannot find vulkan library.")
-	# endif()
+
+	if(NOT vulkan_lib)
+		message(FATAL_ERROR "cannot find vulkan library.")
+	endif()
+
 	link_libraries(vulkan_lib)
 elseif(UNIX)
 	find_package(Vulkan REQUIRED)
 endif()
 
-find_package(glfw3 3.3 REQUIRED)
+# glfw3 library
+if(WIN32)
+	find_library(glfw3_lib
+		NAMES glfw3
+		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/lib-vc2022
+	)
+
+	if(NOT glfw3_lib)
+		message(FATAL_ERROR "cannot find glfw3 library.")
+	endif()
+
+	link_libraries(glfw3_lib)
+
+elseif(UNIX)
+	find_package(glfw3 3.3 REQUIRED)
+endif()
 
 # shader compile
 add_custom_target(
