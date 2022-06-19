@@ -49,10 +49,6 @@ endif()
 if(WIN32)
 	set(GLM_DIR ${CMAKE_SOURCE_DIR}/glm/cmake/glm)
 	find_package(GLM REQUIRED)
-	message(${GLM_DIR})
-	message(${GLM_FOUND})
-	message(${GLM_INCLUDE_DIR})
-
 endif()
 
 # shader compile
