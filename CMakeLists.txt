@@ -18,7 +18,12 @@ if(WIN32)
 		NAMES vulkan vulkan-1
 		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/lib
 	)
-	message(${vulkan})
+	find_path(
+		vulkan_include_path
+		NAMES vulkan/vulkan.h
+		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
+	)
+	message(${vulkan_include_path})
 
 elseif(UNIX)
 	find_package(Vulkan REQUIRED)
