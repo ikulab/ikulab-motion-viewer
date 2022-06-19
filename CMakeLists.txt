@@ -18,9 +18,6 @@ if(WIN32)
 		NAMES vulkan vulkan-1
 		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/lib
 	)
-	target_include_directories(vulkan
-		${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
-	)
 
 elseif(UNIX)
 	find_package(Vulkan REQUIRED)
@@ -60,6 +57,10 @@ target_link_libraries(app
 if(UNIX)
 	target_link_libraries(app
 		dl pthread X11 Xxf86vm Xrandr Xi
+	)
+
+	target_include_directories(app PRIVATE
+		${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
 	)
 endif()
 
