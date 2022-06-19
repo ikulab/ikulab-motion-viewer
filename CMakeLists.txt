@@ -45,12 +45,12 @@ elseif(UNIX)
 	find_package(glfw3 3.3 REQUIRED)
 endif()
 
-# glm library
+# glm path
 if(WIN32)
-	set(GLM_DIR ${CMAKE_SOURCE_DIR}/glm/cmake/glm)
-	find_package(GLM REQUIRED)
-	message(${GLM_FOUND})
-	message(${GLM_INCLUDE_DIRS})
+	find_path(glm_include_path
+		NAMES glm/glm.hpp
+		PATHS ${CMAKE_SOURCE_DIR}/glm
+	)
 endif()
 
 # shader compile
@@ -76,15 +76,12 @@ target_link_libraries(app
 if(WIN32)
 	include_directories(${vulkan_include_path})
 	include_directories(${glfw_include_path})
+	include_directories(${glm_include_path})
 endif()
 
 if(UNIX)
 	target_link_libraries(app
 		dl pthread X11 Xxf86vm Xrandr Xi
-	)
-else()
-	target_link_libraries(app
-		GLM
 	)
 endif()
 
