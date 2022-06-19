@@ -1,5 +1,6 @@
 #include "./base.hpp"
 
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <memory>
 #include <fstream>
@@ -1901,11 +1902,11 @@ void Base::updateCamera() {
                 cameraCtx.center += glm::vec3(r * shift);
             }
             else {
-                cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - xDiff, 2 * M_PI);
+                cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - (float)xDiff, 2 * M_PI);
                 cameraCtx.vRotation = std::clamp(
                     std::fmod(cameraCtx.vRotation + yDiff, 2 * M_PI),
-                    -M_PI / 2.0 + 0.0001,
-                    M_PI / 2.0 - 0.0001
+                    -M_PI / 2.0f + 0.0001f,
+                    M_PI / 2.0f - 0.0001f
                 );
             }
         }

@@ -3,7 +3,7 @@ on:
   push:
   workflow_call:
 jobs:
-  build:
+  build-windows-x64:
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v3

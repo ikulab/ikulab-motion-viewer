@@ -4,13 +4,13 @@ on:
     types: [published]
   workflow_dispatch:
 jobs:
-  build:
+  build-linux-x64:
     runs-on: ubuntu-latest
     steps:
       - uses: ./.github/workflows/build-linux-x64.yml
   release:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build-linux-x64]
     steps:
     - uses: actions/checkout@v3
     - name: download artifact

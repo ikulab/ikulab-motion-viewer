@@ -3,7 +3,7 @@ on:
   # push:
   workflow_call:
 jobs:
-  build:
+  build-linux-x64:
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
