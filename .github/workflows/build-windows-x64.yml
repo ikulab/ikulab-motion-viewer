@@ -18,6 +18,7 @@ jobs:
     - name: Create Hard Link vulkan-1.lib to vulkan.lib
       run: |
         cd D:/
+        tree /f
         New-Item -ItemType HardLink -Path ./VULKAN-SDK/lib/vulkan.lib -Target ./VULKAN-SDK/lib/vulkan-1.lib
     
     - name: Cache GLFW3 library
