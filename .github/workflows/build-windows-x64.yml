@@ -21,7 +21,7 @@ jobs:
         key: glfw3-lib
     
     - name: Download GLFW3 library
-      if: steps.cache-glfw3.3.7-lib.outputs.cache-hit != 'true'
+      if: steps.cache-glfw3-lib.outputs.cache-hit != 'true'
       run: |
         Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN64.zip" -Outfile "./download.zip"
         Expand-Archive -Path "./download.zip"
