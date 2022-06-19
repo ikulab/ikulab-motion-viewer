@@ -56,7 +56,7 @@ target_link_libraries(app
 
 if(WIN32)
 	target_include_directories(app
-		PRIVATE ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include/vulkan
+		PRIVATE ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
 	)
 endif()
 
