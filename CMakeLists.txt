@@ -18,6 +18,7 @@ if(WIN32)
 		NAMES vulkan vulkan-1
 		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/lib
 	)
+	message(${vulkan})
 
 elseif(UNIX)
 	find_package(Vulkan REQUIRED)
@@ -51,7 +52,7 @@ add_dependencies(
 )
 
 target_link_libraries(app
-	vulkan_lib glfw3_lib
+	vulkan glfw
 )
 
 if(WIN32)
