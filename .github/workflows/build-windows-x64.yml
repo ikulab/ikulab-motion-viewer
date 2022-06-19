@@ -6,30 +6,30 @@ jobs:
   build:
     runs-on: windows-2022
     steps:
-    - uses: actions/checkout@v3
+    # - uses: actions/checkout@v3
 
-    - name: Install Vulkan SDK by humbletim/setup-vulkan-sdk
-      uses: humbletim/setup-vulkan-sdk@v1.2.0
-      with:
-        vulkan-query-version: 1.3.204.0
-        vulkan-components: Vulkan-Headers, Vulkan-Loader, SPIRV-Tools
-        vulkan-use-cache: true
+    # - name: Install Vulkan SDK by humbletim/setup-vulkan-sdk
+    #   uses: humbletim/setup-vulkan-sdk@v1.2.0
+    #   with:
+    #     vulkan-query-version: 1.3.204.0
+    #     vulkan-components: Vulkan-Headers, Vulkan-Loader, SPIRV-Tools
+    #     vulkan-use-cache: true
     
-    - name: Cache GLFW3 library
-      id: cache-glfw3-lib
-      uses: actions/cache@v3
-      with:
-        path: ./glfw3-lib
-        key: glfw3-lib
+    # - name: Cache GLFW3 library
+    #   id: cache-glfw3-lib
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: ./glfw3-lib
+    #     key: glfw3-lib
     
-    - name: Download GLFW3 library
-      if: steps.cache-glfw3-lib.outputs.cache-hit != 'true'
-      run: |
-        Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN64.zip" -Outfile "./download.zip"
-        Expand-Archive -Path "./download.zip"
-        mv download/glfw-3.3.7.bin.WIN64 ./glfw3-lib
-        rm download.zip
-        Remove-Item download -Recurse -Force
+    # - name: Download GLFW3 library
+    #   if: steps.cache-glfw3-lib.outputs.cache-hit != 'true'
+    #   run: |
+    #     Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.3.7/glfw-3.3.7.bin.WIN64.zip" -Outfile "./download.zip"
+    #     Expand-Archive -Path "./download.zip"
+    #     mv download/glfw-3.3.7.bin.WIN64 ./glfw3-lib
+    #     rm download.zip
+    #     Remove-Item download -Recurse -Force
 
     - name: Cache GLM library
       id: cache-glm-lib
@@ -47,5 +47,5 @@ jobs:
         rm download.zip
         Remove-Item download -Recurse -Force
 
-    - run: cmake -S . -B build
-    - run: cmake --build build
+    # - run: cmake -S . -B build
+    # - run: cmake --build build
