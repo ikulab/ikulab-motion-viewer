@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(
 	ikulab-motion-viwer
-	VERSION 0.1.0	
+	VERSION 0.1.0
 	LANGUAGES CXX
 )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -9,7 +9,18 @@ add_compile_options(
 	-std=c++17 -fdiagnostics-color=always -g
 )
 
-find_package(Vulkan REQUIRED)
+if(WIN32)
+	find_library(vulkan_lib
+		NAMES vulkan vulkan-1
+		PATHS ./VULKAN-SDK/lib
+	)
+	if(NOT vulkan_lib)
+		message(FATAL_ERROR "cannot find vulkan library.")
+	endif()
+elseif(UNIX)
+	find_package(Vulkan REQUIRED)
+endif()
+
 find_package(glfw3 3.3 REQUIRED)
 
 # shader compile
