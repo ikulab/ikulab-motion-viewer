@@ -59,8 +59,8 @@ if(UNIX)
 		dl pthread X11 Xxf86vm Xrandr Xi
 	)
 
-	target_include_directories(app PRIVATE
-		${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
+	target_include_directories(app SYSTEM
+		PRIVATE ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
 	)
 endif()
 
