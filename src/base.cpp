@@ -142,7 +142,7 @@ void Base::initVulkan() {
     createCommandBuffers();
     createSyncObjects();
 
-    startTime = std::chrono::high_resolution_clock::now();
+    startTime = std::chrono::system_clock::now();
 }
 
 void Base::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
@@ -1565,12 +1565,12 @@ void Base::drawFrame() {
 }
 
 void Base::updateClock() {
-    currentTime = std::chrono::high_resolution_clock::now();
+    currentTime = std::chrono::system_clock::now();
     secondsFromStart = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 }
 
 void Base::vSync() {
-    auto rightNow = std::chrono::high_resolution_clock::now();
+    auto rightNow = std::chrono::system_clock::now();
 
     // time taken to prev drawing process
     // currentTime must be updated previous frame
@@ -1909,6 +1909,7 @@ void Base::updateCamera() {
                     M_PI / 2.0f - 0.0001f
                 );
             }
+
         }
         cameraCtx.distance *= std::pow(SCROLL_RATIO, -mouseCtx.scrollOffsetY);
     }
