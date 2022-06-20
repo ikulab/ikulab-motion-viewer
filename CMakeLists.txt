@@ -17,6 +17,7 @@ if(WIN32)
 	set(ENV{VULKAN_SDK} ${CMAKE_SOURCE_DIR}/VULKAN-SDK)
 endif()
 
+message("test")
 find_package(Vulkan REQUIRED)
 
 # glfw3 library
