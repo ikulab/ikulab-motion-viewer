@@ -27,7 +27,7 @@ if(WIN32)
 		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/lib-vc2022
 		REQUIRED
 	)
-	find_path(GLFW_INCLUDE_DIR
+	find_path(Glfw_INCLUDE_DIR
 		NAMES GLFW/glfw3.h
 		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/include
 	)
