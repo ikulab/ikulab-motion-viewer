@@ -17,7 +17,6 @@ if(WIN32)
 	set(ENV{VULKAN_SDK} ${CMAKE_SOURCE_DIR}/VULKAN-SDK)
 endif()
 
-message("test")
 find_package(Vulkan REQUIRED)
 
 # glfw3 library
@@ -65,7 +64,7 @@ if(WIN32)
 	include_directories(${Glfw_INCLUDE_DIR})
 	include_directories(${GLM_INCLUDE_DIR})
 	target_link_libraries(app
-		Vulkan_LIBRARY Glfw_LIBRARY
+		vulkan ${Glfw_LIBRARY}
 	)
 endif()
 
