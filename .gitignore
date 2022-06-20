@@ -11,6 +11,12 @@ bin
 # imgui file
 imgui.ini
 
+# module files
+VULKAN-SDK/*
+glfw3-lib/*
+glm/*
+glslc.exe
+
 
 # template -------------
 # Prerequisites
