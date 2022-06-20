@@ -14,29 +14,19 @@ endif()
 
 # vulkan library
 if(WIN32)
-	find_library(vulkan
-		NAMES vulkan vulkan-1
-		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/lib
-		REQUIRED
-	)
-	find_path(
-		vulkan_include_path
-		NAMES vulkan/vulkan.h
-		PATHS ${CMAKE_SOURCE_DIR}/VULKAN-SDK/include
-	)
-
-elseif(UNIX)
-	find_package(Vulkan REQUIRED)
+	set(ENV{VULKAN_SDK} ${CMAKE_SOURCE_DIR}/VULKAN-SDK)
 endif()
+
+find_package(Vulkan REQUIRED)
 
 # glfw3 library
 if(WIN32)
-	find_library(glfw
+	find_library(Glfw_LIBRARY
 		NAMES glfw3
 		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/lib-vc2022
 		REQUIRED
 	)
-	find_path(glfw_include_path
+	find_path(GLFW_INCLUDE_DIR
 		NAMES GLFW/glfw3.h
 		PATHS ${CMAKE_SOURCE_DIR}/glfw3-lib/include
 	)
@@ -47,7 +37,7 @@ endif()
 
 # glm path
 if(WIN32)
-	find_path(glm_include_path
+	find_path(GLM_INCLUDE_DIR
 		NAMES glm/glm.hpp
 		PATHS ${CMAKE_SOURCE_DIR}/glm
 	)
@@ -69,19 +59,21 @@ add_dependencies(
 	shaders
 )
 
-target_link_libraries(app
-	vulkan glfw
-)
-
 if(WIN32)
-	include_directories(${vulkan_include_path})
-	include_directories(${glfw_include_path})
-	include_directories(${glm_include_path})
+	include_directories(${Vulkan_INCLUDE_DIR})
+	include_directories(${Glfw_INCLUDE_DIR})
+	include_directories(${GLM_INCLUDE_DIR})
+	target_link_libraries(app
+		Vulkan_LIBRARY Glfw_LIBRARY
+	)
 endif()
 
 if(UNIX)
 	target_link_libraries(app
 		dl pthread X11 Xxf86vm Xrandr Xi
+	)
+	target_link_libraries(app
+		vulkan glfw
 	)
 endif()
 
