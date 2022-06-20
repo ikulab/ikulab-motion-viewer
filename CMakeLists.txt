@@ -64,7 +64,7 @@ if(WIN32)
 	include_directories(${Glfw_INCLUDE_DIR})
 	include_directories(${GLM_INCLUDE_DIR})
 	target_link_libraries(app
-		Vulkan ${Glfw_LIBRARY}
+		${Vulkan_LIBRARY} ${Glfw_LIBRARY}
 	)
 endif()
 
