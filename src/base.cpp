@@ -1,5 +1,6 @@
 #include "./base.hpp"
 
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <memory>
 #include <fstream>
@@ -99,8 +100,11 @@ void Base::createInstance() {
         createInfo.pNext = nullptr;
     }
 
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+    auto res = vkCreateInstance(&createInfo, nullptr, &instance);
+    std::cout << res << std::endl;
+    if (res) {
         throw std::runtime_error("failed to create Vulkan instance.");
+    }
 
     std::cout << "Vulkan instance have been created." << std::endl;
 }
@@ -141,7 +145,7 @@ void Base::initVulkan() {
     createCommandBuffers();
     createSyncObjects();
 
-    startTime = std::chrono::high_resolution_clock::now();
+    startTime = std::chrono::system_clock::now();
 }
 
 void Base::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
@@ -1564,12 +1568,12 @@ void Base::drawFrame() {
 }
 
 void Base::updateClock() {
-    currentTime = std::chrono::high_resolution_clock::now();
+    currentTime = std::chrono::system_clock::now();
     secondsFromStart = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 }
 
 void Base::vSync() {
-    auto rightNow = std::chrono::high_resolution_clock::now();
+    auto rightNow = std::chrono::system_clock::now();
 
     // time taken to prev drawing process
     // currentTime must be updated previous frame
@@ -1901,13 +1905,14 @@ void Base::updateCamera() {
                 cameraCtx.center += glm::vec3(r * shift);
             }
             else {
-                cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - xDiff, 2 * M_PI);
+                cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - (float)xDiff, 2 * M_PI);
                 cameraCtx.vRotation = std::clamp(
                     std::fmod(cameraCtx.vRotation + yDiff, 2 * M_PI),
-                    -M_PI / 2.0 + 0.0001,
-                    M_PI / 2.0 - 0.0001
+                    -M_PI / 2.0f + 0.0001f,
+                    M_PI / 2.0f - 0.0001f
                 );
             }
+
         }
         cameraCtx.distance *= std::pow(SCROLL_RATIO, -mouseCtx.scrollOffsetY);
     }

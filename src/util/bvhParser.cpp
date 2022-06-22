@@ -6,6 +6,7 @@
 #include <sstream>
 #include <memory>
 #include <algorithm>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 

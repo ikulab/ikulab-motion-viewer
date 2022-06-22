@@ -4,12 +4,21 @@
 !.vscode/tasks.json
 !.vscode/c_cpp_properties.json
 
+# Visual Studio setting
+.vs/*
+
 # build binary
 build
 bin
 
 # imgui file
 imgui.ini
+
+# module files
+VULKAN-SDK/*
+glfw3-lib/*
+glm/*
+glslc.exe
 
 
 # template -------------

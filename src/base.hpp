@@ -149,8 +149,8 @@ class Base {
 	int windowWidth = 0;
 	int windowHeight = 0;
 
-	std::chrono::_V2::system_clock::time_point startTime;
-	std::chrono::_V2::system_clock::time_point currentTime;
+	std::chrono::system_clock::time_point startTime;
+	std::chrono::system_clock::time_point currentTime;
 	float secondsFromStart;
 
 	float fps = 60.0;

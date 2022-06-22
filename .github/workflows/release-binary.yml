@@ -1,0 +1,30 @@
+name: release-binary
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+jobs:
+  build-linux-x64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/build-linux-x64.yml
+  build-windows-x64:
+    runs-on: windows-2022
+    steps:
+      - uses: ./.github/workflows/build-windows-x64.yml
+  release:
+    runs-on: ubuntu-latest
+    needs: [build-linux-x64, build-windows-x64]
+    steps:
+    - name: download artifact
+      uses: actions/download-artifact@v3
+
+    - name: upload to release page
+      run: |
+        hub release create \
+          -a ./ikulab-motion-viewer-linux-x64/app \
+          -a ./ikulab-motion-viewer-windows-x64/release.zip \
+          -m "this is test release" \
+          ${{ github.ref }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
