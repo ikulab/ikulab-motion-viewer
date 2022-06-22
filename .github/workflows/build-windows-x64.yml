@@ -54,11 +54,15 @@ jobs:
     - run: cmake -S . -B build
     - run: cmake --build build --config Release
 
+    - name: Pre Upload Artifact Process
+      run: cp ./build/bin/Release/app.exe ./
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: ikulab-motion-viewer-windows-x64
         path: |
-          ./build/bin/Release/app.exe
+          ./app.exe
           ./models/
           ./shaders/
+          ./fonts/

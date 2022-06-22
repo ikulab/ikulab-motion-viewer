@@ -6,32 +6,32 @@ jobs:
   build-linux-x64:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: install vulkan
+      - name: Install Vulkan
         run: sudo apt install libvulkan-dev -y
-      - name: install vulkan-validation-layers
+      - name: Install vulkan-validation-layers
         run: sudo apt install vulkan-validationlayers-dev -y
-      - name: install spirv-tools
+      - name: Install spirv-tools
         run: sudo apt install spirv-tools -y
 
-      - name: install glfw3
+      - name: Install glfw3
         run: sudo apt install libglfw3-dev -y
-      - name: install glm
+      - name: Install glm
         run: sudo apt install libglm-dev -y
 
-      - name: install Xxf and Xi
+      - name: Install Xxf, Xi
         run: sudo apt install libxxf86vm-dev libxi-dev -y
 
-      - name: cache glslc executable
+      - name: Cache Glslc Executable
         id: cache-glslc-bin
         uses: actions/cache@v3
         with:
           path: ./glslc
           key: glslc-bin
 
-      - name: download glslc
+      - name: Download glslc
         if: steps.cache-glslc-bin.outputs.cache-hit != 'true'
         run: |
           curl https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_gcc_release/382/20220602-094524/install.tgz --output install.tgz
@@ -39,16 +39,23 @@ jobs:
           mv install/bin/glslc ./
           rm -rf install
       
-      - name: install glslc
+      - name: Install glslc
         run: sudo cp ./glslc /usr/local/bin/
 
-      - name: cmake
+      - name: Cmake
         run: |
           cmake -S . -B build
           cmake --build build
 
-      - name: upload artifact
+      - name: Pre Upload Artifact Process
+        run: cp ./build/bin/app ./
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: ikulab-motion-viewer-linux-x64
-          path: ./build/bin/app
+          path: |
+            ./app
+            ./shaders/
+            ./models/
+            ./fonts
