@@ -10,11 +10,11 @@ if(UNIX)
 	add_compile_options(
 		-std=c++17 -fdiagnostics-color=always -g
 	)
+else()
+	add_compile_options(
+		/DNODEBUG
+	)
 endif()
-
-add_compile_options(
-	/DNODEBUG
-)
 
 # vulkan library
 if(WIN32)

@@ -17,7 +17,6 @@ jobs:
 
     - name: Create Hard Link vulkan-1.lib to vulkan.lib
       run: |
-        tree /f
         New-Item -ItemType HardLink -Path ./VULKAN_SDK/lib/vulkan.lib -Target ./VULKAN_SDK/lib/vulkan-1.lib
     
     - name: Cache GLFW3 library
@@ -57,7 +56,7 @@ jobs:
 
     - name: Create Release Zip
       run: |
-        cp .\out\build\x64-Debug\bin\app.exe .\
+        cp build\bin\Debug\app.exe .\
         Compress-Archive -Path .\app.exe,.\models\,.\shaders\ -DestinationPath release.zip
 
     - name: Upload Artifact
