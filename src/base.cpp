@@ -1441,7 +1441,11 @@ void Base::drawImGuiFrame() {
     // Indicator window
     if (!windowSizeInitialized) {
         windowSizeInitialized = true;
+#ifndef NODEBUG
         ImGui::SetNextWindowSize(ImVec2(300, 600));
+#else
+        ImGui::SetNextWindowSize(ImVec2(300, 250));
+#endif
     }
     ImGui::Begin("インジケーター");
 
@@ -1593,7 +1597,7 @@ void Base::updateUniformBuffer(uint32_t currentImage) {
     }
 
     // debug
-#ifndef NODEBUG
+#ifdef NODEBUG
     modelUbo.model[DEBUG_OBJECT_ID] = glm::mat4(0.0);
 #endif
 

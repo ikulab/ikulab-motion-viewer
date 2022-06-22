@@ -44,12 +44,6 @@ void App::createShapes() {
 		}
 		tmpShapes.push_back(std::move(elm));
 	}
-	// push floor to shapes vector
-	// tmpShapes.push_back(std::move(std::make_unique<FilledFloor>(
-	// 	1000.0, 1000.0,
-	// 	glm::vec3(0.15f), true,
-	// 	FLOOR_ID
-	// )));
 	tmpShapes.push_back(std::move(std::make_unique<GridFloor>(
 		1000.0, 1000.0,
 		1, 10, 10,
