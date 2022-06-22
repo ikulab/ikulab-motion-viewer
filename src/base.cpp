@@ -1502,6 +1502,8 @@ void Base::drawImGuiFrame() {
     }
     ImGui::Begin("アニメーションコントローラー");
     ImGui::Text("こんにちは。");
+    ImGui::Button("再生");
+    ImGui::Button("停止");
     ImGui::End();
 
     // Demo window ----------------------------
