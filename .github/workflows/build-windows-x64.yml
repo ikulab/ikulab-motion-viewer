@@ -55,4 +55,13 @@ jobs:
     - run: cmake -S . -B build
     - run: cmake --build build
 
-    - run: tree /f
+    - name: Create Release Zip
+      run: |
+        cp .\out\build\x64-Debug\bin\app.exe .\
+        Compress-Archive -Path .\app.exe,.\models\,.\shaders\ -DestinationPath release.zip
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ikulab-motion-viewer-windows-x64
+        path: ./release.zip

@@ -1,6 +1,6 @@
 name: build-linux-x64
 on:
-  # push:
+  push:
   workflow_call:
 jobs:
   build-linux-x64:
