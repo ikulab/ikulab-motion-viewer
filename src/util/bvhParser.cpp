@@ -6,8 +6,11 @@
 #include <sstream>
 #include <memory>
 #include <algorithm>
+#include <filesystem>
 
 #include <glm/glm.hpp>
+
+#include <Windows.h>
 
 #include "./bvhParser.hpp"
 #include "../animator.hpp"
@@ -43,6 +46,9 @@ Channel::Channel Channel::convertStr2Channel(std::string str) {
 
 BVHParser::BVHParser(std::string filePath) {
 	inputStream = std::make_unique<std::ifstream>(filePath);
+	char buf[255];
+	GetCurrentDirectory(255, buf);
+	std::cout << buf << std::endl;
 
 	if (!inputStream->is_open()) {
 		std::string msg;

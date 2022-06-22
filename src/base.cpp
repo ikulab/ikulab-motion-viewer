@@ -100,8 +100,11 @@ void Base::createInstance() {
         createInfo.pNext = nullptr;
     }
 
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+    auto res = vkCreateInstance(&createInfo, nullptr, &instance);
+    std::cout << res << std::endl;
+    if (res) {
         throw std::runtime_error("failed to create Vulkan instance.");
+    }
 
     std::cout << "Vulkan instance have been created." << std::endl;
 }

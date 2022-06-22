@@ -12,12 +12,18 @@ if(UNIX)
 	)
 endif()
 
+add_compile_options(
+	/DNODEBUG
+)
+
 # vulkan library
 if(WIN32)
 	set(ENV{VULKAN_SDK} ${CMAKE_SOURCE_DIR}/VULKAN-SDK)
 endif()
 
 find_package(Vulkan REQUIRED)
+get_target_property(Vulkan_IMPORTED_LOCATION Vulkan::Vulkan IMPORTED_LOCATION)
+message(${Vulkan_IMPORTED_LOCATION})
 
 # glfw3 library
 if(WIN32)
@@ -60,12 +66,11 @@ add_dependencies(
 )
 
 if(WIN32)
-	include_directories(${Vulkan_INCLUDE_DIR})
+	include_directories(${Vulkan_INCLUDE_DIRS})
 	include_directories(${Glfw_INCLUDE_DIR})
 	include_directories(${GLM_INCLUDE_DIR})
-	target_link_libraries(app
-		${Vulkan_LIBRARY} ${Glfw_LIBRARY}
-	)
+	target_link_libraries(app ${Glfw_LIBRARY})
+	target_link_libraries(app Vulkan::Vulkan)
 endif()
 
 if(UNIX)
