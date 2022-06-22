@@ -52,13 +52,13 @@ jobs:
         Remove-Item download -Recurse -Force
 
     - run: cmake -S . -B build
-    - run: cmake --build build
+    - run: cmake --build build --config Release
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: ikulab-motion-viewer-windows-x64
         path: |
-          ./build/bin/Debug/app.exe
+          ./build/bin/Release/app.exe
           ./models/
           ./shaders/
