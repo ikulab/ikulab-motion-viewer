@@ -1437,14 +1437,12 @@ void Base::drawImGuiFrame() {
 
     ImGuiIO& io = ImGui::GetIO();
 
-    // ImGui windows
-    // Indicator window
+    // Indicator window ----------------------------
     if (!windowSizeInitialized) {
-        windowSizeInitialized = true;
 #ifndef NODEBUG
-        ImGui::SetNextWindowSize(ImVec2(300, 600));
+        ImGui::SetNextWindowSize(ImVec2(300, 500));
 #else
-        ImGui::SetNextWindowSize(ImVec2(300, 250));
+        ImGui::SetNextWindowSize(ImVec2(300, 200));
 #endif
     }
     ImGui::Begin("インジケーター");
@@ -1458,13 +1456,13 @@ void Base::drawImGuiFrame() {
     ImGui::Text("FPS: %.1f", io.Framerate);
     ImGui::Text("Joints: %d", anim->getNumOfJoints());
 
-    auto total = anim->getNumOfFrames();
-    auto current = anim->getCurrentFrame();
-    ImGui::Text("Frame: %d / %d", current, total);
+    // auto total = anim->getNumOfFrames();
+    // auto current = anim->getCurrentFrame();
+    // ImGui::Text("Frame: %d / %d", current, total);
 
-    ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0), "");
-    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
-    ImGui::Text("%.1f%%", (float)current / total * 100);
+    // ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0), "");
+    // ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
+    // ImGui::Text("%.1f%%", (float)current / total * 100);
 
     PADDING(30);
 
@@ -1498,12 +1496,24 @@ void Base::drawImGuiFrame() {
 
     ImGui::End();
 
-    // Demo window
+    // Indicator window ----------------------------
+    if (!windowSizeInitialized) {
+        ImGui::SetNextWindowSize(ImVec2(300, 200));
+    }
+    ImGui::Begin("アニメーションコントローラー");
+    ImGui::Text("こんにちは。");
+    ImGui::End();
+
+    // Demo window ----------------------------
     if (showDemoWindow) {
         ImGui::ShowDemoWindow();
     }
 
     ImGui::Render();
+
+    if (!windowSizeInitialized) {
+        windowSizeInitialized = true;
+    }
 }
 
 void Base::drawFrame() {
