@@ -37,6 +37,9 @@ target_link_libraries(
 	app vulkan dl pthread X11 Xxf86vm Xrandr Xi
 )
 
+add_subdirectory(./includes/imgui)
+target_link_libraries(app imgui)
+
 add_subdirectory(./src/shape)
 target_link_libraries(shape)
 
@@ -48,5 +51,6 @@ target_link_libraries(animator shape)
 target_link_libraries(animator bvh_parser)
 target_link_libraries(app animator)
 
-add_subdirectory(./includes/imgui)
-target_link_libraries(app imgui)
+add_subdirectory(./src/ui)
+target_link_libraries(ui)
+target_link_libraries(ui imgui)
