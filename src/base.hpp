@@ -20,6 +20,8 @@
 #include "./definition/vertex.hpp"
 #include "./definition/common.hpp"
 #include "./definition/descriptor.hpp"
+#include "./context/camera.hpp"
+#include "./context/keyboard.hpp"
 #include "./animator.hpp"
 
 #ifdef NODEBUG
@@ -90,37 +92,6 @@ struct MouseInputContext {
 
 	double scrollOffsetX = 0.0;
 	double scrollOffsetY = 0.0;
-};
-
-struct KeyboardInputContext {
-	bool ctrl = false;
-	bool alt = false;
-	bool shift = false;
-};
-
-struct CameraContext {
-	glm::vec3 center{ 0.0, 0.0, 0.0 };
-	// in Radian
-	float hRotation = 0.0;
-	float vRotation = glm::radians(20.0);
-	float distance = 10.0;
-
-	glm::vec3 generatePos() {
-		glm::vec3 pos;
-		pos.x = distance * std::cos(hRotation) * std::cos(vRotation);
-		pos.y = distance * std::sin(hRotation) * std::cos(vRotation);
-		pos.z = distance * std::sin(vRotation);
-		pos += center;
-		return pos;
-	}
-
-	glm::mat4 generateViewMat() {
-		return glm::lookAt(
-			generatePos(),
-			center,
-			glm::vec3(0.0f, 0.0f, 1.0f)
-		);
-	}
 };
 
 class Base {
@@ -334,7 +305,7 @@ class Base {
 	void registerInputEvents();
 	// ---
 
-	CameraContext cameraCtx;
+	Camera cameraCtx;
 
 public:
 	Base() {
