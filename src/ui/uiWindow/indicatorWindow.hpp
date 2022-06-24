@@ -5,4 +5,3 @@
 class IndicatorWindow : public UiWindow {
 	void drawWindow() const override;
 };
-

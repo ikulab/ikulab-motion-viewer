@@ -11,6 +11,7 @@
 class UiContext;
 
 class UiWindow {
+protected:
 	std::shared_ptr<UiContext> uiCtx;
 public:
 	virtual void drawWindow() const;
