@@ -1827,45 +1827,6 @@ void Base::registerInputEvents() {
     glfwSetKeyCallback(window, keyCallback);
 }
 
-void Base::updateCamera() {
-    const static double DIFF_RATIO = 0.01;
-    const static double SCROLL_RATIO = 1.1;
-
-    bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow);
-
-    if (!isWindowFocused) {
-        if (mouseCtx.leftButton) {
-            double xDiff = mouseCtx.deltaX * DIFF_RATIO;
-            double yDiff = mouseCtx.deltaY * DIFF_RATIO;
-
-            if (keyCtx.shift) {
-                glm::mat4 r(1.0);
-                r *= glm::rotate(
-                    glm::mat4(1.0),
-                    cameraCtx.hRotation,
-                    glm::vec3(0.0, 0.0, 1.0)
-                );
-                r *= glm::rotate(
-                    glm::mat4(1.0),
-                    -cameraCtx.vRotation,
-                    glm::vec3(0.0, 1.0, 0.0)
-                );
-                glm::vec4 shift(0.0, -(float)xDiff, (float)yDiff, 1.0);
-                cameraCtx.center += glm::vec3(r * shift);
-            }
-            else {
-                cameraCtx.hRotation = std::fmod(cameraCtx.hRotation - xDiff, 2 * M_PI);
-                cameraCtx.vRotation = std::clamp(
-                    std::fmod(cameraCtx.vRotation + yDiff, 2 * M_PI),
-                    -M_PI / 2.0 + 0.0001,
-                    M_PI / 2.0 - 0.0001
-                );
-            }
-        }
-        cameraCtx.distance *= std::pow(SCROLL_RATIO, -mouseCtx.scrollOffsetY);
-    }
-}
-
 void Base::resetMouseInputContext() {
     mouseCtx.scrollOffsetX = 0.0;
     mouseCtx.scrollOffsetY = 0.0;
