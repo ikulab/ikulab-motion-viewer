@@ -308,4 +308,5 @@ public:
 	void setAnimator(std::shared_ptr<Animator> anim);
 
 	float getSecondsFromStart();
+	VkExtent2D getSwapChainExtent();
 };

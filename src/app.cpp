@@ -76,6 +76,7 @@ void App::registerShapes() {
 }
 
 void App::updateUbo() {
+	// Model Mat ----------
 	std::array<glm::mat4, NUM_OF_JOINT_ID> modelMats
 		= anim->generateModelMatrices(base->getSecondsFromStart());
 
@@ -94,10 +95,12 @@ void App::updateUbo() {
 		m = glm::scale(glm::mat4(1.0), glm::vec3(0.01)) * m;
 	}
 
-	SceneMatUBO sceneUbo;
+	base->updateModelMatUniformBuffer(*modelUbo);
+
+	// Scene Mat ----------
 	VkExtent2D extent = base->getSwapChainExtent();
-	sceneUbo.view = camera->generateViewMat();
-	sceneUbo.proj = glm::perspective(
+	sceneUbo->view = camera->generateViewMat();
+	sceneUbo->proj = glm::perspective(
 		glm::radians(45.0f),
 		extent.width / (float)extent.height,
 		0.01f,
@@ -106,14 +109,9 @@ void App::updateUbo() {
 
 	// デフォルトでは 左手系 Z-down になっている
 	// この式によって 右手系 Z-up に変換する
-	sceneUbo.proj[1][1] *= -1;
-
-	vkMapMemory(
-		device,
-		uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO],
-		0, sizeof(SceneMatUBO), 0, &data);
-	memcpy(data, &sceneUbo, sizeof(SceneMatUBO));
-	vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]);
+	sceneUbo->proj[1][1] *= -1;
+	
+	base->updateSceneMatUniformBuffer(*sceneUbo);
 }
 
 void App::run() {
