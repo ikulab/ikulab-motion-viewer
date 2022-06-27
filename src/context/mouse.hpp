@@ -1,3 +1,5 @@
+#pragma once
+
 class MouseInputContext {
 public:
 	bool leftButton = false;

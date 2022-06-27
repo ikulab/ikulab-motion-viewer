@@ -1,8 +1,13 @@
+#pragma once
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui/imgui.h>
+
+#include "./mouse.hpp"
+#include "./keyboard.hpp"
 
 class Camera {
 	glm::vec3 center{ 0.0, 0.0, 0.0 };
@@ -17,7 +22,7 @@ class Camera {
 	glm::mat4 generateViewMat();
 
 public:
-	void updateCamera() {
+	void updateCamera(MouseInputContext mouseCtx, KeyboardInputContext keyCtx) {
 		const static double DIFF_RATIO = 0.01;
 		const static double SCROLL_RATIO = 1.1;
 

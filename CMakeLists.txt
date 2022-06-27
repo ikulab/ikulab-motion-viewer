@@ -54,3 +54,7 @@ target_link_libraries(app animator)
 add_subdirectory(./src/ui)
 target_link_libraries(ui)
 target_link_libraries(ui imgui)
+
+add_subdirectory(./src/context)
+target_link_libraries(context)
+target_link_libraries(context imgui)
