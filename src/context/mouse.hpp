@@ -1,6 +1,6 @@
 #pragma once
 
-class MouseInputContext {
+class Mouse {
 public:
 	bool leftButton = false;
 	bool rightButton = false;

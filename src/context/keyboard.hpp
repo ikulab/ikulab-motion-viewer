@@ -1,6 +1,6 @@
 #pragma once
 
-class KeyboardInputContext {
+class Keyboard {
 public:
 	bool ctrl = false;
 	bool alt = false;

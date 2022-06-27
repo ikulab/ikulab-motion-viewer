@@ -1834,8 +1834,22 @@ void Base::resetMouseInputContext() {
     mouseCtx.deltaY = 0.0;
 }
 
-void Base::resetModelMat() {
-    for (auto& m : modelUbo.model) {
-        m = glm::mat4(1.0);
-    }
+void Base::updateModelMatUniformBuffer(const ModelMatUBO& modelUbo) {
+    void* data;
+    vkMapMemory(
+        device,
+        uniformBufferMemories[currentFrame][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO],
+        0, sizeof(ModelMatUBO), 0, &data);
+    memcpy(data, &modelUbo, sizeof(ModelMatUBO));
+    vkUnmapMemory(device, uniformBufferMemories[currentFrame][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]);
+}
+
+void Base::updateSceneMatUniformBuffer(const SceneMatUBO& sceneUbo) {
+    void* data;
+    vkMapMemory(
+        device,
+        uniformBufferMemories[currentFrame][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO],
+        0, sizeof(SceneMatUBO), 0, &data);
+    memcpy(data, &sceneUbo, sizeof(SceneMatUBO));
+    vkUnmapMemory(device, uniformBufferMemories[currentFrame][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]);
 }

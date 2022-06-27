@@ -75,12 +75,14 @@ void App::registerShapes() {
 	}
 }
 
+void updateUbo() {
+	
+}
+
 void App::run() {
 	while (!base->windowShouldClose()) {
 		base->vSync();
 		base->updateClock();
-
-		base->resetModelMat();
 
 		base->pollWindowEvent();
 		base->updateCamera();

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cmath>
+#include <algorithm>
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -22,7 +25,7 @@ class Camera {
 	glm::mat4 generateViewMat();
 
 public:
-	void updateCamera(MouseInputContext mouseCtx, KeyboardInputContext keyCtx) {
+	void updateCamera(Mouse mouseCtx, Keyboard keyCtx) {
 		const static double DIFF_RATIO = 0.01;
 		const static double SCROLL_RATIO = 1.1;
 

@@ -20,6 +20,7 @@
 #include "./definition/vertex.hpp"
 #include "./definition/common.hpp"
 #include "./definition/descriptor.hpp"
+#include "./definition/ubo.hpp"
 #include "./context/camera.hpp"
 #include "./context/keyboard.hpp"
 #include "./animator.hpp"
@@ -65,15 +66,6 @@ struct SwapChainSupportDetails {
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
-struct ModelMatUBO {
-	alignas(16) glm::mat4 model[NUM_OF_ID];
-};
-
-struct SceneMatUBO {
-	alignas(16) glm::mat4 view;
-	alignas(16) glm::mat4 proj;
-};
-
 class Base {
 	GLFWwindow* window;
 	VkInstance instance;
@@ -94,8 +86,6 @@ class Base {
 	std::vector<VkImageView> swapChainImageViews;
 
 	VkSurfaceKHR surface;
-
-    ModelMatUBO modelUbo;
 
 	int windowWidth = 0;
 	int windowHeight = 0;
@@ -307,7 +297,8 @@ public:
 
 	void resetMouseInputContext();
 
-	void resetModelMat();
+	void updateModelMatUniformBuffer(const ModelMatUBO& modelUbo);
+	void updateSceneMatUniformBuffer(const SceneMatUBO& sceneUbo);
 
 	void addVertex(Vertex vertex);
 	void addVertices(const std::vector<Vertex>& vertices);
