@@ -306,4 +306,6 @@ public:
 	void addIndices(const std::vector<uint32_t>& indices);
 
 	void setAnimator(std::shared_ptr<Animator> anim);
+
+	float getSecondsFromStart();
 };

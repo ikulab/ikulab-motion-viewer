@@ -9,6 +9,7 @@
 #include "./context/camera.hpp"
 #include "./context/keyboard.hpp"
 #include "./context/mouse.hpp"
+#include "./definition/ubo.hpp"
 
 class App {
 	std::unique_ptr<Base> base;
@@ -20,6 +21,9 @@ class App {
 	std::unique_ptr<Camera> camera;
 	std::unique_ptr<Keyboard> keyboard;
 	std::unique_ptr<Mouse> mouse;
+
+	std::unique_ptr<ModelMatUBO> modelUbo;
+	std::unique_ptr<SceneMatUBO> sceneUbo;
 
 	void init();
 	void createShapes();

@@ -1853,3 +1853,11 @@ void Base::updateSceneMatUniformBuffer(const SceneMatUBO& sceneUbo) {
     memcpy(data, &sceneUbo, sizeof(SceneMatUBO));
     vkUnmapMemory(device, uniformBufferMemories[currentFrame][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]);
 }
+
+float Base::getSecondsFromStart() {
+    return secondsFromStart;
+}
+
+VkExtent2D Base::getSwapChainExtent() {
+    return swapChainExtent;
+}

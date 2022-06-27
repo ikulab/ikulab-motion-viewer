@@ -75,8 +75,45 @@ void App::registerShapes() {
 	}
 }
 
-void updateUbo() {
-	
+void App::updateUbo() {
+	std::array<glm::mat4, NUM_OF_JOINT_ID> modelMats
+		= anim->generateModelMatrices(base->getSecondsFromStart());
+
+	// bone transformation
+	for (int i = 0; i < anim->getNumOfJoints(); i++) {
+		modelUbo->model[i] = modelMats[i];
+	}
+
+	// debug
+#ifdef NODEBUG
+	modelUbo->model[DEBUG_OBJECT_ID] = glm::mat4(0.0);
+#endif
+
+	// global scaling
+	for (auto& m : modelUbo->model) {
+		m = glm::scale(glm::mat4(1.0), glm::vec3(0.01)) * m;
+	}
+
+	SceneMatUBO sceneUbo;
+	VkExtent2D extent = base->getSwapChainExtent();
+	sceneUbo.view = camera->generateViewMat();
+	sceneUbo.proj = glm::perspective(
+		glm::radians(45.0f),
+		extent.width / (float)extent.height,
+		0.01f,
+		1000.0f
+	);
+
+	// デフォルトでは 左手系 Z-down になっている
+	// この式によって 右手系 Z-up に変換する
+	sceneUbo.proj[1][1] *= -1;
+
+	vkMapMemory(
+		device,
+		uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO],
+		0, sizeof(SceneMatUBO), 0, &data);
+	memcpy(data, &sceneUbo, sizeof(SceneMatUBO));
+	vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]);
 }
 
 void App::run() {
