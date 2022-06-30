@@ -1,0 +1,106 @@
+@startuml shapes
+
+abstract Shape << general >> {
+	# ShapeID id
+	# vector<Vertex> vertices
+	# vector<uint32_t> indices
+
+	+ Shape(ShapeID id)
+	+ {abstract} void setBaseIndex(uint32_t baseIndex)
+	+ {abstract} vector<Vertex>& getVertices() = 0
+	+ {abstract} vector<uint32_t>& getIndices() = 0
+}
+
+' Cube family ---------------
+
+abstract Cube << interface >> {
+	# float width, height, depth
+	# vec3 pos
+}
+
+class GradationCube {
+	# vec3[] colors
+}
+
+class SingleColorCube {
+	- vec3 color
+}
+
+' Sphere family ---------------
+
+abstract Sphere << interface >> {
+	# vec3 pos
+	# float r
+	# uint32_t numSplitH, numSplitV
+}
+
+class SingleColorSphere {
+	- vec3 color
+}
+
+' Bone family ---------------
+
+abstract Bone << interface >> {
+	# float length
+}
+
+class OctahedronBone {}
+
+class StickTetrahedronBone {
+	# unique_ptr<SingleColorCube> cube
+
+	+ getVertices() override
+	+ getIndices() override
+	+ setBaseIndex() override
+}
+
+' Floor family ---------------
+
+abstract Floor << interface >> {
+	# float width, height
+}
+
+class FilledFloor {
+	- vec3 color
+}
+
+class GridFloor {
+	- vec3 color
+	- float lineWidth
+	- int numSplitX, numSplitY
+}
+
+' DebugObject family ---------------
+
+abstract DebugObject << interface >> {}
+
+class DirectionDebugObject {
+	- float size
+	- SingleColorCube[3] axes
+}
+
+' Relations ---------------
+' Class Inheritances ----
+Shape --|> Cube
+Cube  --|> GradationCube
+GradationCube -|> SingleColorCube
+
+Shape --|> Bone
+Bone --|> StickTetrahedronBone
+Bone -|> OctahedronBone
+
+Shape --|> Sphere
+Sphere --|> SingleColorSphere
+
+Shape --|> Floor
+Floor --|> GridFloor
+Floor -|> FilledFloor
+
+Shape -|> DebugObject
+DebugObject -|> DirectionDebugObject
+
+' Object Ownerships ----
+SingleColorCube -* StickTetrahedronBone : > have
+SingleColorCube -* DirectionDebugObject : > have 3
+
+@enduml

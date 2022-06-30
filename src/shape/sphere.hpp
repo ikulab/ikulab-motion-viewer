@@ -4,6 +4,8 @@
 
 #include "./shape.hpp"
 
+// TODO: make it abstract
+
 class Sphere : public Shape {
 	glm::vec3 pos;
 	float r;

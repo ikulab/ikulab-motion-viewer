@@ -215,8 +215,6 @@ class Base {
 	VkCommandBuffer beginSingleTimeCommands();
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
-	void updateUniformBuffer(uint32_t currentImage);
-
 	void transitionImageLayout(
 		VkImage image,
 		VkFormat format,
@@ -264,18 +262,9 @@ class Base {
 
 	std::shared_ptr<Animator> anim;
 
-	// GLFW event callbacks ---
-	static void cursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
-	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-	static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
-	static void keyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods);
-	void registerInputEvents();
-	// ---
-
 public:
 	Base() {
 		initWindow();
-		registerInputEvents();
 	}
 
 	~Base() {
@@ -295,8 +284,6 @@ public:
 	void updateClock();		// call this after vSync()
 	void updateCamera();
 
-	void resetMouseInputContext();
-
 	void updateModelMatUniformBuffer(const ModelMatUBO& modelUbo);
 	void updateSceneMatUniformBuffer(const SceneMatUBO& sceneUbo);
 
@@ -309,4 +296,5 @@ public:
 
 	float getSecondsFromStart();
 	VkExtent2D getSwapChainExtent();
+	GLFWwindow* getGlfwWindow();
 };

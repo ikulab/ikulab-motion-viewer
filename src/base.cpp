@@ -1472,7 +1472,6 @@ void Base::drawFrame() {
 
     vkResetCommandBuffer(commandBuffers[currentFrame], 0);
     recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
-    updateUniformBuffer(currentFrame);
 
     VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -1535,53 +1534,6 @@ void Base::vSync() {
     );
 
     std::this_thread::sleep_for(waitTime);
-}
-
-void Base::updateUniformBuffer(uint32_t currentImage) {
-    std::array<glm::mat4, NUM_OF_JOINT_ID> modelMats = anim->generateModelMatrices(secondsFromStart);
-
-    // bone transformation
-    for (int i = 0; i < anim->getNumOfJoints(); i++) {
-        modelUbo.model[i] = modelMats[i];
-    }
-
-    // debug
-#ifdef NODEBUG
-    modelUbo.model[DEBUG_OBJECT_ID] = glm::mat4(0.0);
-#endif
-
-    // global scaling
-    for (auto& m : modelUbo.model) {
-        m = glm::scale(glm::mat4(1.0), glm::vec3(0.01)) * m;
-    }
-
-    void* data;
-    vkMapMemory(
-        device,
-        uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO],
-        0, sizeof(ModelMatUBO), 0, &data);
-    memcpy(data, &modelUbo, sizeof(ModelMatUBO));
-    vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]);
-
-    SceneMatUBO sceneUbo;
-    sceneUbo.view = cameraCtx.generateViewMat();
-    sceneUbo.proj = glm::perspective(
-        glm::radians(45.0f),
-        swapChainExtent.width / (float)swapChainExtent.height,
-        0.01f,
-        1000.0f
-    );
-
-    // デフォルトでは 左手系 Z-down になっている
-    // この式によって 右手系 Z-up に変換する
-    sceneUbo.proj[1][1] *= -1;
-
-    vkMapMemory(
-        device,
-        uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO],
-        0, sizeof(SceneMatUBO), 0, &data);
-    memcpy(data, &sceneUbo, sizeof(SceneMatUBO));
-    vkUnmapMemory(device, uniformBufferMemories[currentImage][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]);
 }
 
 VkCommandBuffer Base::beginSingleTimeCommands() {
@@ -1750,90 +1702,6 @@ void Base::setAnimator(std::shared_ptr<Animator> anim) {
     this->anim = anim;
 }
 
-void Base::cursorPositionCallback(GLFWwindow* window, double xPos, double yPos) {
-    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
-
-    basePtr->mouseCtx.deltaX = xPos - basePtr->mouseCtx.currentX;
-    basePtr->mouseCtx.deltaY = yPos - basePtr->mouseCtx.currentY;
-
-    basePtr->mouseCtx.currentX = xPos;
-    basePtr->mouseCtx.currentY = yPos;
-
-    // record drag end position
-    if (basePtr->mouseCtx.leftButton) {
-        basePtr->mouseCtx.dragEndX = xPos;
-        basePtr->mouseCtx.dragEndY = yPos;
-    }
-}
-
-void Base::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
-    switch (button) {
-    case GLFW_MOUSE_BUTTON_LEFT:
-        basePtr->mouseCtx.leftButton = (action == GLFW_PRESS);
-        break;
-    case GLFW_MOUSE_BUTTON_RIGHT:
-        basePtr->mouseCtx.rightButton = (action == GLFW_PRESS);
-        break;
-    case GLFW_MOUSE_BUTTON_MIDDLE:
-        basePtr->mouseCtx.middleButton = (action == GLFW_PRESS);
-        break;
-    default:
-        break;
-    }
-
-    // init drag position
-    if (basePtr->mouseCtx.leftButton) {
-        basePtr->mouseCtx.dragStartX = basePtr->mouseCtx.currentX;
-        basePtr->mouseCtx.dragStartY = basePtr->mouseCtx.currentY;
-        basePtr->mouseCtx.dragEndX = basePtr->mouseCtx.currentX;
-        basePtr->mouseCtx.dragEndY = basePtr->mouseCtx.currentY;
-    }
-}
-
-void Base::scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
-    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
-    basePtr->mouseCtx.scrollOffsetX = xOffset;
-    basePtr->mouseCtx.scrollOffsetY = yOffset;
-}
-
-void Base::keyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods) {
-    Base* basePtr = static_cast<Base*>(glfwGetWindowUserPointer(window));
-
-    switch (key) {
-    case GLFW_KEY_LEFT_CONTROL:
-    case GLFW_KEY_RIGHT_CONTROL:
-        basePtr->keyCtx.ctrl = (action == GLFW_PRESS);
-        break;
-    case GLFW_KEY_LEFT_ALT:
-    case GLFW_KEY_RIGHT_ALT:
-        basePtr->keyCtx.alt = (action == GLFW_PRESS);
-        break;
-    case GLFW_KEY_LEFT_SHIFT:
-    case GLFW_KEY_RIGHT_SHIFT:
-        basePtr->keyCtx.shift = (action == GLFW_PRESS);
-        break;
-    default:
-        break;
-    }
-}
-
-void Base::registerInputEvents() {
-    glfwSetWindowUserPointer(window, this);
-
-    glfwSetCursorPosCallback(window, cursorPositionCallback);
-    glfwSetMouseButtonCallback(window, mouseButtonCallback);
-    glfwSetScrollCallback(window, scrollCallback);
-    glfwSetKeyCallback(window, keyCallback);
-}
-
-void Base::resetMouseInputContext() {
-    mouseCtx.scrollOffsetX = 0.0;
-    mouseCtx.scrollOffsetY = 0.0;
-    mouseCtx.deltaX = 0.0;
-    mouseCtx.deltaY = 0.0;
-}
-
 void Base::updateModelMatUniformBuffer(const ModelMatUBO& modelUbo) {
     void* data;
     vkMapMemory(
@@ -1860,4 +1728,8 @@ float Base::getSecondsFromStart() {
 
 VkExtent2D Base::getSwapChainExtent() {
     return swapChainExtent;
+}
+
+GLFWwindow* Base::getGlfwWindow() {
+    return window;
 }

@@ -6,6 +6,8 @@
 #include "../shape.hpp"
 #include "../cube/singleColorCube.hpp"
 
+// TODO: make another abstract class as parent
+
 class DirectionDebugObject : public Shape {
 	float size;
 	/// x, y, z

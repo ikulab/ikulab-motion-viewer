@@ -5,6 +5,9 @@
 
 #include "./cube.hpp"
 
+// TODO: init()をなくす
+// SingleColorCube() からは、全て同じ要素のvec3[]をGradationCube()に渡す
+
 class GradationColorCube : public Cube {
 protected:
 	/**

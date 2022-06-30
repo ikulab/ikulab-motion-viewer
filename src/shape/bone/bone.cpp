@@ -5,4 +5,4 @@
 #include "./bone.hpp"
 #include "../sphere.hpp"
 
-Bone::Bone(float length, JointID id) : Shape(id) {}
+Bone::Bone(float length, JointID id) : Shape(id), length(length) {}
