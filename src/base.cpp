@@ -787,6 +787,7 @@ void Base::createUniformBuffers() {
         uniformBuffers[frame].resize(NUM_OF_DESCRIPTORS);
         uniformBufferMemories[frame].resize(NUM_OF_DESCRIPTORS);
         for (size_t descSetIndex = 0; descSetIndex < NUM_OF_DESCRIPTORS; descSetIndex++) {
+            // FIXME: create large DeviceMemory and assign part of them to each uniformBuffers
             createBuffer(
                 uniformBufferSizes[descSetIndex],
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
