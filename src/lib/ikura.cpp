@@ -1,0 +1,1 @@
+// dummy for bundle static libraries for now

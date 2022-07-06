@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+/*
 #include "./base.hpp"
 #include "./shape/shape.hpp"
 #include "./animator.hpp"
@@ -46,3 +47,4 @@ public:
 
 	void run();
 };
+*/

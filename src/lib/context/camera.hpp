@@ -14,9 +14,9 @@
 
 class Camera {
 	glm::vec3 center{ 0.0, 0.0, 0.0 };
-	//// in Radians
+	/// in Radians
 	float hRotation = 0.0;
-	//// in Radians
+	/// in Radians
 	float vRotation = glm::radians(20.0);
 	float distance = 10.0;
 

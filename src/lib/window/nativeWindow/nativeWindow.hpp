@@ -2,10 +2,12 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "./window.hpp"
+#include "../window.hpp"
+#include "../windowInputContext.hpp"
 
 class NativeWindow : public Window {
-	VkSurfaceKHR surface;
 protected:
+	WindowInputContext inputCtx;
+	VkSurfaceKHR surface;
 	NativeWindow() {}
 };

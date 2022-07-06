@@ -11,6 +11,7 @@ class RenderEngine {
 	- VkInstance instance
 	- QueueFamily queueFamily
 
+	+ init(...)
 	+ drawToRenderTarget(content, target)
 }
 

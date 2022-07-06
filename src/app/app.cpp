@@ -3,6 +3,7 @@
 #include <array>
 #include <algorithm>
 
+/*
 #include <glm/glm.hpp>
 
 #include "app.hpp"
@@ -214,3 +215,4 @@ void App::registerInputEvents() {
     glfwSetKeyCallback(window, keyCallback);
 }
 
+*/

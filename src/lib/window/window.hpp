@@ -2,8 +2,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "../renderTarget.hpp"
-#include "../renderContent.hpp"
+#include "../renderComponent/renderContent.hpp"
+#include "../renderComponent/renderTarget.hpp"
 
 class Window {
 protected:

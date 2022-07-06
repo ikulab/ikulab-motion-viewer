@@ -5,8 +5,10 @@
 #include <cstdlib>
 
 #include "app.hpp"
+#include "../lib/window/nativeWindow/glfwNativeWindow.hpp"
 
 int main() {
+/*
 	App app;
 
 	try {
@@ -17,6 +19,6 @@ int main() {
 		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
-
+*/
 	return EXIT_SUCCESS;
 }

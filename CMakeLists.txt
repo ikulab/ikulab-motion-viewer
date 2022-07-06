@@ -25,12 +25,9 @@ add_custom_target(
 	COMMENT "compiling shaders"
 )
 
-add_executable(app ./src/main.cpp ./src/app.cpp ./src/base.cpp)
+add_executable(app ./src/app/main.cpp ./src/app/app.cpp)
 target_compile_features(app PRIVATE cxx_std_17)
-add_dependencies(
-	app
-	shaders
-)
+add_dependencies(app shaders)
 
 target_link_libraries(app glfw)
 target_link_libraries(
@@ -38,23 +35,7 @@ target_link_libraries(
 )
 
 add_subdirectory(./includes/imgui)
-target_link_libraries(app imgui)
 
-add_subdirectory(./src/shape)
-target_link_libraries(shape)
-
-add_subdirectory(./src/util)
-target_link_libraries(bvh_parser)
-
-add_library(animator STATIC ./src/animator.cpp)
-target_link_libraries(animator shape)
-target_link_libraries(animator bvh_parser)
-target_link_libraries(app animator)
-
-add_subdirectory(./src/ui)
-target_link_libraries(ui)
-target_link_libraries(ui imgui)
-
-add_subdirectory(./src/context)
-target_link_libraries(context)
-target_link_libraries(context imgui)
+add_subdirectory(./src/lib)
+target_link_libraries(ikura imgui)
+target_link_libraries(app ikura)
