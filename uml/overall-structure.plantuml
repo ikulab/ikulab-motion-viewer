@@ -28,14 +28,35 @@ abstract Window {
 }
 abstract NativeWindow {
 	- VkSurfaceKHR surface
+	- InputContext inputCtx
 }
 class GLFWNativeWindow {
 	- GLFWWindow window
+	----
+	GLFW Input Callbacks...
 }
 
 abstract VirtualWindow {}
 class UiWindow {
 	- ImGuiContext uiContext
+}
+
+' Context -----
+class InputContext {
+	Mouse mouse
+	Keyboard keyboard
+}
+
+struct Mouse {
+	+ bool left, right, middle
+	+ double currentX, currentY
+	+ dragX, dragY
+	etc...
+}
+
+struct Keyboard {
+	+ bool ctrl, alt, shift
+	etc...
 }
 
 ' Render Data -----
@@ -57,15 +78,20 @@ class RenderContent {
 AppEngine "1" *-- "1..n" Window
 
 Window --|> NativeWindow
-NativeWindow -|> GLFWNativeWindow
-Window -|> VirtualWindow
+NativeWindow --|> GLFWNativeWindow
+Window --|> VirtualWindow
 VirtualWindow --|> UiWindow
+NativeWindow "1" *-- "0..n" VirtualWindow
 
 RenderTarget "1..n" --* "1" Window
 RenderContent "1..n" --* "1" Window
+InputContext --* NativeWindow
 
 AppEngine ..> RenderEngine : render >=1 times
 UiEngine <.. RenderEngine : < init
+
+InputContext *-- Mouse
+InputContext *-- Keyboard 
 
 ' Notes ---------------
 
