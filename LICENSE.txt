@@ -53,3 +53,8 @@ Shaderc
   Google
   Apache License Version 2.0 
     https://github.com/google/shaderc/blob/main/LICENSE
+
+log.c
+  Copyright (c) 2020 rxi
+  MIT License
+    https://github.com/rxi/log.c/blob/master/LICENSE

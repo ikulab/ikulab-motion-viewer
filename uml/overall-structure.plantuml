@@ -30,6 +30,7 @@ abstract Window {
 abstract NativeWindow {
 	- VkSurfaceKHR surface
 	- InputContext inputCtx
+	+ NativeWindow(const RenderEngine& renderEngine)
 }
 class GLFWNativeWindow {
 	- GLFWWindow window
@@ -75,6 +76,11 @@ class RenderContent {
 	+ getVertices(), getIndices()
 }
 
+
+' Notes ---------------
+note "VkInstance and GLFW support info\nare required to create surface" as N_GLfwSupport
+
+
 ' Relations ---------------
 AppEngine "1" *-- "1..n" Window
 
@@ -94,6 +100,7 @@ UiEngine <.. RenderEngine : < init
 InputContext *-- Mouse
 InputContext *-- Keyboard 
 
-' Notes ---------------
+RenderEngine . N_GLfwSupport
+N_GLfwSupport .> GLFWNativeWindow
 
 @enduml

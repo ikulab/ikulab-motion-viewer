@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(
 	ikulab-motion-viwer
-	VERSION 0.1.0	
+	VERSION 0.1.0
 	LANGUAGES CXX
 )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -13,10 +13,15 @@ if(${BUILD_TYPE} STREQUAL "Release")
 	add_compile_options(-DNODEBUG)
 endif()
 
+# external libraries ----------
 find_package(Vulkan REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
+add_subdirectory(./includes/imgui)
 
-# shader compile
+add_compile_options(-DLOG_USE_COLOR)
+add_subdirectory(./includes/logc)
+
+# shader compile ----------
 add_custom_target(
 	shaders
 	make
@@ -25,17 +30,21 @@ add_custom_target(
 	COMMENT "compiling shaders"
 )
 
+# executable ----------
 add_executable(app ./src/app/main.cpp ./src/app/app.cpp)
 target_compile_features(app PRIVATE cxx_std_17)
 add_dependencies(app shaders)
 
-target_link_libraries(app glfw)
-target_link_libraries(
-	app vulkan dl pthread X11 Xxf86vm Xrandr Xi
-)
+# executable dependencies
+target_link_libraries(app logc)
 
-add_subdirectory(./includes/imgui)
+# ikura lib ----------
+add_subdirectory(./src/lib/ikura)
 
-add_subdirectory(./src/lib)
-target_link_libraries(ikura imgui)
+# ikura dependencies
+target_link_libraries(ikura vulkan glfw)
+target_link_libraries(ikura dl pthread X11 Xxf86vm Xrandr Xi)
+target_link_libraries(renderEngine logc)
+
+# link ikura to executable
 target_link_libraries(app ikura)

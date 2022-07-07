@@ -4,6 +4,6 @@
 
 #include "./virtualWindow.hpp"
 
-class UiWindow : public VirtualWindow {
+class ImGuiUiWindow : public VirtualWindow {
 	ImGuiContext *imGuiContext;
 };

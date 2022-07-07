@@ -5,7 +5,7 @@
 #include "./nativeWindow.hpp"
 
 class GlfwNativeWindow : public NativeWindow {
-	GLFWwindow *window;
+	GLFWwindow* window;
 
 public:
 	~GlfwNativeWindow() {
