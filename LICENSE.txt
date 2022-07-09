@@ -54,7 +54,8 @@ Shaderc
   Apache License Version 2.0 
     https://github.com/google/shaderc/blob/main/LICENSE
 
-log.c
-  Copyright (c) 2020 rxi
+easylogging++
+  Copyright (c) 2012-2018 Amrayn Web Services
+  Copyright (c) 2012-2018 @abumusamq
   MIT License
-    https://github.com/rxi/log.c/blob/master/LICENSE
+    https://github.com/amrayn/easyloggingpp/blob/master/LICENSE

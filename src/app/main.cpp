@@ -4,9 +4,8 @@
 #include <iostream>
 #include <cstdlib>
 
-extern "C" {
-#include <logc/log.h>
-}
+#include <easylogging++.h>
+INITIALIZE_EASYLOGGINGPP
 
 #include "app.hpp"
 
@@ -17,7 +16,7 @@ int main() {
 		app.init();
 	}
 	catch (const std::runtime_error& e) {
-		log_error(e.what());
+		LOG(FATAL) << e.what();
 		return EXIT_FAILURE;
 	}
 	catch (const std::exception& e) {

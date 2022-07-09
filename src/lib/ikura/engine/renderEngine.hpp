@@ -12,13 +12,19 @@ struct RenderEngineInitConfig {
 	const char* applicationName;
 	uint32_t applicationVersion;
 
-	bool enableValidationLayer;
+	bool enableValidationLayers;
 	std::vector<std::string> validationLayerNames;
+	// TODO: surface, debugUtilが無い場合にも対応させる
+	std::vector<std::string> extensionNames;
 
 	static RenderEngineInitConfig defaultDebugSetting() {
 		RenderEngineInitConfig initConfig = defaultCommonSetting();
-		initConfig.enableValidationLayer = true;
+
+		initConfig.enableValidationLayers = true;
 		initConfig.validationLayerNames.push_back("VK_LAYER_KHRONOS_validation");
+
+		initConfig.extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		initConfig.extensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 
 		return initConfig;
 	}
@@ -43,8 +49,12 @@ class RenderEngine {
 	VkInstance instance;
 
 	RenderEngineSupportInfo supportInfo;
+	bool enableValidationLayers;
+
+	std::vector<std::string> validationLayerNames;
+	std::vector<std::string> extensionNames;
 public:
-	RenderEngine(RenderEngineInitConfig renderConfig);
+	RenderEngine(RenderEngineInitConfig initConfig);
 
 	void draw(RenderContent content, RenderTarget target);
 };

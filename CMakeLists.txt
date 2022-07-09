@@ -17,9 +17,7 @@ endif()
 find_package(Vulkan REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 add_subdirectory(./includes/imgui)
-
-add_compile_options(-DLOG_USE_COLOR)
-add_subdirectory(./includes/logc)
+add_subdirectory(./includes/easylogging++)
 
 # shader compile ----------
 add_custom_target(
@@ -30,13 +28,12 @@ add_custom_target(
 	COMMENT "compiling shaders"
 )
 
-# executable ----------
-add_executable(app ./src/app/main.cpp ./src/app/app.cpp)
-target_compile_features(app PRIVATE cxx_std_17)
+# ikulab-motion-viewer app ----------
+add_subdirectory(./src/app)
 add_dependencies(app shaders)
 
-# executable dependencies
-target_link_libraries(app logc)
+# app dependencies
+target_link_libraries(app easyloggingpp)
 
 # ikura lib ----------
 add_subdirectory(./src/lib/ikura)
@@ -44,7 +41,8 @@ add_subdirectory(./src/lib/ikura)
 # ikura dependencies
 target_link_libraries(ikura vulkan glfw)
 target_link_libraries(ikura dl pthread X11 Xxf86vm Xrandr Xi)
-target_link_libraries(renderEngine logc)
+
+target_link_libraries(renderEngine easyloggingpp)
 
 # link ikura to executable
 target_link_libraries(app ikura)
