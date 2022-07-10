@@ -41,8 +41,10 @@ add_subdirectory(./src/lib/ikura)
 # ikura dependencies
 target_link_libraries(ikura vulkan glfw)
 target_link_libraries(ikura dl pthread X11 Xxf86vm Xrandr Xi)
-
+target_link_libraries(ikura easyloggingpp)
 target_link_libraries(renderEngine easyloggingpp)
+
+target_include_directories(ikura PRIVATE ./includes/magic_enum)
 
 # link ikura to executable
 target_link_libraries(app ikura)

@@ -53,8 +53,11 @@ class RenderEngine {
 
 	std::vector<const char*> validationLayerNames;
 	std::vector<const char*> extensionNames;
+
+	void createInstance(RenderEngineInitConfig initConfig);
 public:
 	RenderEngine(RenderEngineInitConfig initConfig);
+	~RenderEngine();
 
 	void draw(RenderContent content, RenderTarget target);
 };
