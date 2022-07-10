@@ -50,14 +50,35 @@ RenderEngine::RenderEngine(RenderEngineInitConfig initConfig) {
 	instanceCI.pApplicationInfo = &appInfo;
 
 	// set ValidationLayer / Extension names ----------
-	validationLayerNames = initConfig.validationLayerNames;
-	extensionNames = initConfig.extensionNames;
+	std::for_each(
+		initConfig.validationLayerNames.begin(),
+		initConfig.validationLayerNames.end(),
+		[&](const std::string& s) {
+			validationLayerNames.push_back(s.data());
+		}
+	);
+	std::for_each(
+		initConfig.extensionNames.begin(),
+		initConfig.extensionNames.end(),
+		[&](const std::string& s) {
+			extensionNames.push_back(s.data());
+		}
+	);
+
 	{
 		auto glfwReqExts = getGlfwRequiredExtensions();
-		std::for_each(glfwReqExts.begin(), glfwReqExts.end(), [&](std::string ext) {
-			if (std::find(extensionNames.begin(), extensionNames.end(), ext) == extensionNames.end()) {
-				extensionNames.push_back(ext);
-			}
+		std::for_each(
+			glfwReqExts.begin(),
+			glfwReqExts.end(),
+			[&](std::string ext) {
+				auto f = std::find(
+					extensionNames.begin(),
+					extensionNames.end(),
+					ext
+				);
+				if (f == extensionNames.end()) {
+					extensionNames.push_back(ext.data());
+				}
 		});
 	}
 
@@ -88,7 +109,7 @@ RenderEngine::RenderEngine(RenderEngineInitConfig initConfig) {
  *
  * @exception std::runtime_error if ValidationLayer is not supported or paramater is invalid.
  */
-void checkValidationLayersSupport(std::vector<std::string> validationLayerNames) {
+void checkValidationLayersSupport(std::vector<const char*> validationLayerNames) {
 	if (validationLayerNames.size() == 0) {
 		throw std::runtime_error(
 			"ValidationLayer activation is requested, "
@@ -96,13 +117,46 @@ void checkValidationLayersSupport(std::vector<std::string> validationLayerNames)
 		);
 	}
 
-	if (!checkValidationLayerSupport(validationLayerNames)) {
-		throw std::runtime_error(
-			"ValidationLayer activation is requested, "
-			"but givin ValidationLayers are NOT supported. "
-			"Make sure RenderEngineInitConfig.validationLayerNames is correct."
-		);
-	}
+    uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+	bool notFound = false;
+	std::for_each(
+		availableLayers.begin(),
+		availableLayers.end(),
+		[&notFound]() {
+			if 
+			notFound = true;
+		}
+	);
+
+    // for (const char* layerName : validationLayers) {
+    //     bool layerFound = false;
+
+    //     for (const auto& layerProperties : availableLayers) {
+    //         if (strcmp(layerName, layerProperties.layerName) == 0) {
+    //             layerFound = true;
+    //             break;
+    //         }
+    //     }
+
+    //     if (!layerFound) {
+    //         return false;
+    //     }
+    // }
+
+
+
+    return true;
+	// if (!checkValidationLayerSupport(validationLayerNames)) {
+	// 	throw std::runtime_error(
+	// 		"ValidationLayer activation is requested, "
+	// 		"but givin ValidationLayers are NOT supported. "
+	// 		"Make sure RenderEngineInitConfig.validationLayerNames is correct."
+	// 	);
+	// }
 
 	LOG(INFO) << "ValidationLayer is supported.";
 
@@ -121,4 +175,8 @@ std::vector<std::string> getGlfwRequiredExtensions() {
 	}
 
 	return result;
+}
+
+const char** stringVectorToCharPp(std::vector<std::string> vec) {
+
 }

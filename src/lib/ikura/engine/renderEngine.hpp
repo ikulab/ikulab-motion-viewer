@@ -51,8 +51,8 @@ class RenderEngine {
 	RenderEngineSupportInfo supportInfo;
 	bool enableValidationLayers;
 
-	std::vector<std::string> validationLayerNames;
-	std::vector<std::string> extensionNames;
+	std::vector<const char*> validationLayerNames;
+	std::vector<const char*> extensionNames;
 public:
 	RenderEngine(RenderEngineInitConfig initConfig);
 
