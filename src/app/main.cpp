@@ -10,6 +10,10 @@ INITIALIZE_EASYLOGGINGPP
 #include "app.hpp"
 
 int main() {
+	el::Configurations conf("./easylogging.conf");
+	el::Loggers::reconfigureAllLoggers(conf);
+	el::Loggers::setVerboseLevel(5);
+
 	App app;
 
 	try {

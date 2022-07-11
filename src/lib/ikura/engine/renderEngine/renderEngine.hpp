@@ -5,8 +5,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "../renderComponent/renderContent.hpp"
-#include "../renderComponent/renderTarget.hpp"
+#include "../../renderComponent/renderContent.hpp"
+#include "../../renderComponent/renderTarget.hpp"
 
 struct RenderEngineInitConfig {
 	const char* applicationName;
@@ -48,6 +48,8 @@ class RenderEngine {
 	VkDevice device;
 	VkInstance instance;
 
+	VkDebugUtilsMessengerEXT debugMessenger;
+
 	RenderEngineSupportInfo supportInfo;
 	bool enableValidationLayers;
 
@@ -55,6 +57,12 @@ class RenderEngine {
 	std::vector<const char*> extensionNames;
 
 	void createInstance(RenderEngineInitConfig initConfig);
+	void createDevice(RenderEngineInitConfig initConfig);
+
+	void setupExtensions(RenderEngineInitConfig initConfig);
+	void destroyExtensions();
+
+	static VkDebugUtilsMessengerCreateInfoEXT getDebugUtilsMessengerCI();
 public:
 	RenderEngine(RenderEngineInitConfig initConfig);
 	~RenderEngine();

@@ -7,9 +7,9 @@ project(
 
 find_package(glfw3 3.3 REQUIRED)
 
-
 add_library(appEngine STATIC appEngine.cpp)
 
-add_library(renderEngine STATIC renderEngine.cpp)
+file(GLOB RENDER_ENGINE_SOURCE renderEngine/*.cpp)
+add_library(renderEngine STATIC ${RENDER_ENGINE_SOURCE})
 
 add_library(uiEngine STATIC uiEngine.cpp)
