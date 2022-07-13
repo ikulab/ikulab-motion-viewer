@@ -12,7 +12,7 @@ INITIALIZE_EASYLOGGINGPP
 int main() {
 	el::Configurations conf("./easylogging.conf");
 	el::Loggers::reconfigureAllLoggers(conf);
-	el::Loggers::setVerboseLevel(5);
+	el::Loggers::setVerboseLevel(4);
 
 	App app;
 

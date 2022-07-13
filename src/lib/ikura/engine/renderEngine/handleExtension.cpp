@@ -120,7 +120,7 @@ void DestroyDebugUtilsMessengerEXT(
  * @brief setup Extensions: DebugUtilsMessengerEXT
  */
 void RenderEngine::setupExtensions(RenderEngineInitConfig initConfig) {
-	if (!enableValidationLayers) return;
+	if (!isValidationLayerEnabled) return;
 
 	VkDebugUtilsMessengerCreateInfoEXT debugCI = getDebugUtilsMessengerCI();
 	CheckError(
@@ -130,7 +130,7 @@ void RenderEngine::setupExtensions(RenderEngineInitConfig initConfig) {
 }
 
 void RenderEngine::destroyExtensions() {
-	if (!enableValidationLayers) return;
+	if (!isValidationLayerEnabled) return;
 
 	DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 }

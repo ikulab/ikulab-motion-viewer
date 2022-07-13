@@ -8,8 +8,9 @@
 #include "../../ikura.hpp"
 
 // forward declearation of helper functions ----------
-void checkValidationLayersSupport(std::vector<const char*> validationLayerNames);
-std::vector<std::string> getGlfwRequiredExtensions();
+void checkLayersSupport(std::vector<const char*> layersNames);
+void checkInstanceExtensionsSupport(const std::vector<const char*>& extensionNames);
+std::vector<const char*> getGlfwRequiredExtensions();
 
 
 /**
@@ -29,45 +30,52 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
 	appInfo.apiVersion = IKURA_APP_INFO_API_VER;
 	instanceCI.pApplicationInfo = &appInfo;
 
-	// set ValidationLayer / Extension names ----------
-	for (const auto& name : initConfig.validationLayerNames) {
-		validationLayerNames.push_back(name.data());
-	}
-	for (const auto& name : initConfig.extensionNames) {
-		extensionNames.push_back(name.data());
-	}
+	// set Layer / Extension names ----------
+	layerNames = initConfig.layerNames;
+	instanceExtensionNames = initConfig.instanceExtensionNames;
 	// for GLFW
 	{
 		auto glfwReqExts = getGlfwRequiredExtensions();
 		std::for_each(
 			glfwReqExts.begin(),
 			glfwReqExts.end(),
-			[&](std::string ext) {
-				auto f = std::find(
-					extensionNames.begin(),
-					extensionNames.end(),
-					ext
+			[&](const char* ext) {
+				auto f = std::find_if(
+					instanceExtensionNames.begin(),
+					instanceExtensionNames.end(),
+					[&ext](const char* instanceExt) {
+						return std::strcmp(ext, instanceExt) == 0;
+					}
 				);
-				if (f == extensionNames.end()) {
-					extensionNames.push_back(ext.data());
+				if (f == instanceExtensionNames.end()) {
+					instanceExtensionNames.push_back(ext);
 				}
 			}
 		);
 	}
 
-	// ValidationLayer / Extension info population ----------
-	instanceCI.enabledLayerCount = static_cast<uint32_t>(validationLayerNames.size());
-	instanceCI.ppEnabledLayerNames = validationLayerNames.data();
-	instanceCI.enabledExtensionCount = static_cast<uint32_t>(extensionNames.size());
-	instanceCI.ppEnabledExtensionNames = extensionNames.data();
+	// Layer / Extension info population ----------
+	instanceCI.enabledLayerCount = static_cast<uint32_t>(layerNames.size());
+	instanceCI.ppEnabledLayerNames = layerNames.data();
+	instanceCI.enabledExtensionCount = static_cast<uint32_t>(instanceExtensionNames.size());
+	instanceCI.ppEnabledExtensionNames = instanceExtensionNames.data();
 
 	// support check ----------
-	// NOTE: Extensions support is depends on device. Check later.
-	// ValidationLayers
-	enableValidationLayers = initConfig.enableValidationLayers;
-	if (enableValidationLayers) {
-		checkValidationLayersSupport(validationLayerNames);
+	// Layers
+	checkLayersSupport(layerNames);
+	if (std::find_if(
+		layerNames.begin(),
+		layerNames.end(),
+		[](const char* name) {
+			return std::strcmp(name, VALIDATION_LAYER_NAME) == 0;
+		}
+		) != layerNames.end()) {
+
+		isValidationLayerEnabled = true;
+		LOG(INFO) << "Set ValidationLayer '" << VALIDATION_LAYER_NAME << "' enabled.";
 	}
+	// InstanceExtensions
+	checkInstanceExtensionsSupport(instanceExtensionNames);
 	// Glfw
 	// terminate program when GlfwNativeWindow creation is requested.
 	supportInfo.isGlfwSupported = (glfwVulkanSupported() == GLFW_TRUE);
@@ -78,10 +86,10 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
 		LOG(WARNING) << "Glfw is NOT supported.";
 	}
 
-	// ValidationLayer activation setting ----------
-	if (enableValidationLayers) {
-		instanceCI.enabledLayerCount = static_cast<uint32_t>(validationLayerNames.size());
-		instanceCI.ppEnabledLayerNames = validationLayerNames.data();
+	// DebugUtils setting ----------
+	if (isValidationLayerEnabled) {
+		instanceCI.enabledLayerCount = static_cast<uint32_t>(layerNames.size());
+		instanceCI.ppEnabledLayerNames = layerNames.data();
 		VkDebugUtilsMessengerCreateInfoEXT debugCI = getDebugUtilsMessengerCI();
 
 		instanceCI.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCI;
@@ -98,26 +106,26 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
 }
 
 /**
- * @brief Check if all of givin ValidationLayers are supported.
+ * @brief Check if all of givin Layers are supported.
  * Prints INFO log and can throw runtime_error.
  *
- * @exception std::runtime_error if ValidationLayer is not supported or paramater is invalid.
+ * @exception std::runtime_error if Layer is not supported.
  */
-void checkValidationLayersSupport(std::vector<const char*> validationLayerNames) {
-	if (validationLayerNames.size() == 0) {
-		throw std::runtime_error(
-			"ValidationLayer activation is requested, "
-			"but RenderEngineInitConfig.validationLayerNames is empty."
-		);
-	}
-
+void checkLayersSupport(std::vector<const char*> LayerNames) {
 	uint32_t layerCount;
 	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 	std::vector<VkLayerProperties> availableLayers(layerCount);
 	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
+	if (VLOG_IS_ON(VLOG_LV_6_ITEM_ENUMERATION)) {
+		VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "Available Layers:";
+		for (const auto& layer : availableLayers) {
+			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "\t" << layer.layerName;
+		}
+	}
+
 	bool supported = true;
-	for (const auto& layerName : validationLayerNames) {
+	for (const auto& layerName : LayerNames) {
 		supported = std::any_of(
 			availableLayers.begin(),
 			availableLayers.end(),
@@ -128,25 +136,100 @@ void checkValidationLayersSupport(std::vector<const char*> validationLayerNames)
 
 		if (!supported) {
 			std::string msg;
-			msg += "ValidationLayer activation is requested, but '";
+			msg += "Layer activation is requested, but '";
 			msg += layerName;
 			msg += "' is NOT supported.";
-			msg += "Make sure ValidationLayer name is correct.";
+			msg += "Make sure Layer name is correct.";
 			throw std::runtime_error(msg);
 		}
 	}
 
-	LOG(INFO) << "ValidationLayer is supported.";
+	LOG(INFO) << "All givin Layers are supported.";
+}
+
+/**
+ * @brief Check if all of givin InstanceExtensions are supported.
+ */
+void checkInstanceExtensionsSupport(const std::vector<const char*>& extensionNames) {
+	std::vector<const char*> required = extensionNames;
+	auto requiredEndIter = required.end();
+
+	auto checkExtensionProps = [&required, &requiredEndIter](const char* layerName) {
+		uint32_t exCount;
+		vkEnumerateInstanceExtensionProperties(layerName, &exCount, nullptr);
+		std::vector<VkExtensionProperties> exProps(exCount);
+		vkEnumerateInstanceExtensionProperties(layerName, &exCount, exProps.data());
+		if (layerName == nullptr) {
+			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "\tGlobal:";
+		}
+		else {
+			VLOG(VLOG_LV_6_ITEM_ENUMERATION)
+				<< "\tExtensions associated with layer '"
+				<< layerName
+				<< "':";
+		}
+
+		if (exProps.empty()) {
+			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "\t\t(None)";
+		}
+		for (const auto& exProp : exProps) {
+			VLOG(VLOG_LV_6_ITEM_ENUMERATION)
+				<< "\t\t"
+				<< exProp.extensionName
+				<< " version: "
+				<< exProp.specVersion;
+
+			requiredEndIter = std::remove_if(
+				required.begin(),
+				requiredEndIter,
+				[&exProp](const char* name) {
+					return std::strcmp(name, exProp.extensionName) == 0;
+				}
+			);
+		}
+	};
+
+	VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "InstanceExtensions:";
+	checkExtensionProps(nullptr);
+
+	uint32_t layerCount;
+	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+	std::vector<VkLayerProperties> layerProps(layerCount);
+	vkEnumerateInstanceLayerProperties(&layerCount, layerProps.data());
+
+	for (const auto& layerProp : layerProps) {
+		checkExtensionProps(layerProp.layerName);
+	}
+
+	if (requiredEndIter != required.begin()) {
+		std::string msg;
+		msg += "InstanceExtension activation is requested, ";
+		msg += "but following Extensions are NOT supported: ";
+		std::for_each(
+			required.begin(),
+			requiredEndIter,
+			[&msg](const char* name) {
+				msg += name;
+				msg += " ";
+			}
+		);
+		msg += ". Make sure  name is correct.";
+		throw std::runtime_error(
+			msg
+		);
+	}
+
+	LOG(INFO) << "All givin InstanceExtensions are supported.";
 }
 
 /**
  * @brief Returns list of extension names that Glfw requires.
  */
-std::vector<std::string> getGlfwRequiredExtensions() {
+std::vector<const char*> getGlfwRequiredExtensions() {
 	uint32_t extCount;
 	const char** exts = glfwGetRequiredInstanceExtensions(&extCount);
 
-	std::vector<std::string> result;
+	std::vector<const char*> result;
 	for (size_t i = 0; i < extCount; i++) {
 		result.push_back(exts[i]);
 	}
