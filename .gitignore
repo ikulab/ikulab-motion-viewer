@@ -11,6 +11,8 @@ bin
 # imgui file
 imgui.ini
 
+# log file
+myeasylog.log
 
 # template -------------
 # Prerequisites
