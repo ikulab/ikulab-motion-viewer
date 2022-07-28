@@ -80,7 +80,7 @@ class RenderEngine {
 	void destroyExtensions();
 
 	// Misc ----------
-	static VkDebugUtilsMessengerCreateInfoEXT getDebugUtilsMessengerCI();
+	static vk::DebugUtilsMessengerCreateInfoEXT getDebugUtilsMessengerCI();
 public:
 	RenderEngine(RenderEngineInitConfig initConfig);
 	~RenderEngine();
