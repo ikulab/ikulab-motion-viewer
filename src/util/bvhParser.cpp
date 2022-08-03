@@ -228,6 +228,7 @@ void BVHParser::parseMotion() {
 	}
 
 	// frames value
+	// TODO: fix Exception
 	try {
 		*inputStream >> numOfFrames;
 	}
