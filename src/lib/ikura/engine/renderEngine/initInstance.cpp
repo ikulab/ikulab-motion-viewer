@@ -17,12 +17,10 @@ std::vector<const char*> getGlfwRequiredExtensions();
  * @brief Populates CreateInfo, checks supports, and creates VulkanInstance.
  */
 void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
-	vk::InstanceCreateInfo instanceCI{};
-	instanceCI.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	vk::InstanceCreateInfo instanceCI;
 
 	// application info ----------
-	VkApplicationInfo appInfo{};
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	vk::ApplicationInfo appInfo;
 	appInfo.pApplicationName = initConfig.applicationName;
 	appInfo.applicationVersion = initConfig.applicationVersion;
 	appInfo.pEngineName = IKURA_APP_INFO_ENGINE_NAME;
@@ -92,17 +90,14 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
 		instanceCI.ppEnabledLayerNames = layerNames.data();
 		auto debugCI = getDebugUtilsMessengerCI();
 
-		instanceCI.pNext = (vk::DebugUtilsMessengerCreateInfoEXT*)&debugCI;
+		instanceCI.pNext = &debugCI;
 	}
 	else {
 		instanceCI.enabledLayerCount = 0;
 		instanceCI.pNext = nullptr;
 	}
 
-	CheckError(
-		vkCreateInstance(&instanceCI, nullptr, &instance),
-		"Failed to create Vulkan Instance."
-	);
+	instance = vk::createInstance(instanceCI, nullptr);
 }
 
 /**

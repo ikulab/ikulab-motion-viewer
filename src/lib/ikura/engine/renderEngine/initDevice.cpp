@@ -26,9 +26,9 @@ struct PhysicalDeviceEvaluation {
 };
 
 // Forward declearation of helper functions ----------
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR testSurface);
-void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, VkPhysicalDevice device, PhysicalDeviceEvaluation& eval);
-void EvaluateSurfaceSupport(VkSurfaceKHR testSurface, VkPhysicalDevice device, PhysicalDeviceEvaluation& eval);
+QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR testSurface);
+void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval);
+void EvaluateSurfaceSupport(vk::SurfaceKHR testSurface, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval);
 
 
 void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
@@ -95,10 +95,10 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 	deviceCI.ppEnabledLayerNames = layerNames.data();
 	deviceCI.enabledLayerCount = layerNames.size();
 
-	CheckError(
-		vkCreateDevice(physicalDevice, &deviceCI, nullptr, &device),
-		"Failed to create Logical Device."
-	);
+	// CheckError(
+	// 	vkCreateDevice(physicalDevice, &deviceCI, nullptr, &device),
+	// 	"Failed to create Logical Device."
+	// );
 
 	// Hold queue in variables
 	vkGetDeviceQueue(device, queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS), 0, &queues.graphicsQueue);
@@ -172,24 +172,22 @@ PhysicalDeviceInfo RenderEngine::getSuitablePhysicalDeviceInfo(const RenderEngin
 /**
  * @brief Populate QueueFamilyIndices for givin PhysicalDevice and return it.
  */
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR testSurface) {
+QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR testSurface) {
 	QueueFamilyIndices result;
 
 	uint32_t familyCount;
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &familyCount, nullptr);
-	std::vector<VkQueueFamilyProperties> families(familyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &familyCount, families.data());
+	auto families = device.getQueueFamilyProperties();
 
 	uint32_t index = 0;
 	for (const auto& prop : families) {
 		// graphic family
-		if (prop.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+		if (prop.queueFlags & vk::QueueFlagBits::eGraphics) {
 			result.set(QueueFamilyIndices::GRAPHICS, index);
 		}
 
 		// present family
-		VkBool32 presentSupport = VK_FALSE;
-		vkGetPhysicalDeviceSurfaceSupportKHR(device, index, testSurface, &presentSupport);
+		vk::Bool32 presentSupport = VK_FALSE;
+		presentSupport = device.getSurfaceSupportKHR(index, testSurface);
 		if (presentSupport) {
 			result.set(QueueFamilyIndices::PRESENT, index);
 		}
@@ -209,18 +207,14 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR testS
  * @param extensionNames DeviceExtension requirement
  * @return int
  */
-void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, VkPhysicalDevice device, PhysicalDeviceEvaluation& eval) {
+void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval) {
 	auto required = extensionNames;
 	auto requiredEndIter = required.end();
 	int totalNumberOfExtensions = 0;
 
 	auto checkSupport = [&device, &required, &requiredEndIter, &totalNumberOfExtensions](const char* layerName) {
-		uint32_t exCount;
-		vkEnumerateDeviceExtensionProperties(device, layerName, &exCount, nullptr);
-		std::vector<VkExtensionProperties> exProps(exCount);
-		vkEnumerateDeviceExtensionProperties(device, layerName, &exCount, exProps.data());
-
-		totalNumberOfExtensions += exCount;
+		//std::vector<vk::ExtensionProperties> exProps = device.enumerateDeviceExtensionProperties(layerName);
+		totalNumberOfExtensions += exProps.size();
 
 		if (layerName == nullptr) {
 			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "\t\t\tGlobal:";
@@ -257,10 +251,7 @@ void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, VkP
 
 	checkSupport(nullptr);
 
-	uint32_t layerCount;
-	vkEnumerateDeviceLayerProperties(device, &layerCount, nullptr);
-	std::vector<VkLayerProperties> layerProps;
-	vkEnumerateDeviceLayerProperties(device, &layerCount, layerProps.data());
+	auto layerProps = device.enumerateDeviceLayerProperties();
 
 	for (const auto& prop : layerProps) {
 		checkSupport(prop.layerName);
@@ -275,7 +266,7 @@ void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, VkP
  * If givin surface (i.e. PhysicalDevice) has NO available formats and presentModes,
  * eval.isSwapChainAdequate will be false.
  */
-void EvaluateSurfaceSupport(VkSurfaceKHR testSurface, VkPhysicalDevice device, PhysicalDeviceEvaluation& eval) {
+void EvaluateSurfaceSupport(vk::SurfaceKHR testSurface, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval) {
 	// VkSurfaceCapabilitiesKHR capabilities;
 	// vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, testSurface, &capabilities);
 

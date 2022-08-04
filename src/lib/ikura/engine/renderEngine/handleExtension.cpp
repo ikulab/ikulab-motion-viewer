@@ -9,7 +9,7 @@
 /**
  * @brief debug callback for ValidationLayer. prints error content e.g. error message.
  */
-static VKAPI_ATTR VkBool32 VKAPI_CALL validationLayerDebugCallback(
+static VKAPI_ATTR vk::Bool32 VKAPI_CALL validationLayerDebugCallback(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 	VkDebugUtilsMessageTypeFlagsEXT messageType,
 	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -38,98 +38,20 @@ vk::DebugUtilsMessengerCreateInfoEXT RenderEngine::getDebugUtilsMessengerCI() {
 }
 
 /**
- * @brief Create Extension object from InstanceProcAddr.
- * e.g. VkDebugUtilsMessengerEXT.
- */
-template<typename ExtensionType, typename ExtensionCreateInfoType, typename PfnType>
-VkResult CreateExtensionObjectFromInstanceProcAddr(
-	VkInstance instance,
-	const ExtensionCreateInfoType* pCreateinfo,
-	const VkAllocationCallbacks* pAllocator,
-	ExtensionType* pExtensionObject,
-	const char* createFunctionName) {
-
-	auto func = (PfnType)vkGetInstanceProcAddr(instance, createFunctionName);
-
-	if (func != nullptr) {
-		return func(instance, pCreateinfo, pAllocator, pExtensionObject);
-	}
-	else {
-		return VK_ERROR_EXTENSION_NOT_PRESENT;
-	}
-}
-
-/**
- * @brief Wrapper of CreateExtensionObjectFromInstanceProcAddr.
- * Creates DebugUtilsMessengerEXT
- */
-VkResult CreateDebugUtilsMessengerEXT(
-	VkInstance instance,
-	const VkDebugUtilsMessengerCreateInfoEXT* pCreateinfo,
-	const VkAllocationCallbacks* pAllocator,
-	VkDebugUtilsMessengerEXT* pDebugMessenger) {
-
-	return CreateExtensionObjectFromInstanceProcAddr<
-		VkDebugUtilsMessengerEXT, VkDebugUtilsMessengerCreateInfoEXT, PFN_vkCreateDebugUtilsMessengerEXT
-	>(
-		instance, pCreateinfo, pAllocator, pDebugMessenger, "vkCreateDebugUtilsMessengerEXT"
-	);
-}
-
-/**
- * @brief Destroy Extension object from InstanceProcAddr.
- * e.g. destroy VkDebugUtilsMessengerEXT.
- */
-template<typename ExtensionType, typename PfnType>
-void DestroyExtensionObjectFromInstanceProcAddr(
-	VkInstance instance,
-	ExtensionType extensionObject,
-	const VkAllocationCallbacks* pAllocator,
-	const char* destroyFunctionName) {
-
-	auto func = (PfnType)vkGetInstanceProcAddr(instance, destroyFunctionName);
-
-	if (func != nullptr) {
-		func(instance, extensionObject, pAllocator);
-	}
-	else {
-		throw std::runtime_error(
-			"Cannot get destroy function from InstanceProcAddr."
-		);
-	}
-}
-
-/**
- * @brief Wrapper of DescroyExtensionObjectFromInstanceProcAddr.
- * Destroys DebugUtilsMessengerEXT
- */
-void DestroyDebugUtilsMessengerEXT(
-	VkInstance instance,
-	VkDebugUtilsMessengerEXT debugMessenger,
-	const VkAllocationCallbacks* pAllocator) {
-
-	return DestroyExtensionObjectFromInstanceProcAddr<
-		VkDebugUtilsMessengerEXT, PFN_vkDestroyDebugUtilsMessengerEXT
-	>(
-		instance, debugMessenger, pAllocator, "vkDestroyDebugUtilsMessengerEXT"
-	);
-}
-
-/**
  * @brief setup Extensions: DebugUtilsMessengerEXT
  */
 void RenderEngine::setupExtensions(RenderEngineInitConfig initConfig) {
-	if (!isValidationLayerEnabled) return;
-
-	VkDebugUtilsMessengerCreateInfoEXT debugCI = getDebugUtilsMessengerCI();
-	CheckError(
-		CreateDebugUtilsMessengerEXT(instance, &debugCI, nullptr, &debugMessenger),
-		"Failed to set up VkDebugUtilsMessengerEXT."
-	);
+	if (isValidationLayerEnabled) {
+		auto debugCI = getDebugUtilsMessengerCI();
+		instance.createDebugUtilsMessengerEXT(debugCI);
+	}
 }
 
+/**
+ * @brief destroy Extensions: DebugUtilsMessengerEXT
+ */
 void RenderEngine::destroyExtensions() {
-	if (!isValidationLayerEnabled) return;
-
-	DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+	if (!isValidationLayerEnabled) {
+		instance.destroyDebugUtilsMessengerEXT(debugMessenger);
+	}
 }

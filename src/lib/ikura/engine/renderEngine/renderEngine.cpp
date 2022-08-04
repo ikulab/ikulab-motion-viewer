@@ -73,6 +73,6 @@ RenderEngine::~RenderEngine() {
 	vkDestroyInstance(instance, nullptr);
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Instance has been destroyed.";
 
-	glfwTerminate();
+	glfwTerminate()/*  */;
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Terminated GLFW.";
 }

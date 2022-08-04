@@ -50,9 +50,9 @@ struct PhysicalDeviceInfo {
 class RenderEngine {
 	// Variables ==========
 	// Basic Vulkan objects ----------
-	VkPhysicalDevice physicalDevice;
-	VkDevice device;
-	VkInstance instance;
+	vk::PhysicalDevice physicalDevice;
+	vk::Device device;
+	vk::Instance instance;
 	QueueFamilyIndices queueFamilyIndices;
 	struct Queues {
 		VkQueue graphicsQueue;
