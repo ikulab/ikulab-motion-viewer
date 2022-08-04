@@ -17,7 +17,7 @@ std::vector<const char*> getGlfwRequiredExtensions();
  * @brief Populates CreateInfo, checks supports, and creates VulkanInstance.
  */
 void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
-	VkInstanceCreateInfo instanceCI{};
+	vk::InstanceCreateInfo instanceCI{};
 	instanceCI.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 
 	// application info ----------
@@ -90,9 +90,9 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
 	if (isValidationLayerEnabled) {
 		instanceCI.enabledLayerCount = static_cast<uint32_t>(layerNames.size());
 		instanceCI.ppEnabledLayerNames = layerNames.data();
-		VkDebugUtilsMessengerCreateInfoEXT debugCI = getDebugUtilsMessengerCI();
+		auto debugCI = getDebugUtilsMessengerCI();
 
-		instanceCI.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCI;
+		instanceCI.pNext = (vk::DebugUtilsMessengerCreateInfoEXT*)&debugCI;
 	}
 	else {
 		instanceCI.enabledLayerCount = 0;
