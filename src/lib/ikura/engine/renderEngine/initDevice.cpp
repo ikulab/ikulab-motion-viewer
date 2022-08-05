@@ -36,10 +36,7 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 	deviceExtensionNames = initConfig.deviceExtensionNames;
 
 	// Pick PhysicalDevice ==========
-	uint32_t devCount;
-	vkEnumeratePhysicalDevices(instance, &devCount, nullptr);
-	std::vector<VkPhysicalDevice> devices(devCount);
-	vkEnumeratePhysicalDevices(instance, &devCount, devices.data());
+	auto devices = instance.enumeratePhysicalDevices();
 
 	if (devices.empty()) {
 		throw std::runtime_error(
@@ -61,17 +58,15 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 	}
 
 	// Create LogicalDevice ==========
-	VkDeviceCreateInfo deviceCI{};
-	deviceCI.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	vk::DeviceCreateInfo deviceCI{};
 
 	// DeviceQueue Create ----------
-	std::vector<VkDeviceQueueCreateInfo> queueCI;
+	std::vector<vk::DeviceQueueCreateInfo> queueCI;
 	{
 		auto uniqueQ = queueFamilyIndices.generateUniqueSet();
 		float priority = 1.0f;
 		for (const auto queue : uniqueQ) {
-			VkDeviceQueueCreateInfo ci{};
-			ci.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			vk::DeviceQueueCreateInfo ci{};
 			ci.queueFamilyIndex = queue;
 			ci.queueCount = 1;
 			ci.pQueuePriorities = &priority;
@@ -83,7 +78,7 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 	deviceCI.queueCreateInfoCount = static_cast<uint32_t>(queueCI.size());
 
 	// PhysicalDevice Feature ----------
-	VkPhysicalDeviceFeatures deviceFeatures{};
+	vk::PhysicalDeviceFeatures deviceFeatures{};
 	deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 	deviceCI.pEnabledFeatures = &deviceFeatures;
@@ -95,14 +90,11 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 	deviceCI.ppEnabledLayerNames = layerNames.data();
 	deviceCI.enabledLayerCount = layerNames.size();
 
-	// CheckError(
-	// 	vkCreateDevice(physicalDevice, &deviceCI, nullptr, &device),
-	// 	"Failed to create Logical Device."
-	// );
+	device = physicalDevice.createDevice(deviceCI);
 
 	// Hold queue in variables
-	vkGetDeviceQueue(device, queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS), 0, &queues.graphicsQueue);
-	vkGetDeviceQueue(device, queueFamilyIndices.get(QueueFamilyIndices::PRESENT), 0, &queues.presentQueue);
+	queues.graphicsQueue = device.getQueue(queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS), 0);
+	queues.presentQueue = device.getQueue(queueFamilyIndices.get(QueueFamilyIndices::PRESENT), 0);
 }
 
 /**
@@ -114,7 +106,7 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
  * @param devices all available PhysicalDevices
  * @return most suitable PhysicalDevice
  */
-PhysicalDeviceInfo RenderEngine::getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<VkPhysicalDevice> devices) {
+PhysicalDeviceInfo RenderEngine::getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices) {
 	// create invisible Glfw Window to investigate Surface support
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -212,8 +204,8 @@ void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, vk:
 	auto requiredEndIter = required.end();
 	int totalNumberOfExtensions = 0;
 
-	auto checkSupport = [&device, &required, &requiredEndIter, &totalNumberOfExtensions](const char* layerName) {
-		//std::vector<vk::ExtensionProperties> exProps = device.enumerateDeviceExtensionProperties(layerName);
+	auto checkSupport = [&device, &required, &requiredEndIter, &totalNumberOfExtensions](vk::Optional<const std::string> layerName) {
+		std::vector<vk::ExtensionProperties> exProps = device.enumerateDeviceExtensionProperties(layerName);
 		totalNumberOfExtensions += exProps.size();
 
 		if (layerName == nullptr) {
@@ -254,7 +246,7 @@ void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, vk:
 	auto layerProps = device.enumerateDeviceLayerProperties();
 
 	for (const auto& prop : layerProps) {
-		checkSupport(prop.layerName);
+		checkSupport(std::string(prop.layerName));
 	}
 
 	eval.isAllExtensionsSupported = (requiredEndIter == required.begin());

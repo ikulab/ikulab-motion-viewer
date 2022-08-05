@@ -107,10 +107,7 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
  * @exception std::runtime_error if Layer is not supported.
  */
 void checkLayersSupport(std::vector<const char*> LayerNames) {
-	uint32_t layerCount;
-	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-	std::vector<VkLayerProperties> availableLayers(layerCount);
-	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+	auto availableLayers = vk::enumerateInstanceLayerProperties();
 
 	if (VLOG_IS_ON(VLOG_LV_6_ITEM_ENUMERATION)) {
 		VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "Available Layers:";
@@ -124,7 +121,7 @@ void checkLayersSupport(std::vector<const char*> LayerNames) {
 		supported = std::any_of(
 			availableLayers.begin(),
 			availableLayers.end(),
-			[&layerName](const VkLayerProperties& prop) {
+			[&layerName](const vk::LayerProperties& prop) {
 				return std::strcmp(layerName, prop.layerName) == 0;
 			}
 		);
@@ -150,10 +147,8 @@ void checkInstanceExtensionsSupport(const std::vector<const char*>& extensionNam
 	auto requiredEndIter = required.end();
 
 	auto checkExtensionProps = [&required, &requiredEndIter](const char* layerName) {
-		uint32_t exCount;
-		vkEnumerateInstanceExtensionProperties(layerName, &exCount, nullptr);
-		std::vector<VkExtensionProperties> exProps(exCount);
-		vkEnumerateInstanceExtensionProperties(layerName, &exCount, exProps.data());
+		auto exProps = vk::enumerateInstanceExtensionProperties();
+
 		if (layerName == nullptr) {
 			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "\tGlobal:";
 		}
@@ -187,10 +182,7 @@ void checkInstanceExtensionsSupport(const std::vector<const char*>& extensionNam
 	VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "InstanceExtensions:";
 	checkExtensionProps(nullptr);
 
-	uint32_t layerCount;
-	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-	std::vector<VkLayerProperties> layerProps(layerCount);
-	vkEnumerateInstanceLayerProperties(&layerCount, layerProps.data());
+	auto layerProps = vk::enumerateInstanceLayerProperties();
 
 	for (const auto& layerProp : layerProps) {
 		checkExtensionProps(layerProp.layerName);

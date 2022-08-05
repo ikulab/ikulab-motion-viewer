@@ -42,7 +42,7 @@ public:
 };
 
 struct PhysicalDeviceInfo {
-	VkPhysicalDevice device;
+	vk::PhysicalDevice device;
 	QueueFamilyIndices queueFamilyIndices;
 };
 
@@ -55,8 +55,8 @@ class RenderEngine {
 	vk::Instance instance;
 	QueueFamilyIndices queueFamilyIndices;
 	struct Queues {
-		VkQueue graphicsQueue;
-		VkQueue presentQueue;
+		vk::Queue graphicsQueue;
+		vk::Queue presentQueue;
 	} queues;
 
 	// Layer / Extension ----------
@@ -85,7 +85,7 @@ public:
 	RenderEngine(RenderEngineInitConfig initConfig);
 	~RenderEngine();
 
-	static PhysicalDeviceInfo getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<VkPhysicalDevice> devices);
+	static PhysicalDeviceInfo getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices);
 
 	void draw(RenderContent content, RenderTarget target);
 };
@@ -101,7 +101,7 @@ struct RenderEngineInitConfig {
 	std::vector<const char*> deviceExtensionNames;
 
 	// callbacks ----------
-	std::function<PhysicalDeviceInfo(const RenderEngine*, std::vector<VkPhysicalDevice>)> suitablePhysicalDevicePicker;
+	std::function<PhysicalDeviceInfo(const RenderEngine*, std::vector<vk::PhysicalDevice>)> suitablePhysicalDevicePicker;
 
 	// Template providers ----------
 	static RenderEngineInitConfig defaultDebugSetting() {
