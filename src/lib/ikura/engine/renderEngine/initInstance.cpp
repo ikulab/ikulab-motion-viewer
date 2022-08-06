@@ -98,6 +98,9 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
 	}
 
 	instance = vk::createInstance(instanceCI, nullptr);
+
+	// Initialize Vulkan Hpp Default DIspatcher
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
 }
 
 /**

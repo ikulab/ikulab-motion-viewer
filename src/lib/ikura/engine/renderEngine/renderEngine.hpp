@@ -20,7 +20,7 @@ struct RenderEngineSupportInfo {
 };
 
 struct RenderProperty {
-	VkSampleCountFlagBits mssaSamples;
+	vk::SampleCountFlagBits maxMsaaSamples;
 };
 
 class QueueFamilyIndices {
@@ -63,7 +63,7 @@ class RenderEngine {
 	std::vector<const char*> layerNames;
 	std::vector<const char*> instanceExtensionNames;
 	std::vector<const char*> deviceExtensionNames;
-	VkDebugUtilsMessengerEXT debugMessenger;
+	vk::DebugUtilsMessengerEXT debugMessenger;
 	bool isValidationLayerEnabled = false;
 
 	// Property / Information ----------

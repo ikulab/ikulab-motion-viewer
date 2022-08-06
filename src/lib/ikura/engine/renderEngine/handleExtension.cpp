@@ -43,7 +43,7 @@ vk::DebugUtilsMessengerCreateInfoEXT RenderEngine::getDebugUtilsMessengerCI() {
 void RenderEngine::setupExtensions(RenderEngineInitConfig initConfig) {
 	if (isValidationLayerEnabled) {
 		auto debugCI = getDebugUtilsMessengerCI();
-		instance.createDebugUtilsMessengerEXT(debugCI);
+		debugMessenger = instance.createDebugUtilsMessengerEXT(debugCI);
 	}
 }
 

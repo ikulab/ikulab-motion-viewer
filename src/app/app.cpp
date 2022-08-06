@@ -3,6 +3,9 @@
 App::App() {}
 
 void App::init() {
+	// Initialize Ikura
+	initIkura();
+
 	// Initialize RenderEngine
 	RenderEngineInitConfig renderConfig = RenderEngineInitConfig::defaultDebugSetting();
 	renderConfig.applicationName = "IkulabMotionViewer";

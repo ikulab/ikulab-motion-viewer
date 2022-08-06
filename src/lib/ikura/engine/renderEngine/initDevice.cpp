@@ -29,6 +29,7 @@ struct PhysicalDeviceEvaluation {
 QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR testSurface);
 void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval);
 void EvaluateSurfaceSupport(vk::SurfaceKHR testSurface, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval);
+vk::SampleCountFlagBits getMaxMsaaSamples(vk::PhysicalDevice device);
 
 
 void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
@@ -92,9 +93,15 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 
 	device = physicalDevice.createDevice(deviceCI);
 
+	// Initialize Vulkan Hpp Default DIspatcher
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(device);
+
 	// Hold queue in variables
 	queues.graphicsQueue = device.getQueue(queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS), 0);
 	queues.presentQueue = device.getQueue(queueFamilyIndices.get(QueueFamilyIndices::PRESENT), 0);
+
+	// set RenderProperty
+	renderProp.maxMsaaSamples = getMaxMsaaSamples(physicalDevice);
 }
 
 /**
@@ -149,7 +156,7 @@ PhysicalDeviceInfo RenderEngine::getSuitablePhysicalDeviceInfo(const RenderEngin
 	}
 
 	// destroy test objects
-	vkDestroySurfaceKHR(pEngine->instance, testSurface, nullptr);
+	pEngine->instance.destroySurfaceKHR(testSurface);
 	glfwDestroyWindow(testWindow);
 
 	VLOG(VLOG_LV_4_PROCESS_TRACKING_SECONDARY)
@@ -273,4 +280,24 @@ void EvaluateSurfaceSupport(vk::SurfaceKHR testSurface, vk::PhysicalDevice devic
 	vkGetPhysicalDeviceSurfacePresentModesKHR(device, testSurface, &presentModeCount, presentModes.data());
 
 	eval.isSwapChainAdequate = (!formats.empty() && !presentModes.empty());
+}
+
+/**
+ * @brief Returns max MSAA samples
+ */
+vk::SampleCountFlagBits getMaxMsaaSamples(vk::PhysicalDevice device) {
+	auto props = device.getProperties();
+
+	vk::SampleCountFlags counts = (
+		props.limits.framebufferColorSampleCounts &
+		props.limits.framebufferDepthSampleCounts
+	);
+
+	if (counts & vk::SampleCountFlagBits::e64) return vk::SampleCountFlagBits::e64;
+	if (counts & vk::SampleCountFlagBits::e32) return vk::SampleCountFlagBits::e32;
+	if (counts & vk::SampleCountFlagBits::e16) return vk::SampleCountFlagBits::e16;
+	if (counts & vk::SampleCountFlagBits::e8) return vk::SampleCountFlagBits::e8;
+	if (counts & vk::SampleCountFlagBits::e4) return vk::SampleCountFlagBits::e4;
+	if (counts & vk::SampleCountFlagBits::e2) return vk::SampleCountFlagBits::e2;
+	return vk::SampleCountFlagBits::e1;
 }

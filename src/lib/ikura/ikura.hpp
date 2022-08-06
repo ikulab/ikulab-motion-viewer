@@ -21,4 +21,5 @@
 #define VLOG_LV_8 8
 #define VLOG_LV_9 9
 
+void initIkura();
 void CheckError(VkResult result, std::string failMsg);
