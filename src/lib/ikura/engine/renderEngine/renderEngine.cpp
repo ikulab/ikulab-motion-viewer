@@ -62,7 +62,7 @@ RenderEngine::RenderEngine(RenderEngineInitConfig initConfig) {
 
 RenderEngine::~RenderEngine() {
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying Vulkan Device...";
-	vkDestroyDevice(device, nullptr);
+	device.destroy();
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Device has been destroyed.";
 
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying Vulkan Extensions...";
@@ -70,9 +70,9 @@ RenderEngine::~RenderEngine() {
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Extensions have been destroyed.";
 
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying Vulkan Instance...";
-	vkDestroyInstance(instance, nullptr);
+	instance.destroy();
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Instance has been destroyed.";
 
-	glfwTerminate()/*  */;
+	glfwTerminate();
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Terminated GLFW.";
 }
