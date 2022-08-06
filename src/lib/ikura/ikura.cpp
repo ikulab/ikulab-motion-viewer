@@ -4,7 +4,6 @@
 #include <string>
 
 #include <easylogging++.h>
-#include <magic_enum.hpp>
 
 // Initialize Vulkan Hpp Default Dispatcher ----------
 #ifndef INIT_VULKAN_HPP_DEFAULT_DISPATCH_LORDER
