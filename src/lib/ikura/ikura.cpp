@@ -13,9 +13,10 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #endif
 
 void initIkura() {
-	// Initialize Vulkan Hpp Default DIspatcher
-	vk::DynamicLoader dl;
+	// Initialize Vulkan Hpp Default Dispatcher
+	vkDynamicLoader = std::make_unique<vk::DynamicLoader>();
+
 	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr
-		= dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+		= vkDynamicLoader->getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
 	VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
 }

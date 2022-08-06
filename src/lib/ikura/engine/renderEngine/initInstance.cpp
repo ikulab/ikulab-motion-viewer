@@ -8,7 +8,7 @@
 #include "../../ikura.hpp"
 
 // forward declearation of helper functions ----------
-void checkLayersSupport(std::vector<const char*> layersNames);
+void checkLayersSupport(std::vector<const char*>& layersNames);
 void checkInstanceExtensionsSupport(const std::vector<const char*>& extensionNames);
 std::vector<const char*> getGlfwRequiredExtensions();
 
@@ -109,8 +109,13 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
  *
  * @exception std::runtime_error if Layer is not supported.
  */
-void checkLayersSupport(std::vector<const char*> LayerNames) {
-	auto availableLayers = vk::enumerateInstanceLayerProperties();
+void checkLayersSupport(std::vector<const char*>& LayerNames) {
+	// std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
+	uint32_t count;
+	std::vector<VkLayerProperties> availableLayers;
+	vk::defaultDispatchLoaderDynamic.vkEnumerateInstanceLayerProperties(&count, nullptr);
+	availableLayers.resize(count);
+	vk::defaultDispatchLoaderDynamic.vkEnumerateInstanceLayerProperties(&count, availableLayers.data());
 
 	if (VLOG_IS_ON(VLOG_LV_6_ITEM_ENUMERATION)) {
 		VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "Available Layers:";

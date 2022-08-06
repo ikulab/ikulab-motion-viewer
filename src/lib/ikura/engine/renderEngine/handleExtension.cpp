@@ -51,7 +51,7 @@ void RenderEngine::setupExtensions(RenderEngineInitConfig initConfig) {
  * @brief destroy Extensions: DebugUtilsMessengerEXT
  */
 void RenderEngine::destroyExtensions() {
-	if (!isValidationLayerEnabled) {
+	if (isValidationLayerEnabled) {
 		instance.destroyDebugUtilsMessengerEXT(debugMessenger);
 	}
 }
