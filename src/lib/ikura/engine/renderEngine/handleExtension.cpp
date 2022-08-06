@@ -9,7 +9,7 @@
 /**
  * @brief debug callback for ValidationLayer. prints error content e.g. error message.
  */
-static VKAPI_ATTR vk::Bool32 VKAPI_CALL validationLayerDebugCallback(
+static VKAPI_ATTR VkBool32 VKAPI_CALL validationLayerDebugCallback(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 	VkDebugUtilsMessageTypeFlagsEXT messageType,
 	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -20,7 +20,7 @@ static VKAPI_ATTR vk::Bool32 VKAPI_CALL validationLayerDebugCallback(
 }
 
 /**
- * @brief Populates VkDebugUtilsMessengerCreateInfoEXT and return it.
+ * @brief Populates vk::DebugUtilsMessengerCreateInfoEXT and return it.
  */
 vk::DebugUtilsMessengerCreateInfoEXT RenderEngine::getDebugUtilsMessengerCI() {
 	vk::DebugUtilsMessengerCreateInfoEXT ci;

@@ -51,11 +51,9 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 	queueFamilyIndices = physicalDevInfo.queueFamilyIndices;
 
 	if (VLOG_IS_ON(VLOG_LV_3_PROCESS_TRACKING)) {
-		VkPhysicalDeviceProperties props;
-		vkGetPhysicalDeviceProperties(physicalDevice, &props);
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)
 			<< "Picked up suitable PhysicalDevice: "
-			<< props.deviceName;
+			<< physicalDevice.getProperties().deviceName;
 	}
 
 	// Create LogicalDevice ==========
@@ -118,6 +116,7 @@ PhysicalDeviceInfo RenderEngine::getSuitablePhysicalDeviceInfo(const RenderEngin
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 	GLFWwindow* testWindow = glfwCreateWindow(10, 10, "", nullptr, nullptr);
+	// use "Vk style" (not vk::) for compatibility to GLFW
 	VkSurfaceKHR testSurface;
 	glfwCreateWindowSurface(pEngine->instance, testWindow, nullptr, &testSurface);
 
@@ -132,8 +131,7 @@ PhysicalDeviceInfo RenderEngine::getSuitablePhysicalDeviceInfo(const RenderEngin
 		PhysicalDeviceEvaluation eval{};
 
 		if (VLOG_IS_ON(VLOG_LV_6_ITEM_ENUMERATION)) {
-			VkPhysicalDeviceProperties props;
-			vkGetPhysicalDeviceProperties(dev, &props);
+			auto props = dev.getProperties();
 			VLOG(VLOG_LV_6_ITEM_ENUMERATION)
 				<< "\tdeviceName: "
 				<< props.deviceName
@@ -266,18 +264,8 @@ void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, vk:
  * eval.isSwapChainAdequate will be false.
  */
 void EvaluateSurfaceSupport(vk::SurfaceKHR testSurface, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval) {
-	// VkSurfaceCapabilitiesKHR capabilities;
-	// vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, testSurface, &capabilities);
-
-	uint32_t formatCount;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, testSurface, &formatCount, nullptr);
-	std::vector<VkSurfaceFormatKHR> formats(formatCount);
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, testSurface, &formatCount, formats.data());
-
-	uint32_t presentModeCount;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, testSurface, &presentModeCount, nullptr);
-	std::vector<VkPresentModeKHR> presentModes(presentModeCount);
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, testSurface, &presentModeCount, presentModes.data());
+	auto formats = device.getSurfaceFormatsKHR(testSurface);
+	auto presentModes = device.getSurfacePresentModesKHR(testSurface);
 
 	eval.isSwapChainAdequate = (!formats.empty() && !presentModes.empty());
 }

@@ -8,6 +8,6 @@
 class NativeWindow : public Window {
 protected:
 	WindowInputContext inputCtx;
-	VkSurfaceKHR surface;
+	vk::SurfaceKHR surface;
 	NativeWindow() {}
 };

@@ -5,13 +5,13 @@
 #include <vulkan/vulkan.hpp>
 
 class RenderTarget {
-	VkCommandBuffer commandBuffer;
-	std::vector<VkPipelineLayout> graphicsPipelineLayouts;
-	std::vector<VkPipeline> graphicsPipelines;
-	VkRenderPass renderPass;
-	VkFramebuffer frameBuffer;
+	vk::CommandBuffer commandBuffer;
+	std::vector<vk::PipelineLayout> graphicsPipelineLayouts;
+	std::vector<vk::Pipeline> graphicsPipelines;
+	vk::RenderPass renderPass;
+	vk::Framebuffer frameBuffer;
 
-	VkDescriptorSetLayout descriptorSetLayout;
-	VkDescriptorPool descriptorPool;
-	VkAttachmentDescription attachments;
+	vk::DescriptorSetLayout descriptorSetLayout;
+	vk::DescriptorPool descriptorPool;
+	vk::AttachmentDescription attachments;
 };

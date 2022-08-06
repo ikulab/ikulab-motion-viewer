@@ -19,14 +19,3 @@ void initIkura() {
 		= dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
 	VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
 }
-
-void CheckError(VkResult result, std::string failMsg) {
-	if (result == VK_SUCCESS) {
-		return;
-	}
-
-	failMsg += " VkResult: ";
-	failMsg += magic_enum::enum_name(result);
-
-	LOG(FATAL) << failMsg;
-}
