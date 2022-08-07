@@ -14,14 +14,20 @@
 // forward declearation
 struct RenderEngineInitConfig;
 
+struct RenderEngineInfo {
+	struct SupportInfo {
+		bool isGlfwSupported;
+	} support;
 
-struct RenderEngineSupportInfo {
-	bool isGlfwSupported;
+	struct QueueFamilyInfo {
+		bool isGraphicsAndPresentSameIndex;
+	} queueFamily;
+
+	struct LimitInfo {
+		vk::SampleCountFlagBits maxMsaaSamples;
+	} limit;
 };
 
-struct RenderProperty {
-	vk::SampleCountFlagBits maxMsaaSamples;
-};
 
 class QueueFamilyIndices {
 	typedef uint32_t QueueIndexKey;
@@ -39,6 +45,7 @@ public:
 	std::set<uint32_t> generateUniqueSet();
 
 	bool isComplete();
+	bool isShareingIndexBetweenGraphicsAndPresent();
 };
 
 struct PhysicalDeviceInfo {
@@ -67,8 +74,7 @@ class RenderEngine {
 	bool isValidationLayerEnabled = false;
 
 	// Property / Information ----------
-	RenderEngineSupportInfo supportInfo{};
-	RenderProperty renderProp{};
+	RenderEngineInfo engineInfo;
 
 	// Functions ==========
 	// Creation / Setup ----------
@@ -88,6 +94,12 @@ public:
 	static PhysicalDeviceInfo getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices);
 
 	void draw(RenderContent content, RenderTarget target);
+
+	// Getter functions ----------
+	vk::Instance getInstance() const;
+	vk::PhysicalDevice getPhysicalDevice() const;
+	vk::Device getDevice() const;
+	QueueFamilyIndices getQueueFamilyIndices() const;
 };
 
 struct RenderEngineInitConfig {

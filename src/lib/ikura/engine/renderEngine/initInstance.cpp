@@ -76,8 +76,8 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
 	checkInstanceExtensionsSupport(instanceExtensionNames);
 	// Glfw
 	// terminate program when GlfwNativeWindow creation is requested.
-	supportInfo.isGlfwSupported = (glfwVulkanSupported() == GLFW_TRUE);
-	if (supportInfo.isGlfwSupported) {
+	engineInfo.support.isGlfwSupported = (glfwVulkanSupported() == GLFW_TRUE);
+	if (engineInfo.support.isGlfwSupported) {
 		LOG(INFO) << "Glfw is supported.";
 	}
 	else {

@@ -98,14 +98,17 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 	queues.graphicsQueue = device.getQueue(queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS), 0);
 	queues.presentQueue = device.getQueue(queueFamilyIndices.get(QueueFamilyIndices::PRESENT), 0);
 
-	// set RenderProperty
-	renderProp.maxMsaaSamples = getMaxMsaaSamples(physicalDevice);
+	// set RenderEngineInfo
+	engineInfo.limit.maxMsaaSamples = getMaxMsaaSamples(physicalDevice);
+	engineInfo.queueFamily.isGraphicsAndPresentSameIndex = (
+		queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS) ==
+		queueFamilyIndices.get(QueueFamilyIndices::PRESENT)
+	);
 }
 
 /**
  * @brief Default PhysicalDevice picker function.
  * It investigates all available PhysicalDevice suitability and returns the best.
- * This function
  *
  * @param pEngine pointer to RenderEngine
  * @param devices all available PhysicalDevices

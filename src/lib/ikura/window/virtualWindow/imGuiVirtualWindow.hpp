@@ -4,6 +4,8 @@
 
 #include "./virtualWindow.hpp"
 
-class ImGuiVirtualWindow : public VirtualWindow {
-	ImGuiContext *imGuiContext;
-};
+namespace ikura {
+	class ImGuiVirtualWindow : public VirtualWindow {
+		ImGuiContext* imGuiContext;
+	};
+}

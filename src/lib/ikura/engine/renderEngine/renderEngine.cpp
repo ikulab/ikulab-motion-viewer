@@ -42,6 +42,10 @@ bool QueueFamilyIndices::isComplete() {
 	);
 }
 
+bool QueueFamilyIndices::isShareingIndexBetweenGraphicsAndPresent() {
+	return get(GRAPHICS) == get(PRESENT);
+}
+
 
 RenderEngine::RenderEngine(RenderEngineInitConfig initConfig) {
 	glfwInit();
@@ -75,4 +79,20 @@ RenderEngine::~RenderEngine() {
 
 	glfwTerminate();
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Terminated GLFW.";
+}
+
+vk::Instance RenderEngine::getInstance() const {
+	return instance;
+}
+
+vk::PhysicalDevice RenderEngine::getPhysicalDevice() const {
+	return physicalDevice;
+}
+
+vk::Device RenderEngine::getDevice() const {
+	return device;
+}
+
+QueueFamilyIndices RenderEngine::getQueueFamilyIndices() const {
+	return queueFamilyIndices;
 }
