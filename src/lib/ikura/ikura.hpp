@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <optional>
+#include <memory>
 
 #define IKURA_APP_INFO_ENGINE_NAME "Ikura"
 #define IKURA_APP_INFO_ENGINE_VER VK_MAKE_VERSION(1, 0, 0)
@@ -21,4 +22,7 @@
 #define VLOG_LV_8 8
 #define VLOG_LV_9 9
 
-void CheckError(VkResult result, std::string failMsg);
+
+static std::unique_ptr<vk::DynamicLoader> vkDynamicLoader;
+
+void initIkura();

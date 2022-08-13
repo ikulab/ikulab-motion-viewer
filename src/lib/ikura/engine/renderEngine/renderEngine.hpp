@@ -11,16 +11,21 @@
 #include "../../renderComponent/renderTarget.hpp"
 #include "../../ikura.hpp"
 
-// forward declearation
-struct RenderEngineInitConfig;
+// Forward Declearration ----------
+class RenderEngine;
 
+struct RenderEngineInfo {
+	struct SupportInfo {
+		bool isGlfwSupported;
+	} support;
 
-struct RenderEngineSupportInfo {
-	bool isGlfwSupported;
-};
+	struct QueueFamilyInfo {
+		bool isGraphicsAndPresentSameIndex;
+	} queueFamily;
 
-struct RenderProperty {
-	VkSampleCountFlagBits mssaSamples;
+	struct LimitInfo {
+		vk::SampleCountFlagBits maxMsaaSamples;
+	} limit;
 };
 
 class QueueFamilyIndices {
@@ -39,55 +44,12 @@ public:
 	std::set<uint32_t> generateUniqueSet();
 
 	bool isComplete();
+	bool isShareingIndexBetweenGraphicsAndPresent();
 };
 
 struct PhysicalDeviceInfo {
-	VkPhysicalDevice device;
+	vk::PhysicalDevice device;
 	QueueFamilyIndices queueFamilyIndices;
-};
-
-
-class RenderEngine {
-	// Variables ==========
-	// Basic Vulkan objects ----------
-	VkPhysicalDevice physicalDevice;
-	VkDevice device;
-	VkInstance instance;
-	QueueFamilyIndices queueFamilyIndices;
-	struct Queues {
-		VkQueue graphicsQueue;
-		VkQueue presentQueue;
-	} queues;
-
-	// Layer / Extension ----------
-	std::vector<const char*> layerNames;
-	std::vector<const char*> instanceExtensionNames;
-	std::vector<const char*> deviceExtensionNames;
-	VkDebugUtilsMessengerEXT debugMessenger;
-	bool isValidationLayerEnabled = false;
-
-	// Property / Information ----------
-	RenderEngineSupportInfo supportInfo{};
-	RenderProperty renderProp{};
-
-	// Functions ==========
-	// Creation / Setup ----------
-	void createInstance(RenderEngineInitConfig initConfig);
-	void createDevice(RenderEngineInitConfig initConfig);
-	void setupExtensions(RenderEngineInitConfig initConfig);
-
-	// Destruction ----------
-	void destroyExtensions();
-
-	// Misc ----------
-	static VkDebugUtilsMessengerCreateInfoEXT getDebugUtilsMessengerCI();
-public:
-	RenderEngine(RenderEngineInitConfig initConfig);
-	~RenderEngine();
-
-	static PhysicalDeviceInfo getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<VkPhysicalDevice> devices);
-
-	void draw(RenderContent content, RenderTarget target);
 };
 
 struct RenderEngineInitConfig {
@@ -101,30 +63,72 @@ struct RenderEngineInitConfig {
 	std::vector<const char*> deviceExtensionNames;
 
 	// callbacks ----------
-	std::function<PhysicalDeviceInfo(const RenderEngine*, std::vector<VkPhysicalDevice>)> suitablePhysicalDevicePicker;
+	std::function<vk::PhysicalDevice(const RenderEngine*, std::vector<vk::PhysicalDevice>)> suitablePhysicalDevicePicker;
 
 	// Template providers ----------
-	static RenderEngineInitConfig defaultDebugSetting() {
-		RenderEngineInitConfig initConfig = defaultCommonSetting();
-
-		initConfig.layerNames.push_back(VALIDATION_LAYER_NAME);
-
-		initConfig.instanceExtensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-		initConfig.instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-
-		initConfig.deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-		return initConfig;
-	}
+	static RenderEngineInitConfig defaultDebugSetting();
 
 private:
-	static RenderEngineInitConfig defaultCommonSetting() {
-		RenderEngineInitConfig initConfig;
-		initConfig.applicationName = "Ikura Application";
-		initConfig.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-
-		initConfig.suitablePhysicalDevicePicker = RenderEngine::getSuitablePhysicalDeviceInfo;
-
-		return initConfig;
-	}
+	static RenderEngineInitConfig defaultCommonSetting();
 };
+
+class RenderEngine {
+	// Variables ==========
+	// Basic Vulkan objects ----------
+	vk::PhysicalDevice physicalDevice;
+	vk::Device device;
+	vk::Instance instance;
+	struct Queues {
+		vk::Queue graphicsQueue;
+		vk::Queue presentQueue;
+	} queues;
+
+	// Layer / Extension ----------
+	std::vector<const char*> layerNames;
+	std::vector<const char*> instanceExtensionNames;
+	std::vector<const char*> deviceExtensionNames;
+	vk::DebugUtilsMessengerEXT debugMessenger;
+	bool isValidationLayerEnabled = false;
+
+	// Property / Information ----------
+	RenderEngineInitConfig initConfig;
+	RenderEngineInfo engineInfo;
+
+	// Misc ----------
+	vk::SurfaceKHR sampleSurface;
+
+	// Functions ==========
+	// Destruction ----------
+	void destroyExtensions();
+
+	// Misc ----------
+	static vk::DebugUtilsMessengerCreateInfoEXT getDebugUtilsMessengerCI();
+public:
+	// Functions ==========
+	// Constructor / Desctuctor ----------
+	RenderEngine(RenderEngineInitConfig initConfig);
+	~RenderEngine();
+
+	// Creation / Setup ----------
+	void createInstance();
+	void createDevice();
+	void setupExtensions();
+
+	// Getter ----------
+	vk::Instance getInstance() const;
+	vk::PhysicalDevice getPhysicalDevice() const;
+	vk::Device getDevice() const;
+
+	// Setter ----------
+	void setSampleSurface(vk::SurfaceKHR surface);
+
+	// Interface ----------
+	void draw(RenderContent content, RenderTarget target);
+
+	// Misc ----------
+	static vk::PhysicalDevice getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices);
+};
+
+
+// Helper function ----------
+QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR sampleSurface);

@@ -2,6 +2,8 @@
 
 #include "../window.hpp"
 
-class VirtualWindow : public Window {
+namespace ikura {
+	class VirtualWindow : public Window {
 
-};
+	};
+}

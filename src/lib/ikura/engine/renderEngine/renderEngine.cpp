@@ -42,27 +42,21 @@ bool QueueFamilyIndices::isComplete() {
 	);
 }
 
+bool QueueFamilyIndices::isShareingIndexBetweenGraphicsAndPresent() {
+	return get(GRAPHICS) == get(PRESENT);
+}
+
 
 RenderEngine::RenderEngine(RenderEngineInitConfig initConfig) {
 	glfwInit();
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Initialized GLFW.";
 
-	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Vulkan Instance...";
-	createInstance(initConfig);
-	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Instance has been created.";
-
-	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Setting up Extensions...";
-	setupExtensions(initConfig);
-	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Extensions have been setup.";
-
-	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Vulkan Device...";
-	createDevice(initConfig);
-	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Device has been created.";
+	this->initConfig = initConfig;
 }
 
 RenderEngine::~RenderEngine() {
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying Vulkan Device...";
-	vkDestroyDevice(device, nullptr);
+	device.destroy();
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Device has been destroyed.";
 
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying Vulkan Extensions...";
@@ -70,9 +64,49 @@ RenderEngine::~RenderEngine() {
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Extensions have been destroyed.";
 
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying Vulkan Instance...";
-	vkDestroyInstance(instance, nullptr);
+	instance.destroy();
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Instance has been destroyed.";
 
 	glfwTerminate();
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Terminated GLFW.";
+}
+
+vk::Instance RenderEngine::getInstance() const {
+	return instance;
+}
+
+vk::PhysicalDevice RenderEngine::getPhysicalDevice() const {
+	return physicalDevice;
+}
+
+vk::Device RenderEngine::getDevice() const {
+	return device;
+}
+
+void RenderEngine::setSampleSurface(vk::SurfaceKHR surface) {
+	this->sampleSurface = surface;
+}
+
+
+RenderEngineInitConfig RenderEngineInitConfig::defaultDebugSetting() {
+	RenderEngineInitConfig initConfig = defaultCommonSetting();
+
+	initConfig.layerNames.push_back(VALIDATION_LAYER_NAME);
+
+	initConfig.instanceExtensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	initConfig.instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+
+	initConfig.deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+	return initConfig;
+}
+
+RenderEngineInitConfig RenderEngineInitConfig::defaultCommonSetting() {
+	RenderEngineInitConfig initConfig;
+	initConfig.applicationName = "Ikura Application";
+	initConfig.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+
+	initConfig.suitablePhysicalDevicePicker = RenderEngine::getSuitablePhysicalDeviceInfo;
+
+	return initConfig;
 }

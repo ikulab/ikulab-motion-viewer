@@ -8,7 +8,7 @@
 #include "../../ikura.hpp"
 
 // forward declearation of helper functions ----------
-void checkLayersSupport(std::vector<const char*> layersNames);
+void checkLayersSupport(std::vector<const char*>& layersNames);
 void checkInstanceExtensionsSupport(const std::vector<const char*>& extensionNames);
 std::vector<const char*> getGlfwRequiredExtensions();
 
@@ -16,13 +16,13 @@ std::vector<const char*> getGlfwRequiredExtensions();
 /**
  * @brief Populates CreateInfo, checks supports, and creates VulkanInstance.
  */
-void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
-	VkInstanceCreateInfo instanceCI{};
-	instanceCI.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+void RenderEngine::createInstance() {
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Vulkan Instance...";
+
+	vk::InstanceCreateInfo instanceCI;
 
 	// application info ----------
-	VkApplicationInfo appInfo{};
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	vk::ApplicationInfo appInfo;
 	appInfo.pApplicationName = initConfig.applicationName;
 	appInfo.applicationVersion = initConfig.applicationVersion;
 	appInfo.pEngineName = IKURA_APP_INFO_ENGINE_NAME;
@@ -78,8 +78,8 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
 	checkInstanceExtensionsSupport(instanceExtensionNames);
 	// Glfw
 	// terminate program when GlfwNativeWindow creation is requested.
-	supportInfo.isGlfwSupported = (glfwVulkanSupported() == GLFW_TRUE);
-	if (supportInfo.isGlfwSupported) {
+	engineInfo.support.isGlfwSupported = (glfwVulkanSupported() == GLFW_TRUE);
+	if (engineInfo.support.isGlfwSupported) {
 		LOG(INFO) << "Glfw is supported.";
 	}
 	else {
@@ -90,19 +90,21 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
 	if (isValidationLayerEnabled) {
 		instanceCI.enabledLayerCount = static_cast<uint32_t>(layerNames.size());
 		instanceCI.ppEnabledLayerNames = layerNames.data();
-		VkDebugUtilsMessengerCreateInfoEXT debugCI = getDebugUtilsMessengerCI();
+		auto debugCI = getDebugUtilsMessengerCI();
 
-		instanceCI.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCI;
+		instanceCI.pNext = &debugCI;
 	}
 	else {
 		instanceCI.enabledLayerCount = 0;
 		instanceCI.pNext = nullptr;
 	}
 
-	CheckError(
-		vkCreateInstance(&instanceCI, nullptr, &instance),
-		"Failed to create Vulkan Instance."
-	);
+	instance = vk::createInstance(instanceCI, nullptr);
+
+	// Initialize Vulkan Hpp Default DIspatcher
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
+
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Instance has been created.";
 }
 
 /**
@@ -111,11 +113,13 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
  *
  * @exception std::runtime_error if Layer is not supported.
  */
-void checkLayersSupport(std::vector<const char*> LayerNames) {
-	uint32_t layerCount;
-	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-	std::vector<VkLayerProperties> availableLayers(layerCount);
-	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+void checkLayersSupport(std::vector<const char*>& LayerNames) {
+	// std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
+	uint32_t count;
+	std::vector<VkLayerProperties> availableLayers;
+	vk::defaultDispatchLoaderDynamic.vkEnumerateInstanceLayerProperties(&count, nullptr);
+	availableLayers.resize(count);
+	vk::defaultDispatchLoaderDynamic.vkEnumerateInstanceLayerProperties(&count, availableLayers.data());
 
 	if (VLOG_IS_ON(VLOG_LV_6_ITEM_ENUMERATION)) {
 		VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "Available Layers:";
@@ -129,7 +133,7 @@ void checkLayersSupport(std::vector<const char*> LayerNames) {
 		supported = std::any_of(
 			availableLayers.begin(),
 			availableLayers.end(),
-			[&layerName](const VkLayerProperties& prop) {
+			[&layerName](const vk::LayerProperties& prop) {
 				return std::strcmp(layerName, prop.layerName) == 0;
 			}
 		);
@@ -155,10 +159,8 @@ void checkInstanceExtensionsSupport(const std::vector<const char*>& extensionNam
 	auto requiredEndIter = required.end();
 
 	auto checkExtensionProps = [&required, &requiredEndIter](const char* layerName) {
-		uint32_t exCount;
-		vkEnumerateInstanceExtensionProperties(layerName, &exCount, nullptr);
-		std::vector<VkExtensionProperties> exProps(exCount);
-		vkEnumerateInstanceExtensionProperties(layerName, &exCount, exProps.data());
+		auto exProps = vk::enumerateInstanceExtensionProperties();
+
 		if (layerName == nullptr) {
 			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "\tGlobal:";
 		}
@@ -192,10 +194,7 @@ void checkInstanceExtensionsSupport(const std::vector<const char*>& extensionNam
 	VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "InstanceExtensions:";
 	checkExtensionProps(nullptr);
 
-	uint32_t layerCount;
-	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-	std::vector<VkLayerProperties> layerProps(layerCount);
-	vkEnumerateInstanceLayerProperties(&layerCount, layerProps.data());
+	auto layerProps = vk::enumerateInstanceLayerProperties();
 
 	for (const auto& layerProp : layerProps) {
 		checkExtensionProps(layerProp.layerName);

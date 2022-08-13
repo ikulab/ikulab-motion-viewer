@@ -16,3 +16,5 @@ target_link_libraries(ikura appEngine renderEngine uiEngine)
 target_link_libraries(renderEngine ikura)
 
 target_include_directories(ikura INTERFACE ../)
+
+target_compile_definitions(ikura PUBLIC VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)

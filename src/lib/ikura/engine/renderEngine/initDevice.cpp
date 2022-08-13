@@ -26,20 +26,19 @@ struct PhysicalDeviceEvaluation {
 };
 
 // Forward declearation of helper functions ----------
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR testSurface);
-void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, VkPhysicalDevice device, PhysicalDeviceEvaluation& eval);
-void EvaluateSurfaceSupport(VkSurfaceKHR testSurface, VkPhysicalDevice device, PhysicalDeviceEvaluation& eval);
+void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval);
+void EvaluateSurfaceSupport(vk::SurfaceKHR sampleSurface, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval);
+vk::SampleCountFlagBits GetMaxMsaaSamples(vk::PhysicalDevice device);
 
 
-void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
+void RenderEngine::createDevice() {
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Vulkan Device...";
+
 	// Extensions ----------
 	deviceExtensionNames = initConfig.deviceExtensionNames;
 
 	// Pick PhysicalDevice ==========
-	uint32_t devCount;
-	vkEnumeratePhysicalDevices(instance, &devCount, nullptr);
-	std::vector<VkPhysicalDevice> devices(devCount);
-	vkEnumeratePhysicalDevices(instance, &devCount, devices.data());
+	auto devices = instance.enumeratePhysicalDevices();
 
 	if (devices.empty()) {
 		throw std::runtime_error(
@@ -48,30 +47,25 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 	}
 
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Picking up suitable PhysicalDevice...";
-	auto physicalDevInfo = initConfig.suitablePhysicalDevicePicker(this, devices);
-	physicalDevice = physicalDevInfo.device;
-	queueFamilyIndices = physicalDevInfo.queueFamilyIndices;
+	physicalDevice = initConfig.suitablePhysicalDevicePicker(this, devices);
+	auto queueFamilyIndices = FindQueueFamilies(physicalDevice, sampleSurface);
 
 	if (VLOG_IS_ON(VLOG_LV_3_PROCESS_TRACKING)) {
-		VkPhysicalDeviceProperties props;
-		vkGetPhysicalDeviceProperties(physicalDevice, &props);
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)
 			<< "Picked up suitable PhysicalDevice: "
-			<< props.deviceName;
+			<< physicalDevice.getProperties().deviceName;
 	}
 
 	// Create LogicalDevice ==========
-	VkDeviceCreateInfo deviceCI{};
-	deviceCI.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	vk::DeviceCreateInfo deviceCI{};
 
 	// DeviceQueue Create ----------
-	std::vector<VkDeviceQueueCreateInfo> queueCI;
+	std::vector<vk::DeviceQueueCreateInfo> queueCI;
 	{
 		auto uniqueQ = queueFamilyIndices.generateUniqueSet();
 		float priority = 1.0f;
 		for (const auto queue : uniqueQ) {
-			VkDeviceQueueCreateInfo ci{};
-			ci.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			vk::DeviceQueueCreateInfo ci{};
 			ci.queueFamilyIndex = queue;
 			ci.queueCount = 1;
 			ci.pQueuePriorities = &priority;
@@ -83,7 +77,7 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 	deviceCI.queueCreateInfoCount = static_cast<uint32_t>(queueCI.size());
 
 	// PhysicalDevice Feature ----------
-	VkPhysicalDeviceFeatures deviceFeatures{};
+	vk::PhysicalDeviceFeatures deviceFeatures{};
 	deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 	deviceCI.pEnabledFeatures = &deviceFeatures;
@@ -95,46 +89,43 @@ void RenderEngine::createDevice(RenderEngineInitConfig initConfig) {
 	deviceCI.ppEnabledLayerNames = layerNames.data();
 	deviceCI.enabledLayerCount = layerNames.size();
 
-	CheckError(
-		vkCreateDevice(physicalDevice, &deviceCI, nullptr, &device),
-		"Failed to create Logical Device."
-	);
+	device = physicalDevice.createDevice(deviceCI);
+
+	// Initialize Vulkan Hpp Default DIspatcher
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(device);
 
 	// Hold queue in variables
-	vkGetDeviceQueue(device, queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS), 0, &queues.graphicsQueue);
-	vkGetDeviceQueue(device, queueFamilyIndices.get(QueueFamilyIndices::PRESENT), 0, &queues.presentQueue);
+	queues.graphicsQueue = device.getQueue(queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS), 0);
+	queues.presentQueue = device.getQueue(queueFamilyIndices.get(QueueFamilyIndices::PRESENT), 0);
+
+	// set RenderEngineInfo
+	engineInfo.limit.maxMsaaSamples = GetMaxMsaaSamples(physicalDevice);
+	engineInfo.queueFamily.isGraphicsAndPresentSameIndex = (
+		queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS) ==
+		queueFamilyIndices.get(QueueFamilyIndices::PRESENT)
+	);
+
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Device has been created.";
 }
 
 /**
  * @brief Default PhysicalDevice picker function.
  * It investigates all available PhysicalDevice suitability and returns the best.
- * This function
  *
  * @param pEngine pointer to RenderEngine
  * @param devices all available PhysicalDevices
  * @return most suitable PhysicalDevice
  */
-PhysicalDeviceInfo RenderEngine::getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<VkPhysicalDevice> devices) {
-	// create invisible Glfw Window to investigate Surface support
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-	GLFWwindow* testWindow = glfwCreateWindow(10, 10, "", nullptr, nullptr);
-	VkSurfaceKHR testSurface;
-	glfwCreateWindowSurface(pEngine->instance, testWindow, nullptr, &testSurface);
-
-	VLOG(VLOG_LV_4_PROCESS_TRACKING_SECONDARY)
-		<< "Temporary VkSurface for PhysicalDevice suitability investigate has been created.";
-
+vk::PhysicalDevice RenderEngine::getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices) {
 	// if score(key) < 0, this device is not suitable.
-	std::multimap<PhysicalDeviceEvaluation, PhysicalDeviceInfo> candidates;
+	std::multimap<PhysicalDeviceEvaluation, vk::PhysicalDevice> candidates;
 
 	VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "PhysicalDevices with vulkan support:";
 	for (const auto& dev : devices) {
 		PhysicalDeviceEvaluation eval{};
 
 		if (VLOG_IS_ON(VLOG_LV_6_ITEM_ENUMERATION)) {
-			VkPhysicalDeviceProperties props;
-			vkGetPhysicalDeviceProperties(dev, &props);
+			auto props = dev.getProperties();
 			VLOG(VLOG_LV_6_ITEM_ENUMERATION)
 				<< "\tdeviceName: "
 				<< props.deviceName
@@ -142,26 +133,19 @@ PhysicalDeviceInfo RenderEngine::getSuitablePhysicalDeviceInfo(const RenderEngin
 				<< props.driverVersion;
 		}
 
-		QueueFamilyIndices indices = findQueueFamilies(dev, testSurface);
+		QueueFamilyIndices indices = FindQueueFamilies(dev, pEngine->sampleSurface);
 		eval.isQueueFamiliesCompleted = indices.isComplete();
 
 		EvaluateDeviceExtensionSupport(pEngine->deviceExtensionNames, dev, eval);
-		EvaluateSurfaceSupport(testSurface, dev, eval);
+		EvaluateSurfaceSupport(pEngine->sampleSurface, dev, eval);
 
 		if (!eval.isSuitable()) {
 			eval.score = -1;
 		}
 
 		VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "\t\tScore: " << eval.score;
-		candidates.insert(std::make_pair(eval, PhysicalDeviceInfo{ dev, indices }));
+		candidates.insert(std::make_pair(eval, dev));
 	}
-
-	// destroy test objects
-	vkDestroySurfaceKHR(pEngine->instance, testSurface, nullptr);
-	glfwDestroyWindow(testWindow);
-
-	VLOG(VLOG_LV_4_PROCESS_TRACKING_SECONDARY)
-		<< "Test VkSurface has been destroyed.";
 
 	if (candidates.rbegin()->first.score < 0) {
 		throw std::runtime_error("Cannot find suitable GPU.");
@@ -172,24 +156,22 @@ PhysicalDeviceInfo RenderEngine::getSuitablePhysicalDeviceInfo(const RenderEngin
 /**
  * @brief Populate QueueFamilyIndices for givin PhysicalDevice and return it.
  */
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR testSurface) {
+QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR sampleSurface) {
 	QueueFamilyIndices result;
 
 	uint32_t familyCount;
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &familyCount, nullptr);
-	std::vector<VkQueueFamilyProperties> families(familyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &familyCount, families.data());
+	auto families = device.getQueueFamilyProperties();
 
 	uint32_t index = 0;
 	for (const auto& prop : families) {
 		// graphic family
-		if (prop.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+		if (prop.queueFlags & vk::QueueFlagBits::eGraphics) {
 			result.set(QueueFamilyIndices::GRAPHICS, index);
 		}
 
 		// present family
-		VkBool32 presentSupport = VK_FALSE;
-		vkGetPhysicalDeviceSurfaceSupportKHR(device, index, testSurface, &presentSupport);
+		vk::Bool32 presentSupport = VK_FALSE;
+		presentSupport = device.getSurfaceSupportKHR(index, sampleSurface);
 		if (presentSupport) {
 			result.set(QueueFamilyIndices::PRESENT, index);
 		}
@@ -209,26 +191,22 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR testS
  * @param extensionNames DeviceExtension requirement
  * @return int
  */
-void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, VkPhysicalDevice device, PhysicalDeviceEvaluation& eval) {
+void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval) {
 	auto required = extensionNames;
 	auto requiredEndIter = required.end();
 	int totalNumberOfExtensions = 0;
 
-	auto checkSupport = [&device, &required, &requiredEndIter, &totalNumberOfExtensions](const char* layerName) {
-		uint32_t exCount;
-		vkEnumerateDeviceExtensionProperties(device, layerName, &exCount, nullptr);
-		std::vector<VkExtensionProperties> exProps(exCount);
-		vkEnumerateDeviceExtensionProperties(device, layerName, &exCount, exProps.data());
-
-		totalNumberOfExtensions += exCount;
+	auto checkSupport = [&device, &required, &requiredEndIter, &totalNumberOfExtensions](vk::Optional<const std::string> layerName) {
+		std::vector<vk::ExtensionProperties> exProps = device.enumerateDeviceExtensionProperties(layerName);
+		totalNumberOfExtensions += exProps.size();
 
 		if (layerName == nullptr) {
 			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "\t\t\tGlobal:";
 		}
 		else {
 			VLOG(VLOG_LV_6_ITEM_ENUMERATION)
-				<< "\tExtensions associated with layer '"
-				<< layerName
+				<< "\t\t\tExtensions associated with layer '"
+				<< *layerName
 				<< "':";
 		}
 
@@ -257,13 +235,10 @@ void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, VkP
 
 	checkSupport(nullptr);
 
-	uint32_t layerCount;
-	vkEnumerateDeviceLayerProperties(device, &layerCount, nullptr);
-	std::vector<VkLayerProperties> layerProps;
-	vkEnumerateDeviceLayerProperties(device, &layerCount, layerProps.data());
+	auto layerProps = device.enumerateDeviceLayerProperties();
 
 	for (const auto& prop : layerProps) {
-		checkSupport(prop.layerName);
+		checkSupport(std::string(prop.layerName));
 	}
 
 	eval.isAllExtensionsSupported = (requiredEndIter == required.begin());
@@ -275,19 +250,29 @@ void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, VkP
  * If givin surface (i.e. PhysicalDevice) has NO available formats and presentModes,
  * eval.isSwapChainAdequate will be false.
  */
-void EvaluateSurfaceSupport(VkSurfaceKHR testSurface, VkPhysicalDevice device, PhysicalDeviceEvaluation& eval) {
-	// VkSurfaceCapabilitiesKHR capabilities;
-	// vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, testSurface, &capabilities);
-
-	uint32_t formatCount;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, testSurface, &formatCount, nullptr);
-	std::vector<VkSurfaceFormatKHR> formats(formatCount);
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, testSurface, &formatCount, formats.data());
-
-	uint32_t presentModeCount;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, testSurface, &presentModeCount, nullptr);
-	std::vector<VkPresentModeKHR> presentModes(presentModeCount);
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, testSurface, &presentModeCount, presentModes.data());
+void EvaluateSurfaceSupport(vk::SurfaceKHR sampleSurface, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval) {
+	auto formats = device.getSurfaceFormatsKHR(sampleSurface);
+	auto presentModes = device.getSurfacePresentModesKHR(sampleSurface);
 
 	eval.isSwapChainAdequate = (!formats.empty() && !presentModes.empty());
+}
+
+/**
+ * @brief Returns max MSAA samples
+ */
+vk::SampleCountFlagBits GetMaxMsaaSamples(vk::PhysicalDevice device) {
+	auto props = device.getProperties();
+
+	vk::SampleCountFlags counts = (
+		props.limits.framebufferColorSampleCounts &
+		props.limits.framebufferDepthSampleCounts
+	);
+
+	if (counts & vk::SampleCountFlagBits::e64) return vk::SampleCountFlagBits::e64;
+	if (counts & vk::SampleCountFlagBits::e32) return vk::SampleCountFlagBits::e32;
+	if (counts & vk::SampleCountFlagBits::e16) return vk::SampleCountFlagBits::e16;
+	if (counts & vk::SampleCountFlagBits::e8) return vk::SampleCountFlagBits::e8;
+	if (counts & vk::SampleCountFlagBits::e4) return vk::SampleCountFlagBits::e4;
+	if (counts & vk::SampleCountFlagBits::e2) return vk::SampleCountFlagBits::e2;
+	return vk::SampleCountFlagBits::e1;
 }

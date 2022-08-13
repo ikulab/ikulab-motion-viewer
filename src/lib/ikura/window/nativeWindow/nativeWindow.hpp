@@ -4,10 +4,28 @@
 
 #include "../window.hpp"
 #include "../windowInputContext.hpp"
+#include "../../engine/renderEngine/renderEngine.hpp"
 
-class NativeWindow : public Window {
-protected:
-	WindowInputContext inputCtx;
-	VkSurfaceKHR surface;
-	NativeWindow() {}
-};
+namespace ikura {
+	class NativeWindow : public Window {
+	protected:
+		struct SurfaceSupportInfo {
+			vk::SurfaceCapabilitiesKHR capabilities;
+			std::vector<vk::SurfaceFormatKHR> formats;
+			std::vector<vk::PresentModeKHR> presentModes;
+		} surfaceSupport;
+
+		vk::Instance instance;
+		vk::PhysicalDevice physicalDevice;
+		vk::Device device;
+		QueueFamilyIndices queueFamilyIndices;
+
+		WindowInputContext inputCtx;
+		vk::SurfaceKHR surface;
+		vk::SwapchainKHR swapChain;
+
+		NativeWindow() {}
+	public:
+		virtual ~NativeWindow();
+	};
+}
