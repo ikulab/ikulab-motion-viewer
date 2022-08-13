@@ -75,7 +75,15 @@ namespace ikura {
 	}
 
 	GlfwNativeWindow::~GlfwNativeWindow() {
+		VLOG(VLOG_LV_3_PROCESS_TRACKING)
+			<< "Destroying GLFW Window for '"
+			<< name
+			<< "'...";
 		glfwDestroyWindow(window);
+		VLOG(VLOG_LV_3_PROCESS_TRACKING)
+			<< "GLFW Window for '"
+			<< name
+			<< "' has been destroyed.";
 	}
 
 	void GlfwNativeWindow::createSwapChain() {
