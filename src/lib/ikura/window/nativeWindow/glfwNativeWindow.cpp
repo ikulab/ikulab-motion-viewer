@@ -1,5 +1,9 @@
 #include "./glfwNativeWindow.hpp"
 
+#include <easylogging++.h>
+
+#include "../../ikura.hpp"
+
 
 // Forward declearation of helper functions ----------
 vk::SurfaceFormatKHR chooseSwapChainFormat(const std::vector<vk::SurfaceFormatKHR>& formats);
@@ -12,11 +16,26 @@ namespace ikura {
 		nativeWindow->frameBufferResized = true;
 	}
 
-	GlfwNativeWindow::GlfwNativeWindow(GLFWwindow* window, const RenderEngine& renderEngine) {
+	/**
+	 * @brief Constructs ikura::GlfwNativeWindow.
+	 * If surface is nullptr, this function creates new vk::SurfaceKHR object.
+	 * The other hand, if surface is NOT nullptr, this function constructs GlfwNativeWindow object from passed surface.
+	 * The passed surface will be destroyed automaticaly.
+	 */
+	GlfwNativeWindow::GlfwNativeWindow(
+		const RenderEngine& renderEngine,
+		GLFWwindow* window = nullptr,
+		vk::SurfaceKHR surface = nullptr,
+		std::string name = nullptr) {
+
+		VLOG(VLOG_LV_3_PROCESS_TRACKING)
+			<< "Creating GlfwNativeWindow '"
+			<< name << "'...";
+
 		instance = renderEngine.getInstance();
 		physicalDevice = renderEngine.getPhysicalDevice();
 		device = renderEngine.getDevice();
-		queueFamilyIndices = renderEngine.getQueueFamilyIndices();
+		this->name = name;
 
 		// Set GLFW Basic Properties
 		this->window = window;
@@ -25,16 +44,32 @@ namespace ikura {
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
 		// Create Surface
-		VkSurfaceKHR vkSurface;
-		if ((glfwCreateWindowSurface(instance, this->window, nullptr, &vkSurface)) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create VkSurfaceKHR from glfwCreateWindowSurface().");
+		if (surface) {
+			this->surface = surface;
 		}
-		surface = vk::SurfaceKHR(vkSurface);
+		else {
+			VkSurfaceKHR vkSurface;
+			if ((glfwCreateWindowSurface(instance, this->window, nullptr, &vkSurface)) != VK_SUCCESS) {
+				throw std::runtime_error("Failed to create VkSurfaceKHR from glfwCreateWindowSurface().");
+			}
+			surface = vk::SurfaceKHR(vkSurface);
+
+			VLOG(VLOG_LV_3_PROCESS_TRACKING)
+				<< "New Surface for '"
+				<< name
+				<< "' has been created.";
+		}
+		queueFamilyIndices = FindQueueFamilies(physicalDevice, surface);
 
 		// Fill SurfaceSupportInfo
 		surfaceSupport.capabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
 		surfaceSupport.formats = physicalDevice.getSurfaceFormatsKHR(surface);
 		surfaceSupport.presentModes = physicalDevice.getSurfacePresentModesKHR(surface);
+
+		VLOG(VLOG_LV_3_PROCESS_TRACKING)
+			<< "Surface for '"
+			<< name
+			<< "' has been setup.";
 
 		createSwapChain();
 	}
@@ -44,9 +79,44 @@ namespace ikura {
 	}
 
 	void GlfwNativeWindow::createSwapChain() {
+		VLOG(VLOG_LV_3_PROCESS_TRACKING)
+			<< "Creating SwapChain for '"
+			<< name
+			<< "'...";
+
+		if (VLOG_IS_ON(VLOG_LV_6_ITEM_ENUMERATION)) {
+			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "Available SwapChain formats:";
+			for (const auto& format : surfaceSupport.formats) {
+				VLOG(VLOG_LV_6_ITEM_ENUMERATION)
+					<< "\t"
+					<< vk::to_string(format.format)
+					<< " / "
+					<< vk::to_string(format.colorSpace);
+			}
+
+			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "Available SwapChain present modes:";
+			for (const auto& mode : surfaceSupport.presentModes) {
+				VLOG(VLOG_LV_6_ITEM_ENUMERATION)
+					<< "\t"
+					<< vk::to_string(mode);
+			}
+		}
+
 		vk::SurfaceFormatKHR format = chooseSwapChainFormat(surfaceSupport.formats);
 		vk::PresentModeKHR presentMode = chooseSwapChainPresentMode(surfaceSupport.presentModes);
 		vk::Extent2D extent = chooseSwapChainExtent(surfaceSupport.capabilities, window);
+
+		VLOG(VLOG_LV_3_PROCESS_TRACKING)
+			<< "Chose SwapChain format: "
+			<< vk::to_string(format.format)
+			<< " / "
+			<< vk::to_string(format.colorSpace);
+		VLOG(VLOG_LV_3_PROCESS_TRACKING)
+			<< "Chose SwapChain present mode: "
+			<< vk::to_string(presentMode);
+		VLOG(VLOG_LV_3_PROCESS_TRACKING)
+			<< "SwapChain Extent: "
+			<< extent.width << "x" << extent.height;
 
 		uint32_t imageCount = surfaceSupport.capabilities.minImageCount + 1;
 		if (surfaceSupport.capabilities.maxImageCount > 0 &&
@@ -86,6 +156,11 @@ namespace ikura {
 		}
 
 		swapChain = device.createSwapchainKHR(swapChainCI);
+
+		VLOG(VLOG_LV_3_PROCESS_TRACKING)
+			<< "SwapChain for '"
+			<< name
+			<< "' has been created.";
 	}
 }
 
@@ -103,7 +178,6 @@ vk::SurfaceFormatKHR chooseSwapChainFormat(const std::vector<vk::SurfaceFormatKH
 
 vk::PresentModeKHR chooseSwapChainPresentMode(const std::vector<vk::PresentModeKHR>& presentModes) {
 	for (const auto& presentMode : presentModes) {
-		// if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
 		if (presentMode == vk::PresentModeKHR::eMailbox) {
 			return presentMode;
 		}

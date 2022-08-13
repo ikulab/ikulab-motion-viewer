@@ -1,5 +1,7 @@
 #include "./app.hpp"
 
+#include <iostream>
+
 App::App() {}
 
 void App::init() {
@@ -11,19 +13,34 @@ void App::init() {
 	renderConfig.applicationName = "IkulabMotionViewer";
 	renderConfig.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 
-	renderEngine = std::make_unique<RenderEngine>(renderConfig);
+	renderEngine = std::make_shared<RenderEngine>(renderConfig);
+	renderEngine->createInstance();
+	renderEngine->setupExtensions();
+
+	// Create GLFW Window 
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	GLFWwindow* glfwWindow = glfwCreateWindow(400, 300, "Ikura Window", nullptr, nullptr);
+
+	// Create Surface
+	VkSurfaceKHR vkSurface;
+	if ((glfwCreateWindowSurface(
+		renderEngine->getInstance(), glfwWindow, nullptr, &vkSurface
+		)) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create VkSurfaceKHR from glfwCreateWindowSurface().");
+	}
+	vk::SurfaceKHR surface = vk::SurfaceKHR(vkSurface);
+
+	// Create RenderEngine's Device
+	renderEngine->setSampleSurface(surface);
+	renderEngine->createDevice();
 
 	// Initialize AppEngine
-	appEngine = std::make_unique<AppEngine>();
+	appEngine = std::make_unique<AppEngine>(renderEngine);
 
-	// Create Window 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	// Add Window
+	appEngine->addWindow(std::make_shared<ikura::GlfwNativeWindow>(
+		*renderEngine, glfwWindow, surface, "main"
+	));
 
-    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-    int xpos, ypos, windowW, windowH;
-    glfwGetMonitorWorkarea(primaryMonitor, &xpos, &ypos, &windowW, &windowH);
-    auto window = glfwCreateWindow(windowW, windowH, "ikulab 2022", nullptr, nullptr);
-
-	auto mainWindow = std::make_shared<ikura::GlfwNativeWindow>(window, *renderEngine);
-	appEngine->addWindow(mainWindow);
+	std::cout << "Hello Ikura!!" << std::endl;
 }

@@ -3,6 +3,10 @@
 #include <vulkan/vulkan.hpp>
 
 
+AppEngine::AppEngine(std::shared_ptr<RenderEngine> renderEngine) {
+	this->renderEngine = renderEngine;
+}
+
 void AppEngine::addWindow(std::shared_ptr<ikura::GlfwNativeWindow> glfwNativeWindow) {
 	windows.push_back(glfwNativeWindow);
 }

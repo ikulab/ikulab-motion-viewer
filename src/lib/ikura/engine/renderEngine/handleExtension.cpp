@@ -40,11 +40,15 @@ vk::DebugUtilsMessengerCreateInfoEXT RenderEngine::getDebugUtilsMessengerCI() {
 /**
  * @brief setup Extensions: DebugUtilsMessengerEXT
  */
-void RenderEngine::setupExtensions(RenderEngineInitConfig initConfig) {
+void RenderEngine::setupExtensions() {
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Setting up Extensions...";
+
 	if (isValidationLayerEnabled) {
 		auto debugCI = getDebugUtilsMessengerCI();
 		debugMessenger = instance.createDebugUtilsMessengerEXT(debugCI);
 	}
+
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Extensions have been setup.";
 }
 
 /**

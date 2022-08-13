@@ -11,8 +11,8 @@
 #include "../../renderComponent/renderTarget.hpp"
 #include "../../ikura.hpp"
 
-// forward declearation
-struct RenderEngineInitConfig;
+// Forward Declearration ----------
+class RenderEngine;
 
 struct RenderEngineInfo {
 	struct SupportInfo {
@@ -27,7 +27,6 @@ struct RenderEngineInfo {
 		vk::SampleCountFlagBits maxMsaaSamples;
 	} limit;
 };
-
 
 class QueueFamilyIndices {
 	typedef uint32_t QueueIndexKey;
@@ -53,6 +52,25 @@ struct PhysicalDeviceInfo {
 	QueueFamilyIndices queueFamilyIndices;
 };
 
+struct RenderEngineInitConfig {
+	// app info ----------
+	const char* applicationName;
+	uint32_t applicationVersion;
+
+	// Layers / Extensions ----------
+	std::vector<const char*> layerNames;
+	std::vector<const char*> instanceExtensionNames;
+	std::vector<const char*> deviceExtensionNames;
+
+	// callbacks ----------
+	std::function<vk::PhysicalDevice(const RenderEngine*, std::vector<vk::PhysicalDevice>)> suitablePhysicalDevicePicker;
+
+	// Template providers ----------
+	static RenderEngineInitConfig defaultDebugSetting();
+
+private:
+	static RenderEngineInitConfig defaultCommonSetting();
+};
 
 class RenderEngine {
 	// Variables ==========
@@ -60,7 +78,6 @@ class RenderEngine {
 	vk::PhysicalDevice physicalDevice;
 	vk::Device device;
 	vk::Instance instance;
-	QueueFamilyIndices queueFamilyIndices;
 	struct Queues {
 		vk::Queue graphicsQueue;
 		vk::Queue presentQueue;
@@ -74,69 +91,44 @@ class RenderEngine {
 	bool isValidationLayerEnabled = false;
 
 	// Property / Information ----------
+	RenderEngineInitConfig initConfig;
 	RenderEngineInfo engineInfo;
 
-	// Functions ==========
-	// Creation / Setup ----------
-	void createInstance(RenderEngineInitConfig initConfig);
-	void createDevice(RenderEngineInitConfig initConfig);
-	void setupExtensions(RenderEngineInitConfig initConfig);
+	// Misc ----------
+	vk::SurfaceKHR sampleSurface;
 
+	// Functions ==========
 	// Destruction ----------
 	void destroyExtensions();
 
 	// Misc ----------
 	static vk::DebugUtilsMessengerCreateInfoEXT getDebugUtilsMessengerCI();
 public:
+	// Functions ==========
+	// Constructor / Desctuctor ----------
 	RenderEngine(RenderEngineInitConfig initConfig);
 	~RenderEngine();
 
-	static PhysicalDeviceInfo getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices);
+	// Creation / Setup ----------
+	void createInstance();
+	void createDevice();
+	void setupExtensions();
 
-	void draw(RenderContent content, RenderTarget target);
-
-	// Getter functions ----------
+	// Getter ----------
 	vk::Instance getInstance() const;
 	vk::PhysicalDevice getPhysicalDevice() const;
 	vk::Device getDevice() const;
-	QueueFamilyIndices getQueueFamilyIndices() const;
+
+	// Setter ----------
+	void setSampleSurface(vk::SurfaceKHR surface);
+
+	// Interface ----------
+	void draw(RenderContent content, RenderTarget target);
+
+	// Misc ----------
+	static vk::PhysicalDevice getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices);
 };
 
-struct RenderEngineInitConfig {
-	// app info ----------
-	const char* applicationName;
-	uint32_t applicationVersion;
 
-	// Layers / Extensions ----------
-	std::vector<const char*> layerNames;
-	std::vector<const char*> instanceExtensionNames;
-	std::vector<const char*> deviceExtensionNames;
-
-	// callbacks ----------
-	std::function<PhysicalDeviceInfo(const RenderEngine*, std::vector<vk::PhysicalDevice>)> suitablePhysicalDevicePicker;
-
-	// Template providers ----------
-	static RenderEngineInitConfig defaultDebugSetting() {
-		RenderEngineInitConfig initConfig = defaultCommonSetting();
-
-		initConfig.layerNames.push_back(VALIDATION_LAYER_NAME);
-
-		initConfig.instanceExtensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-		initConfig.instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-
-		initConfig.deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-		return initConfig;
-	}
-
-private:
-	static RenderEngineInitConfig defaultCommonSetting() {
-		RenderEngineInitConfig initConfig;
-		initConfig.applicationName = "Ikura Application";
-		initConfig.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-
-		initConfig.suitablePhysicalDevicePicker = RenderEngine::getSuitablePhysicalDeviceInfo;
-
-		return initConfig;
-	}
-};
+// Helper function ----------
+QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR sampleSurface);

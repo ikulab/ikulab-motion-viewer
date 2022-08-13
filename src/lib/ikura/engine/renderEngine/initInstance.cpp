@@ -16,7 +16,9 @@ std::vector<const char*> getGlfwRequiredExtensions();
 /**
  * @brief Populates CreateInfo, checks supports, and creates VulkanInstance.
  */
-void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
+void RenderEngine::createInstance() {
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Vulkan Instance...";
+
 	vk::InstanceCreateInfo instanceCI;
 
 	// application info ----------
@@ -101,6 +103,8 @@ void RenderEngine::createInstance(RenderEngineInitConfig initConfig) {
 
 	// Initialize Vulkan Hpp Default DIspatcher
 	VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
+
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Instance has been created.";
 }
 
 /**

@@ -15,7 +15,7 @@ namespace ikura {
 		static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
 	public:
-		GlfwNativeWindow(GLFWwindow* window, const RenderEngine& renderEngine);
+		GlfwNativeWindow(const RenderEngine& renderEngine, GLFWwindow* window, vk::SurfaceKHR surface, std::string name);
 		~GlfwNativeWindow();
 	};
 }

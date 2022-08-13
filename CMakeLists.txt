@@ -42,8 +42,13 @@ add_subdirectory(./src/lib/ikura)
 target_link_libraries(ikura vulkan glfw)
 target_link_libraries(ikura dl pthread X11 Xxf86vm Xrandr Xi)
 target_link_libraries(ikura easyloggingpp)
+
 target_link_libraries(renderEngine easyloggingpp)
+
 target_link_libraries(appEngine imgui)
+target_link_libraries(appEngine nativeWindow)
+
+target_link_libraries(nativeWindow easyloggingpp)
 target_link_libraries(virtualWindow imgui)
 
 # link ikura to executable

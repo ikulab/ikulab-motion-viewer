@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include <vulkan/vulkan.hpp>
 
 #include "../renderComponent/renderContent.hpp"
@@ -11,6 +13,7 @@ namespace ikura {
 		Window() {}
 
 		int width, height;
+		std::string name;
 
 		std::vector<RenderContent> renderContents;
 		std::vector<RenderTarget> renderTargets;
