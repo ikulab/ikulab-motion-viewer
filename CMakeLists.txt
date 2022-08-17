@@ -51,5 +51,8 @@ target_link_libraries(appEngine nativeWindow)
 target_link_libraries(nativeWindow easyloggingpp)
 target_link_libraries(virtualWindow imgui)
 
+# include directories
+target_include_directories(ikura PRIVATE includes/vk_mem_alloc)
+
 # link ikura to executable
 target_link_libraries(app ikura)

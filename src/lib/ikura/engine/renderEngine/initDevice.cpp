@@ -7,7 +7,6 @@
 
 #include <easylogging++.h>
 
-
 struct PhysicalDeviceEvaluation {
 	int score;
 	bool isQueueFamiliesCompleted;
@@ -104,6 +103,14 @@ void RenderEngine::createDevice() {
 		queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS) ==
 		queueFamilyIndices.get(QueueFamilyIndices::PRESENT)
 	);
+
+	// Initialize Vulkan Memory Allocator
+	VmaAllocatorCreateInfo allocatorCI;
+	allocatorCI.instance = instance;
+	allocatorCI.physicalDevice = physicalDevice;
+	allocatorCI.device = device;
+
+	// vmaCreateAllocator(&allocatorCI, vmaAllocator.get());
 
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Device has been created.";
 }

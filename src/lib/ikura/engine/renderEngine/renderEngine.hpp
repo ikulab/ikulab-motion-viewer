@@ -123,7 +123,7 @@ public:
 	void setSampleSurface(vk::SurfaceKHR surface);
 
 	// Interface ----------
-	void draw(RenderContent content, RenderTarget target);
+	void draw(ikura::RenderContent content, RenderTarget target);
 
 	// Misc ----------
 	static vk::PhysicalDevice getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices);
