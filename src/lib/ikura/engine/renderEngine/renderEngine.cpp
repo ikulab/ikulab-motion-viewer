@@ -4,6 +4,19 @@
 
 #include <easylogging++.h>
 
+#define VMA_IMPLEMENTATION
+// for compability
+#ifndef VK_API_VERSION_MAJOR
+#	define VK_API_VERSION_MAJOR(version) (((uint32_t)(version) >> 22) & 0x7FU)
+#endif
+#ifndef VK_API_VERSION_MINOR
+#	define VK_API_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3FFU)
+#endif
+#ifndef VK_API_VERSION_PATCH
+#	define VK_API_VERSION_PATCH(version) ((uint32_t)(version) & 0xFFFU)
+#endif
+#include <vk_mem_alloc.h>
+
 #include "../../ikura.hpp"
 
 
@@ -52,6 +65,7 @@ RenderEngine::RenderEngine(RenderEngineInitConfig initConfig) {
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Initialized GLFW.";
 
 	this->initConfig = initConfig;
+	vmaAllocator = std::make_shared<VmaAllocator>();
 }
 
 RenderEngine::~RenderEngine() {

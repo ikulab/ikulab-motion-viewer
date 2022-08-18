@@ -18,6 +18,7 @@ find_package(Vulkan REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 add_subdirectory(./includes/imgui)
 add_subdirectory(./includes/easylogging++)
+add_subdirectory(./includes/vk_mem_alloc)
 
 # shader compile ----------
 add_custom_target(
@@ -41,18 +42,16 @@ add_subdirectory(./src/lib/ikura)
 # ikura dependencies
 target_link_libraries(ikura vulkan glfw)
 target_link_libraries(ikura dl pthread X11 Xxf86vm Xrandr Xi)
-target_link_libraries(ikura easyloggingpp)
+target_link_libraries(ikura easyloggingpp vk_mem_alloc)
 
 target_link_libraries(renderEngine easyloggingpp)
+target_link_libraries(renderEngine vk_mem_alloc)
 
 target_link_libraries(appEngine imgui)
 target_link_libraries(appEngine nativeWindow)
 
-target_link_libraries(nativeWindow easyloggingpp)
+target_link_libraries(nativeWindow easyloggingpp vk_mem_alloc)
 target_link_libraries(virtualWindow imgui)
-
-# include directories
-target_include_directories(ikura PRIVATE includes/vk_mem_alloc)
 
 # link ikura to executable
 target_link_libraries(app ikura)

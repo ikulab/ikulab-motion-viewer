@@ -7,6 +7,8 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <vk_mem_alloc.h>
+
 #include "../../renderComponent/renderContent.hpp"
 #include "../../renderComponent/renderTarget.hpp"
 #include "../../ikura.hpp"
@@ -95,7 +97,8 @@ class RenderEngine {
 	RenderEngineInfo engineInfo;
 
 	// Misc ----------
-	vk::SurfaceKHR sampleSurface;
+	vk::SurfaceKHR sampleSurface;	// for PhysicalDevice suitability evaluation
+	std::shared_ptr<VmaAllocator> vmaAllocator;
 
 	// Functions ==========
 	// Destruction ----------

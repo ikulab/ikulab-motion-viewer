@@ -6,8 +6,6 @@
 #include <memory>
 
 #include <vulkan/vulkan.hpp>
-// TODO: make it '#include <vk_mem_alloc.h>'
-#include "../../../includes/vk_mem_alloc/vk_mem_alloc.h"
 
 #define IKURA_APP_INFO_ENGINE_NAME "Ikura"
 #define IKURA_APP_INFO_ENGINE_VER VK_MAKE_VERSION(1, 0, 0)
@@ -24,9 +22,5 @@
 #define VLOG_LV_7 7
 #define VLOG_LV_8 8
 #define VLOG_LV_9 9
-
-
-// for Vulkan Memory Allocator
-static std::unique_ptr<VmaAllocator> vmaAllocator;
 
 void initIkura();
