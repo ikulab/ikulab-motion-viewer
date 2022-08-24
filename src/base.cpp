@@ -28,6 +28,9 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_vulkan.h>
 
+#define VMA_IMPLEMENTATION
+#include <vk_mem_alloc.h>
+
 #include "definition/vertex.hpp"
 #include "./animator.hpp"
 
@@ -124,6 +127,7 @@ void Base::initVulkan() {
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
+    createVmaAllocator();
     createSwapChain();
     createImageViews();
     createRenderPass();
@@ -289,6 +293,18 @@ void Base::createLogicalDevice() {
 
     vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
     vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+
+}
+
+void Base::createVmaAllocator() {
+    VmaAllocatorCreateInfo ci{};
+    ci.instance = instance;
+    ci.physicalDevice = physicalDevice;
+    ci.device = device;
+    ci.vulkanApiVersion = VK_API_VERSION_1_2;
+
+    vmaCreateAllocator(&ci, &vmaAllocator);
+    vmaDestroyAllocator(vmaAllocator);
 }
 
 void Base::createSurface() {

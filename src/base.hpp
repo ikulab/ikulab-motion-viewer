@@ -22,6 +22,8 @@
 #include "./definition/descriptor.hpp"
 #include "./animator.hpp"
 
+#include <vk_mem_alloc.h>
+
 #ifdef NODEBUG
 const bool enableValidationLayers = false;
 #else
@@ -124,6 +126,8 @@ struct CameraContext {
 };
 
 class Base {
+	VmaAllocator vmaAllocator;
+
 	GLFWwindow* window;
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
@@ -172,6 +176,7 @@ class Base {
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 	void createLogicalDevice();
+	void createVmaAllocator();
 	void createSurface();
 	void createSwapChain();
 	void recreateSwapChain();

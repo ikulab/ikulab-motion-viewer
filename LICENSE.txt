@@ -33,6 +33,11 @@ Vulkan-ValidationLayers
   Apache License Version 2.0
     https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/LICENSE.txt
 
+VulkanMemoryAllocator
+  Copyright (c) 2017-2022 Advanced Micro Devices, Inc.
+  MIT License
+    https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/blob/master/LICENSE.txt
+
 GLFW
   Copyright (c) 2002-2006 Marcus Geelnard
   Copyright (c) 2006-2019 Camilla Löwy

@@ -9,9 +9,9 @@ add_compile_options(
 	-std=c++17 -fdiagnostics-color=always -g
 )
 
-if(${BUILD_TYPE} STREQUAL "Release")
-	add_compile_options(-DNODEBUG)
-endif()
+#if(${BUILD_TYPE} STREQUAL "Release")
+#	add_compile_options(-DNODEBUG)
+#endif()
 
 find_package(Vulkan REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
