@@ -105,13 +105,14 @@ void RenderEngine::createDevice() {
 	);
 
 	// Initialize Vulkan Memory Allocator
-	VmaAllocatorCreateInfo allocatorCI;
+	VmaAllocatorCreateInfo allocatorCI{};
 	allocatorCI.instance = instance;
 	allocatorCI.physicalDevice = physicalDevice;
 	allocatorCI.device = device;
 	allocatorCI.vulkanApiVersion = VK_API_VERSION_1_2;
 
 	vmaCreateAllocator(&allocatorCI, vmaAllocator.get());
+	VLOG(VLOG_LV_4_PROCESS_TRACKING_SECONDARY) << "VmaAllocator has been created.";
 
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Device has been created.";
 }
