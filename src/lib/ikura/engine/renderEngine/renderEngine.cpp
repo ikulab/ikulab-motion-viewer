@@ -69,6 +69,10 @@ RenderEngine::RenderEngine(RenderEngineInitConfig initConfig) {
 }
 
 RenderEngine::~RenderEngine() {
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying VmaAllocator...";
+	vmaDestroyAllocator(*vmaAllocator);
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "VmaAllocator has been Destroyed.";
+
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying Vulkan Device...";
 	device.destroy();
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Device has been destroyed.";
