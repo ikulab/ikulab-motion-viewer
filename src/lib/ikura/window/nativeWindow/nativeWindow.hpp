@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <vulkan/vulkan.hpp>
 
 #include "../window.hpp"
@@ -23,6 +25,8 @@ namespace ikura {
 		WindowInputContext inputCtx;
 		vk::SurfaceKHR surface;
 		vk::SwapchainKHR swapChain;
+
+		std::vector<vk::Image> swapChainImages;
 
 		NativeWindow() {}
 	public:

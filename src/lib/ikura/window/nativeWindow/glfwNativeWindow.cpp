@@ -72,6 +72,7 @@ namespace ikura {
 			<< "' has been setup.";
 
 		createSwapChain();
+		swapChainImages = device.getSwapchainImagesKHR(swapChain);
 	}
 
 	GlfwNativeWindow::~GlfwNativeWindow() {
