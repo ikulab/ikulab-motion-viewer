@@ -16,7 +16,7 @@ namespace ikura {
 		vk::DescriptorPool descriptorPool;
 		vk::AttachmentDescription attachments;
 
-		void createRenderPass();
+		void createDefaultRenderPass();
 
 	public:
 		RenderTarget();
