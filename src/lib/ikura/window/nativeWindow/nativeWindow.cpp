@@ -29,8 +29,10 @@ namespace ikura {
 	}
 
 	void NativeWindow::addDefaultRenderTarget() {
+		auto target = std::make_unique<RenderTarget>(swapChainFormat, renderEngine);
+		target->setDefaultResources();
 		renderTargets.push_back(
-			std::make_unique<RenderTarget>(swapChainFormat, renderEngine)
+			std::move(target)
 		);
 	}
 }

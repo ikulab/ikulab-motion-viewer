@@ -9,7 +9,7 @@
 vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine);
 
 namespace ikura {
-	void RenderTarget::createDefaultRenderPass() {
+	void RenderTarget::setDefaultResources() {
 		VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Default RenderPass...";
 
 		// Attachment Descriptions ----------

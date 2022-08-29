@@ -22,10 +22,11 @@ namespace ikura {
 		std::shared_ptr<RenderEngine> renderEngine;
 		vk::Format swapChainFormat;
 
-		void createDefaultRenderPass();
 
 	public:
 		RenderTarget(vk::Format swapChainImageFormat, const std::shared_ptr<RenderEngine> renderEngine);
 		~RenderTarget();
+
+		void setDefaultResources();
 	};
 }
