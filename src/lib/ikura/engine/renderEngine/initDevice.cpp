@@ -28,6 +28,7 @@ struct PhysicalDeviceEvaluation {
 void EvaluateDeviceExtensionSupport(std::vector<const char*> extensionNames, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval);
 void EvaluateSurfaceSupport(vk::SurfaceKHR sampleSurface, vk::PhysicalDevice device, PhysicalDeviceEvaluation& eval);
 vk::SampleCountFlagBits GetMaxMsaaSamples(vk::PhysicalDevice device);
+QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR sampleSurface);
 
 
 void RenderEngine::createDevice() {
@@ -47,7 +48,7 @@ void RenderEngine::createDevice() {
 
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Picking up suitable PhysicalDevice...";
 	physicalDevice = initConfig.suitablePhysicalDevicePicker(this, devices);
-	auto queueFamilyIndices = FindQueueFamilies(physicalDevice, sampleSurface);
+	queueFamilyIndices = FindQueueFamilies(physicalDevice, sampleSurface);
 
 	if (VLOG_IS_ON(VLOG_LV_3_PROCESS_TRACKING)) {
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)
@@ -99,10 +100,6 @@ void RenderEngine::createDevice() {
 
 	// set RenderEngineInfo
 	engineInfo.limit.maxMsaaSamples = GetMaxMsaaSamples(physicalDevice);
-	engineInfo.queueFamily.isGraphicsAndPresentSameIndex = (
-		queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS) ==
-		queueFamilyIndices.get(QueueFamilyIndices::PRESENT)
-	);
 
 	// Initialize Vulkan Memory Allocator
 	VmaAllocatorCreateInfo allocatorCI{};

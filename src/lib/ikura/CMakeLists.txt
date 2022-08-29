@@ -13,6 +13,10 @@ target_link_libraries(ikura window)
 add_subdirectory(./engine)
 target_link_libraries(ikura appEngine renderEngine uiEngine)
 
+add_subdirectory(./renderComponent)
+target_link_libraries(ikura renderComponent)
+target_link_libraries(nativeWindow renderComponent)
+
 target_link_libraries(renderEngine ikura)
 
 target_include_directories(ikura INTERFACE ../)

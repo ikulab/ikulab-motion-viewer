@@ -23,7 +23,7 @@ namespace ikura {
 	 * The passed surface will be destroyed automaticaly.
 	 */
 	GlfwNativeWindow::GlfwNativeWindow(
-		const RenderEngine& renderEngine,
+		const std::shared_ptr<RenderEngine> renderEngine,
 		GLFWwindow* window = nullptr,
 		vk::SurfaceKHR surface = nullptr,
 		std::string name = nullptr) {
@@ -31,10 +31,7 @@ namespace ikura {
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)
 			<< "Creating GlfwNativeWindow '"
 			<< name << "'...";
-
-		instance = renderEngine.getInstance();
-		physicalDevice = renderEngine.getPhysicalDevice();
-		device = renderEngine.getDevice();
+		this->renderEngine = renderEngine;
 		this->name = name;
 
 		// Set GLFW Basic Properties
@@ -49,7 +46,7 @@ namespace ikura {
 		}
 		else {
 			VkSurfaceKHR vkSurface;
-			if ((glfwCreateWindowSurface(instance, this->window, nullptr, &vkSurface)) != VK_SUCCESS) {
+			if ((glfwCreateWindowSurface(renderEngine->getInstance(), this->window, nullptr, &vkSurface)) != VK_SUCCESS) {
 				throw std::runtime_error("Failed to create VkSurfaceKHR from glfwCreateWindowSurface().");
 			}
 			surface = vk::SurfaceKHR(vkSurface);
@@ -59,12 +56,6 @@ namespace ikura {
 				<< name
 				<< "' has been created.";
 		}
-		queueFamilyIndices = FindQueueFamilies(physicalDevice, surface);
-
-		// Fill SurfaceSupportInfo
-		surfaceSupport.capabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
-		surfaceSupport.formats = physicalDevice.getSurfaceFormatsKHR(surface);
-		surfaceSupport.presentModes = physicalDevice.getSurfacePresentModesKHR(surface);
 
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)
 			<< "Surface for '"
@@ -72,7 +63,7 @@ namespace ikura {
 			<< "' has been setup.";
 
 		createSwapChain();
-		swapChainImages = device.getSwapchainImagesKHR(swapChain);
+		swapChainImages = renderEngine->getDevice().getSwapchainImagesKHR(swapChain);
 	}
 
 	GlfwNativeWindow::~GlfwNativeWindow() {
@@ -93,9 +84,13 @@ namespace ikura {
 			<< name
 			<< "'...";
 
+		auto surfaceFormats = renderEngine->getPhysicalDevice().getSurfaceFormatsKHR(surface);
+		auto surfacePresentModes = renderEngine->getPhysicalDevice().getSurfacePresentModesKHR(surface);
+		auto surfaceCapabilities = renderEngine->getPhysicalDevice().getSurfaceCapabilitiesKHR(surface);
+
 		if (VLOG_IS_ON(VLOG_LV_6_ITEM_ENUMERATION)) {
 			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "Available SwapChain formats:";
-			for (const auto& format : surfaceSupport.formats) {
+			for (const auto& format : surfaceFormats) {
 				VLOG(VLOG_LV_6_ITEM_ENUMERATION)
 					<< "\t"
 					<< vk::to_string(format.format)
@@ -104,16 +99,16 @@ namespace ikura {
 			}
 
 			VLOG(VLOG_LV_6_ITEM_ENUMERATION) << "Available SwapChain present modes:";
-			for (const auto& mode : surfaceSupport.presentModes) {
+			for (const auto& mode : surfacePresentModes) {
 				VLOG(VLOG_LV_6_ITEM_ENUMERATION)
 					<< "\t"
 					<< vk::to_string(mode);
 			}
 		}
 
-		vk::SurfaceFormatKHR format = chooseSwapChainFormat(surfaceSupport.formats);
-		vk::PresentModeKHR presentMode = chooseSwapChainPresentMode(surfaceSupport.presentModes);
-		vk::Extent2D extent = chooseSwapChainExtent(surfaceSupport.capabilities, window);
+		vk::SurfaceFormatKHR format = chooseSwapChainFormat(surfaceFormats);
+		vk::PresentModeKHR presentMode = chooseSwapChainPresentMode(surfacePresentModes);
+		vk::Extent2D extent = chooseSwapChainExtent(surfaceCapabilities, window);
 
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)
 			<< "Chose SwapChain format: "
@@ -127,11 +122,11 @@ namespace ikura {
 			<< "SwapChain Extent: "
 			<< extent.width << "x" << extent.height;
 
-		uint32_t imageCount = surfaceSupport.capabilities.minImageCount + 1;
-		if (surfaceSupport.capabilities.maxImageCount > 0 &&
-			imageCount > surfaceSupport.capabilities.maxImageCount) {
+		uint32_t imageCount = surfaceCapabilities.minImageCount + 1;
+		if (surfaceCapabilities.maxImageCount > 0 &&
+			imageCount > surfaceCapabilities.maxImageCount) {
 
-			imageCount = surfaceSupport.capabilities.maxImageCount;
+			imageCount = surfaceCapabilities.maxImageCount;
 		}
 
 		vk::SwapchainCreateInfoKHR swapChainCI;
@@ -144,11 +139,12 @@ namespace ikura {
 		swapChainCI.imageArrayLayers = 1;
 		swapChainCI.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
 
-		swapChainCI.preTransform = surfaceSupport.capabilities.currentTransform;
+		swapChainCI.preTransform = surfaceCapabilities.currentTransform;
 		swapChainCI.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
 		swapChainCI.presentMode = presentMode;
 		swapChainCI.clipped = VK_TRUE;
 
+		const QueueFamilyIndices queueFamilyIndices = renderEngine->getQueueFamilyIndices();
 		uint32_t indices[] = {
 			queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS),
 			queueFamilyIndices.get(QueueFamilyIndices::PRESENT)
@@ -164,7 +160,7 @@ namespace ikura {
 			swapChainCI.pQueueFamilyIndices = indices;
 		}
 
-		swapChain = device.createSwapchainKHR(swapChainCI);
+		swapChain = renderEngine->getDevice().createSwapchainKHR(swapChainCI);
 
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)
 			<< "SwapChain for '"

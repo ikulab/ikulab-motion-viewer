@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include <vulkan/vulkan.hpp>
 
@@ -15,10 +16,9 @@ namespace ikura {
 		int width, height;
 		std::string name;
 
-		std::vector<RenderContent> renderContents;
-		std::vector<RenderTarget> renderTargets;
+		std::vector<std::unique_ptr<RenderContent>> renderContents;
+		std::vector<std::unique_ptr<RenderTarget>> renderTargets;
 	public:
-		const std::vector<RenderContent>& getRenderContent() const;
-		const std::vector<RenderTarget>& getRenderTarget() const;
+		virtual void addDefaultRenderTarget();
 	};
 }

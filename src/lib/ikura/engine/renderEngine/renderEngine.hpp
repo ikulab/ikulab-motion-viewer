@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 #include <set>
 #include <string>
@@ -10,20 +11,18 @@
 #include <vk_mem_alloc.h>
 
 #include "../../renderComponent/renderContent.hpp"
-#include "../../renderComponent/renderTarget.hpp"
 #include "../../ikura.hpp"
 
 // Forward Declearration ----------
 class RenderEngine;
+namespace ikura {
+	class RenderTarget;
+}
 
 struct RenderEngineInfo {
 	struct SupportInfo {
 		bool isGlfwSupported;
 	} support;
-
-	struct QueueFamilyInfo {
-		bool isGraphicsAndPresentSameIndex;
-	} queueFamily;
 
 	struct LimitInfo {
 		vk::SampleCountFlagBits maxMsaaSamples;
@@ -32,7 +31,7 @@ struct RenderEngineInfo {
 
 class QueueFamilyIndices {
 	typedef uint32_t QueueIndexKey;
-	std::map<QueueIndexKey, std::optional<uint32_t>> indices;
+	std::map<const QueueIndexKey, std::optional<uint32_t>> indices;
 
 public:
 	static const QueueIndexKey GRAPHICS = 0;
@@ -40,13 +39,13 @@ public:
 
 	QueueFamilyIndices();
 
-	uint32_t get(QueueIndexKey key);
+	uint32_t get(const QueueIndexKey key) const;
 	void set(QueueIndexKey key, uint32_t value);
 
 	std::set<uint32_t> generateUniqueSet();
 
-	bool isComplete();
-	bool isShareingIndexBetweenGraphicsAndPresent();
+	bool isComplete() const;
+	bool isShareingIndexBetweenGraphicsAndPresent() const;
 };
 
 struct PhysicalDeviceInfo {
@@ -84,6 +83,7 @@ class RenderEngine {
 		vk::Queue graphicsQueue;
 		vk::Queue presentQueue;
 	} queues;
+	QueueFamilyIndices queueFamilyIndices;
 
 	// Layer / Extension ----------
 	std::vector<const char*> layerNames;
@@ -118,20 +118,18 @@ public:
 	void setupExtensions();
 
 	// Getter ----------
-	vk::Instance getInstance() const;
-	vk::PhysicalDevice getPhysicalDevice() const;
-	vk::Device getDevice() const;
+	const vk::Instance getInstance() const;
+	const vk::PhysicalDevice getPhysicalDevice() const;
+	const vk::Device getDevice() const;
+	const RenderEngineInfo getEngineInfo() const;
+	const QueueFamilyIndices getQueueFamilyIndices() const;
 
 	// Setter ----------
 	void setSampleSurface(vk::SurfaceKHR surface);
 
 	// Interface ----------
-	void draw(ikura::RenderContent content, ikura::RenderTarget target);
+	void draw(ikura::RenderContent content, ikura::RenderTarget);
 
 	// Misc ----------
 	static vk::PhysicalDevice getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices);
 };
-
-
-// Helper function ----------
-QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR sampleSurface);

@@ -1,8 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 #include <vulkan/vulkan.hpp>
+
+#include "../engine/renderEngine/renderEngine.hpp"
 
 namespace ikura {
 	class RenderTarget {
@@ -16,9 +19,13 @@ namespace ikura {
 		vk::DescriptorPool descriptorPool;
 		vk::AttachmentDescription attachments;
 
+		std::shared_ptr<RenderEngine> renderEngine;
+		vk::Format swapChainFormat;
+
 		void createDefaultRenderPass();
 
 	public:
-		RenderTarget();
+		RenderTarget(vk::Format swapChainImageFormat, const std::shared_ptr<RenderEngine> renderEngine);
+		~RenderTarget();
 	};
 }

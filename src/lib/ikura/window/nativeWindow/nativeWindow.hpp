@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 #include <vulkan/vulkan.hpp>
 
@@ -11,25 +12,18 @@
 namespace ikura {
 	class NativeWindow : public Window {
 	protected:
-		struct SurfaceSupportInfo {
-			vk::SurfaceCapabilitiesKHR capabilities;
-			std::vector<vk::SurfaceFormatKHR> formats;
-			std::vector<vk::PresentModeKHR> presentModes;
-		} surfaceSupport;
-
-		vk::Instance instance;
-		vk::PhysicalDevice physicalDevice;
-		vk::Device device;
-		QueueFamilyIndices queueFamilyIndices;
+		std::shared_ptr<RenderEngine> renderEngine;
 
 		WindowInputContext inputCtx;
 		vk::SurfaceKHR surface;
 		vk::SwapchainKHR swapChain;
+		vk::Format swapChainFormat;
 
 		std::vector<vk::Image> swapChainImages;
 
 		NativeWindow() {}
 	public:
 		virtual ~NativeWindow();
+		void addDefaultRenderTarget() override;
 	};
 }

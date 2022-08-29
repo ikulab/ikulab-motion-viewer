@@ -27,8 +27,8 @@ QueueFamilyIndices::QueueFamilyIndices() {
 	});
 }
 
-uint32_t QueueFamilyIndices::get(QueueIndexKey key) {
-	return indices[key].value();
+uint32_t QueueFamilyIndices::get(const QueueIndexKey key) const {
+	return indices.at(key).value();
 }
 
 void QueueFamilyIndices::set(QueueIndexKey key, uint32_t value) {
@@ -46,7 +46,7 @@ std::set<uint32_t> QueueFamilyIndices::generateUniqueSet() {
 	return result;
 }
 
-bool QueueFamilyIndices::isComplete() {
+bool QueueFamilyIndices::isComplete() const {
 	return std::all_of(
 		indices.begin(), indices.end(),
 		[](const decltype(indices)::value_type value) {
@@ -55,7 +55,7 @@ bool QueueFamilyIndices::isComplete() {
 	);
 }
 
-bool QueueFamilyIndices::isShareingIndexBetweenGraphicsAndPresent() {
+bool QueueFamilyIndices::isShareingIndexBetweenGraphicsAndPresent() const {
 	return get(GRAPHICS) == get(PRESENT);
 }
 
@@ -89,16 +89,24 @@ RenderEngine::~RenderEngine() {
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Terminated GLFW.";
 }
 
-vk::Instance RenderEngine::getInstance() const {
+const vk::Instance RenderEngine::getInstance() const {
 	return instance;
 }
 
-vk::PhysicalDevice RenderEngine::getPhysicalDevice() const {
+const vk::PhysicalDevice RenderEngine::getPhysicalDevice() const {
 	return physicalDevice;
 }
 
-vk::Device RenderEngine::getDevice() const {
+const vk::Device RenderEngine::getDevice() const {
 	return device;
+}
+
+const RenderEngineInfo RenderEngine::getEngineInfo() const {
+	return engineInfo;
+}
+
+const QueueFamilyIndices RenderEngine::getQueueFamilyIndices() const {
+	return queueFamilyIndices;
 }
 
 void RenderEngine::setSampleSurface(vk::SurfaceKHR surface) {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
@@ -15,7 +17,7 @@ namespace ikura {
 		static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
 	public:
-		GlfwNativeWindow(const RenderEngine& renderEngine, GLFWwindow* window, vk::SurfaceKHR surface, std::string name);
+		GlfwNativeWindow(const std::shared_ptr<RenderEngine> renderEngine, GLFWwindow* window, vk::SurfaceKHR surface, std::string name);
 		~GlfwNativeWindow();
 	};
 }

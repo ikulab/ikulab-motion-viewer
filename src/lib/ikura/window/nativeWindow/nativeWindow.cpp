@@ -11,7 +11,7 @@ namespace ikura {
 			<< "Destroying SwapChain for '"
 			<< name
 			<< "'...";
-		device.destroySwapchainKHR(swapChain);
+		renderEngine->getDevice().destroySwapchainKHR(swapChain);
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)
 			<< "SwapChain for '"
 			<< name
@@ -21,10 +21,16 @@ namespace ikura {
 			<< "Destroying Surface for '"
 			<< name
 			<< "'...";
-		instance.destroySurfaceKHR(surface);
+		renderEngine->getInstance().destroySurfaceKHR(surface);
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)
 			<< "Surface for '"
 			<< name
 			<< "' has been destroyed.";
+	}
+
+	void NativeWindow::addDefaultRenderTarget() {
+		renderTargets.push_back(
+			std::make_unique<RenderTarget>(swapChainFormat, renderEngine)
+		);
 	}
 }

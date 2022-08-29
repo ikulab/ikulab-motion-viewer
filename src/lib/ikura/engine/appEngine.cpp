@@ -8,6 +8,7 @@ AppEngine::AppEngine(std::shared_ptr<RenderEngine> renderEngine) {
 }
 
 void AppEngine::addWindow(std::shared_ptr<ikura::GlfwNativeWindow> glfwNativeWindow) {
+	glfwNativeWindow->addDefaultRenderTarget();
 	windows.push_back(glfwNativeWindow);
 }
 

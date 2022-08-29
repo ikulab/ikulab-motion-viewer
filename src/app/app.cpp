@@ -39,7 +39,7 @@ void App::init() {
 
 	// Add Window
 	appEngine->addWindow(std::make_shared<ikura::GlfwNativeWindow>(
-		*renderEngine, glfwWindow, surface, "main"
+		renderEngine, glfwWindow, surface, "main"
 	));
 
 	std::cout << "Hello Ikura!!" << std::endl;
