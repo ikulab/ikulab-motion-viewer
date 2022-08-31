@@ -59,8 +59,8 @@ namespace ikura {
 		subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
-		subpass.pColorAttachments = &depthAttachmentRef;
-		subpass.pDepthStencilAttachment = &colorAttachmentResolveRef;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
+		subpass.pResolveAttachments = &colorAttachmentResolveRef;
 
 		vk::SubpassDependency dependency{};
 
@@ -97,7 +97,7 @@ namespace ikura {
 		VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Default RenderPass has been created.";
 	}
 
-	RenderTarget::RenderTarget(vk::Format swapChainImageFormat, const std::shared_ptr<RenderEngine> renderEngine) {
+	RenderTarget::RenderTarget(vk::Format swapChainFormat, const std::shared_ptr<RenderEngine> renderEngine) {
 		this->swapChainFormat = swapChainFormat;
 		this->renderEngine = renderEngine;
 	}

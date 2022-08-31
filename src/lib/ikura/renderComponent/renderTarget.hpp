@@ -24,7 +24,7 @@ namespace ikura {
 
 
 	public:
-		RenderTarget(vk::Format swapChainImageFormat, const std::shared_ptr<RenderEngine> renderEngine);
+		RenderTarget(vk::Format swapChainFormat, const std::shared_ptr<RenderEngine> renderEngine);
 		~RenderTarget();
 
 		void setDefaultResources();

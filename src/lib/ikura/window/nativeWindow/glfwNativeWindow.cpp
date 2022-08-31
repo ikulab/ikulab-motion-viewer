@@ -161,6 +161,7 @@ namespace ikura {
 		}
 
 		swapChain = renderEngine->getDevice().createSwapchainKHR(swapChainCI);
+		swapChainFormat = format.format;
 
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)
 			<< "SwapChain for '"

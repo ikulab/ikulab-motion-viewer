@@ -19,7 +19,7 @@ std::vector<const char*> getGlfwRequiredExtensions();
 void RenderEngine::createInstance() {
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Vulkan Instance...";
 
-	vk::InstanceCreateInfo instanceCI;
+	vk::InstanceCreateInfo instanceCI{};
 
 	// application info ----------
 	vk::ApplicationInfo appInfo;
@@ -87,10 +87,11 @@ void RenderEngine::createInstance() {
 	}
 
 	// DebugUtils setting ----------
+	vk::DebugUtilsMessengerCreateInfoEXT debugCI;
 	if (isValidationLayerEnabled) {
 		instanceCI.enabledLayerCount = static_cast<uint32_t>(layerNames.size());
 		instanceCI.ppEnabledLayerNames = layerNames.data();
-		auto debugCI = getDebugUtilsMessengerCI();
+		debugCI = getDebugUtilsMessengerCI();
 
 		instanceCI.pNext = &debugCI;
 	}
@@ -99,7 +100,7 @@ void RenderEngine::createInstance() {
 		instanceCI.pNext = nullptr;
 	}
 
-	instance = vk::createInstance(instanceCI, nullptr);
+	instance = vk::createInstance(instanceCI);
 
 	// Initialize Vulkan Hpp Default DIspatcher
 	VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
