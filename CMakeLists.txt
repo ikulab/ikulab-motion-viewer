@@ -9,6 +9,7 @@ add_compile_options(
 	-std=c++17 -fdiagnostics-color=always -g
 )
 
+# TODO: add `option` statement
 if(${BUILD_TYPE} STREQUAL "Release")
 	add_compile_options(-DNODEBUG)
 endif()
