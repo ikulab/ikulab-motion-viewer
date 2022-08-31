@@ -6,6 +6,7 @@
 
 # build binary
 build
+build_ninja
 bin
 
 # imgui file
