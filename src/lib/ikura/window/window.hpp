@@ -19,6 +19,7 @@ namespace ikura {
 		std::vector<std::unique_ptr<RenderContent>> renderContents;
 		std::vector<std::unique_ptr<RenderTarget>> renderTargets;
 	public:
+		virtual ~Window() {}
 		virtual void addDefaultRenderTarget();
 	};
 }

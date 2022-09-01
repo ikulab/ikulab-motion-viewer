@@ -17,8 +17,6 @@
 #endif
 #include <vk_mem_alloc.h>
 
-#include "../../ikura.hpp"
-
 
 QueueFamilyIndices::QueueFamilyIndices() {
 	indices.insert({
@@ -63,6 +61,8 @@ bool QueueFamilyIndices::isShareingIndexBetweenGraphicsAndPresent() const {
 RenderEngine::RenderEngine(RenderEngineInitConfig initConfig) {
 	glfwInit();
 	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Initialized GLFW.";
+	initDispatchLoader();
+	VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Initialized Vulkan Hpp Dispatch Loader.";
 
 	this->initConfig = initConfig;
 	vmaAllocator = std::make_shared<VmaAllocator>();

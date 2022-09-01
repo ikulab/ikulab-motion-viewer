@@ -1,24 +1,28 @@
-cmake_minimum_required(VERSION 3.16)
-project(
-	ikura
-	VERSION 0.1.0	
-	LANGUAGES CXX
+add_library(ikura INTERFACE)
+
+set(common_include_dir
+	"${PROJECT_SOURCE_DIR}/includes/imgui"
+	"${PROJECT_SOURCE_DIR}/includes/easylogging++"
+	"${PROJECT_SOURCE_DIR}/includes/vk_mem_alloc"
 )
 
-add_library(ikura STATIC ikura.cpp)
-
 add_subdirectory(./window)
-target_link_libraries(ikura window)
+target_include_directories(nativeWindow PUBLIC "${common_include_dir}")
+target_include_directories(virtualWindow PUBLIC "${common_include_dir}")
+target_include_directories(window PUBLIC "${common_include_dir}")
+target_link_libraries(ikura INTERFACE nativeWindow virtualWindow)
 
 add_subdirectory(./engine)
-target_link_libraries(ikura appEngine renderEngine uiEngine)
+target_include_directories(appEngine PUBLIC "${common_include_dir}")
+target_include_directories(renderEngine PUBLIC "${common_include_dir}")
+target_link_libraries(ikura INTERFACE appEngine renderEngine)
 
 add_subdirectory(./renderComponent)
-target_link_libraries(ikura renderComponent)
-target_link_libraries(nativeWindow renderComponent)
+target_include_directories(renderComponent PUBLIC "${common_include_dir}")
+target_link_libraries(ikura INTERFACE renderComponent)
 
-target_link_libraries(renderEngine ikura)
+add_subdirectory(./misc)
+target_include_directories(initVulkanHppDispatchLoader PUBLIC "${common_include_dir}")
+target_link_libraries(ikura INTERFACE initVulkanHppDispatchLoader)
 
-target_include_directories(ikura INTERFACE ../)
-
-target_compile_definitions(ikura PUBLIC VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
+target_include_directories(ikura INTERFACE ./)

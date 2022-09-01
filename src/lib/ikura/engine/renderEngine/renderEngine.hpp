@@ -1,17 +1,23 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 #include <vector>
 #include <set>
-#include <string>
+#include <map>
+#include <optional>
 #include <functional>
 
 #include <vulkan/vulkan.hpp>
 
 #include <vk_mem_alloc.h>
 
-#include "../../renderComponent/renderContent.hpp"
-#include "../../ikura.hpp"
+#include "../../misc/initVulkanHppDispatchLoader.hpp"
+
+#define VALIDATION_LAYER_NAME "VK_LAYER_KHRONOS_validation"
+#define IKURA_APP_INFO_ENGINE_NAME "Ikura"
+#define IKURA_APP_INFO_ENGINE_VER VK_MAKE_VERSION(1, 0, 0)
+#define IKURA_APP_INFO_API_VER VK_API_VERSION_1_2
 
 // Forward Declearration ----------
 class RenderEngine;
@@ -128,7 +134,7 @@ public:
 	void setSampleSurface(vk::SurfaceKHR surface);
 
 	// Interface ----------
-	void draw(ikura::RenderContent content, ikura::RenderTarget);
+	// void draw(ikura::RenderContent content, ikura::RenderTarget);
 
 	// Misc ----------
 	static vk::PhysicalDevice getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices);

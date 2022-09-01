@@ -3,8 +3,6 @@
 #include <easylogging++.h>
 #include <vulkan/vulkan.hpp>
 
-#include "../../ikura.hpp"
-
 namespace ikura {
 	NativeWindow::~NativeWindow() {
 		VLOG(VLOG_LV_3_PROCESS_TRACKING)

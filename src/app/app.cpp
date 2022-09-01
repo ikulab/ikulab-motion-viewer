@@ -2,12 +2,13 @@
 
 #include <iostream>
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+
 App::App() {}
 
 void App::init() {
-	// Initialize Ikura
-	initIkura();
-
 	// Initialize RenderEngine
 	RenderEngineInitConfig renderConfig = RenderEngineInitConfig::defaultDebugSetting();
 	renderConfig.applicationName = "IkulabMotionViewer";

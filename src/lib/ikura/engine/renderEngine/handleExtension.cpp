@@ -4,8 +4,6 @@
 
 #include <easylogging++.h>
 
-#include "../../ikura.hpp"
-
 /**
  * @brief debug callback for ValidationLayer. prints error content e.g. error message.
  */

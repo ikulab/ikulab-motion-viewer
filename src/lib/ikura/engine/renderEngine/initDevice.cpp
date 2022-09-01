@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include <easylogging++.h>
+#include <vk_mem_alloc.h>
 
 struct PhysicalDeviceEvaluation {
 	int score;

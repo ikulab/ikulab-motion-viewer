@@ -1,17 +1,13 @@
-#include "./ikura.hpp"
+#include "./initVulkanHppDispatchLoader.hpp"
 
 #include <vulkan/vulkan.hpp>
-#include <string>
 
-#include <easylogging++.h>
-
-// Initialize Vulkan Hpp Default Dispatcher ----------
 #ifndef INIT_VULKAN_HPP_DEFAULT_DISPATCH_LORDER
 #	define INIT_VULKAN_HPP_DEFAULT_DISPATCH_LORDER
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #endif
 
-void initIkura() {
+void initDispatchLoader() {
 	// Initialize Vulkan Hpp Default Dispatcher
 	std::unique_ptr<vk::DynamicLoader> vkDynamicLoader = std::make_unique<vk::DynamicLoader>();
 

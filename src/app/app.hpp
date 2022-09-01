@@ -2,11 +2,7 @@
 
 #include <memory>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include <ikura/engine/appEngine.hpp>
-#include <ikura/engine/renderEngine/renderEngine.hpp>
+#include <ikura.hpp>
 
 class App {
 	std::unique_ptr<AppEngine> appEngine;

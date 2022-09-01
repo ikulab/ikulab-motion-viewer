@@ -2,8 +2,6 @@
 
 #include <easylogging++.h>
 
-#include "../../ikura.hpp"
-
 
 // Forward declearation of helper functions ----------
 vk::SurfaceFormatKHR chooseSwapChainFormat(const std::vector<vk::SurfaceFormatKHR>& formats);

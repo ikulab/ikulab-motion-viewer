@@ -5,8 +5,6 @@
 
 #include <easylogging++.h>
 
-#include "../../ikura.hpp"
-
 // forward declearation of helper functions ----------
 void checkLayersSupport(std::vector<const char*>& layersNames);
 void checkInstanceExtensionsSupport(const std::vector<const char*>& extensionNames);
