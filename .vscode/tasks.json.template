@@ -8,7 +8,7 @@
 			"args": [
 				"-S", ".", "-B", "build",
 				"-D", "BUILD_TYPE=${input:select_debug_or_release}",
-				"-G", "Unix Makefiles"
+				"-G", "Ninja"
 			],
 		},
 		{

@@ -1,12 +1,11 @@
 # VSCode seting
 .vscode/*
 !.vscode/launch.json
-!.vscode/tasks.json
+!.vscode/tasks.json.template
 !.vscode/c_cpp_properties.json
 
 # build binary
 build
-build_ninja
 bin
 
 # imgui file
