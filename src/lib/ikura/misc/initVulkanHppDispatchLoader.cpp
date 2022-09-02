@@ -1,5 +1,7 @@
 #include "./initVulkanHppDispatchLoader.hpp"
 
+#include <memory>
+
 #include <vulkan/vulkan.hpp>
 
 #ifndef INIT_VULKAN_HPP_DEFAULT_DISPATCH_LORDER
