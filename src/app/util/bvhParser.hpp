@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <glm/glm.hpp>
+#include <string>
+#include <vector>
 
 #include "../animator.hpp"
 
@@ -23,80 +23,87 @@
 #define TOKEN_END_BRACKET "}"
 
 namespace Channel {
-	enum Channel {
-		Xposition, Yposition, Zposition,
-		Xrotation, Yrotation, Zrotation
-	};
-
-	bool isValidChannel(std::string str);
-
-	Channel convertStr2Channel(std::string str);
+enum Channel {
+    Xposition,
+    Yposition,
+    Zposition,
+    Xrotation,
+    Yrotation,
+    Zrotation
 };
 
+bool isValidChannel(std::string str);
+
+Channel convertStr2Channel(std::string str);
+}; // namespace Channel
+
 class parse_failed_error : public std::runtime_error {
-	std::string errorLine;
-	uint32_t errorLineNum;
-public:
-	parse_failed_error(std::string msg, const std::unique_ptr<std::ifstream>& ist)
-		: std::runtime_error("parse failed: " + msg) {
+    std::string errorLine;
+    uint32_t errorLineNum;
 
-		errorLineNum = 0;
-		errorLine = {};
+  public:
+    parse_failed_error(std::string msg,
+                       const std::unique_ptr<std::ifstream> &ist)
+        : std::runtime_error("parse failed: " + msg) {
 
-		uint32_t pos = ist->tellg();
-		ist->seekg(0);
+        errorLineNum = 0;
+        errorLine = {};
 
-		std::string line;
-		while (std::getline(*ist, line)) {
-			if (pos < ist->tellg()) {
-				errorLine = line;
-				break;
-			}
-			errorLineNum++;
-		}
-		errorLineNum++;
+        uint32_t pos = ist->tellg();
+        ist->seekg(0);
 
-		if (errorLine.empty()) {
-			errorLine = "<unknown>";
-		}
-	}
+        std::string line;
+        while (std::getline(*ist, line)) {
+            if (pos < ist->tellg()) {
+                errorLine = line;
+                break;
+            }
+            errorLineNum++;
+        }
+        errorLineNum++;
 
-	std::string where() {
-		std::string res;
-		res += "line: ";
-		res += std::to_string(errorLineNum);
-		res += "\n";
-		res += errorLine;
+        if (errorLine.empty()) {
+            errorLine = "<unknown>";
+        }
+    }
 
-		return res;
-	}
+    std::string where() {
+        std::string res;
+        res += "line: ";
+        res += std::to_string(errorLineNum);
+        res += "\n";
+        res += errorLine;
+
+        return res;
+    }
 };
 
 class BVHParser {
-	void parseJoints(bool isJointTokenRead);
-	void parseMotion();
+    void parseJoints(bool isJointTokenRead);
+    void parseMotion();
 
-	std::vector<std::unique_ptr<Animator::Joint>> skelton;
-	std::vector<std::vector<std::unique_ptr<Motion>>> motion;
+    std::vector<std::unique_ptr<Animator::Joint>> skelton;
+    std::vector<std::vector<std::unique_ptr<Motion>>> motion;
 
-	std::unique_ptr<std::ifstream> inputStream;
-	bool isRootDefined = false;
-	JointID currentID = 0;
-	std::vector<std::pair<JointID, Channel::Channel>> channels;
-	std::vector<JointID> jointIDStack;
+    std::unique_ptr<std::ifstream> inputStream;
+    bool isRootDefined = false;
+    JointID currentID = 0;
+    std::vector<std::pair<JointID, Channel::Channel>> channels;
+    std::vector<JointID> jointIDStack;
 
-	uint32_t numOfFrames;
-	float frameRate;
-public:
-	BVHParser(std::string filePath);
+    uint32_t numOfFrames;
+    float frameRate;
 
-	void parseBVH();
-	std::vector<std::unique_ptr<Animator::Joint>> getSkentonData() {
-		return std::move(skelton);
-	}
-	std::vector<std::vector<std::unique_ptr<Motion>>> getMotionData() {
-		return std::move(motion);
-	}
-	uint32_t getNumOfFrames() { return numOfFrames; }
-	float getFrameRate() { return frameRate; }
+  public:
+    BVHParser(std::string filePath);
+
+    void parseBVH();
+    std::vector<std::unique_ptr<Animator::Joint>> getSkentonData() {
+        return std::move(skelton);
+    }
+    std::vector<std::vector<std::unique_ptr<Motion>>> getMotionData() {
+        return std::move(motion);
+    }
+    uint32_t getNumOfFrames() { return numOfFrames; }
+    float getFrameRate() { return frameRate; }
 };

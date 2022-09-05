@@ -4,16 +4,17 @@
 #include <memory>
 #include <vector>
 
-#include "./bone.hpp"
 #include "../cube/singleColorCube.hpp"
+#include "./bone.hpp"
 
 class StickTetrahedronBone : public Bone {
-	std::unique_ptr<SingleColorCube> cube;
-public:
-	StickTetrahedronBone(float length, JointID id);
+    std::unique_ptr<SingleColorCube> cube;
 
-	const std::vector<Vertex>& getVertices() const override;
-	const std::vector<uint32_t>& getIndices() const override;
+  public:
+    StickTetrahedronBone(float length, JointID id);
 
-	void setBaseIndex(uint32_t baseIndex) override;
+    const std::vector<Vertex> &getVertices() const override;
+    const std::vector<uint32_t> &getIndices() const override;
+
+    void setBaseIndex(uint32_t baseIndex) override;
 };

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include <vulkan/vulkan.hpp>
 
@@ -9,17 +9,18 @@
 #include "../renderComponent/renderTarget.hpp"
 
 namespace ikura {
-	class Window {
-	protected:
-		Window() {}
+class Window {
+  protected:
+    Window() {}
 
-		int width, height;
-		std::string name;
+    int width, height;
+    std::string name;
 
-		std::vector<std::unique_ptr<RenderContent>> renderContents;
-		std::vector<std::unique_ptr<RenderTarget>> renderTargets;
-	public:
-		virtual ~Window() {}
-		virtual void addDefaultRenderTarget();
-	};
-}
+    std::vector<std::unique_ptr<RenderContent>> renderContents;
+    std::vector<std::unique_ptr<RenderTarget>> renderTargets;
+
+  public:
+    virtual ~Window() {}
+    virtual void addDefaultRenderTarget();
+};
+} // namespace ikura

@@ -1,8 +1,8 @@
 #include <cmath>
-#include <vector>
 #include <glm/glm.hpp>
+#include <vector>
 
-#include "./bone.hpp"
 #include "../sphere.hpp"
+#include "./bone.hpp"
 
 Bone::Bone(float length, JointID id) : Shape(id), length(length) {}

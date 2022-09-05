@@ -9,22 +9,24 @@
 // SingleColorCube() からは、全て同じ要素のvec3[]をGradationCube()に渡す
 
 class GradationColorCube : public Cube {
-protected:
-	/**
-	* Top face
-	*  0: left top
-	*  1: right top
-	*  2: right bottom
-	*  3: left bottom
-	* Bottom face
-	*  4: left top
-	*  5: right top
-	*  6: right bottom
-	*  7: left bottom
-	*/
-	std::array<glm::vec3, 8> colors;
-public:
-	GradationColorCube(float width, float height, float depth, glm::vec3 pos, std::array<glm::vec3, 8> colors, JointID id);
+  protected:
+    /**
+     * Top face
+     *  0: left top
+     *  1: right top
+     *  2: right bottom
+     *  3: left bottom
+     * Bottom face
+     *  4: left top
+     *  5: right top
+     *  6: right bottom
+     *  7: left bottom
+     */
+    std::array<glm::vec3, 8> colors;
 
-	void init();
+  public:
+    GradationColorCube(float width, float height, float depth, glm::vec3 pos,
+                       std::array<glm::vec3, 8> colors, JointID id);
+
+    void init();
 };

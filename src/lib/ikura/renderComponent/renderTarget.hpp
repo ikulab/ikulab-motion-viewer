@@ -1,44 +1,45 @@
 #pragma once
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include <vulkan/vulkan.hpp>
 
 #include "../engine/renderEngine/renderEngine.hpp"
 
 namespace ikura {
-	class ImageResource {
-		public:
-		vk::Image image;
-		vk::ImageView view;
-		VmaAllocation allocation;
-	};
+class ImageResource {
+  public:
+    vk::Image image;
+    vk::ImageView view;
+    VmaAllocation allocation;
+};
 
-	class RenderTarget {
-		vk::CommandBuffer commandBuffer;
-		std::vector<vk::PipelineLayout> graphicsPipelineLayouts;
-		std::vector<vk::Pipeline> graphicsPipelines;
-		vk::RenderPass renderPass;
-		vk::Framebuffer frameBuffer;
+class RenderTarget {
+    vk::CommandBuffer commandBuffer;
+    std::vector<vk::PipelineLayout> graphicsPipelineLayouts;
+    std::vector<vk::Pipeline> graphicsPipelines;
+    vk::RenderPass renderPass;
+    vk::Framebuffer frameBuffer;
 
-		ImageResource colorImageResource;
-		ImageResource depthImageResource;
+    ImageResource colorImageResource;
+    ImageResource depthImageResource;
 
-		vk::DescriptorSetLayout descriptorSetLayout;
-		vk::DescriptorPool descriptorPool;
-		vk::AttachmentDescription attachments;
+    vk::DescriptorSetLayout descriptorSetLayout;
+    vk::DescriptorPool descriptorPool;
+    vk::AttachmentDescription attachments;
 
-		std::shared_ptr<RenderEngine> renderEngine;
-		vk::Format swapChainFormat;
+    std::shared_ptr<RenderEngine> renderEngine;
+    vk::Format swapChainFormat;
 
-		void createDefaultRenderPass();
-		void createDefaultImageResources();
+    void createDefaultRenderPass();
+    void createDefaultImageResources();
 
-	public:
-		RenderTarget(vk::Format swapChainFormat, const std::shared_ptr<RenderEngine> renderEngine);
-		~RenderTarget();
+  public:
+    RenderTarget(vk::Format swapChainFormat,
+                 const std::shared_ptr<RenderEngine> renderEngine);
+    ~RenderTarget();
 
-		void setDefaultResources();
-	};
-}
+    void setDefaultResources();
+};
+} // namespace ikura

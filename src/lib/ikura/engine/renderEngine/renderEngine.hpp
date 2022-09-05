@@ -1,13 +1,13 @@
 #pragma once
 
+#include <functional>
 #include <iostream>
-#include <string>
-#include <vector>
-#include <set>
 #include <map>
 #include <memory>
 #include <optional>
-#include <functional>
+#include <set>
+#include <string>
+#include <vector>
 
 #include <vulkan/vulkan.hpp>
 
@@ -23,120 +23,125 @@
 // Forward Declearration ----------
 class RenderEngine;
 namespace ikura {
-	class RenderTarget;
+class RenderTarget;
 }
 
 struct RenderEngineInfo {
-	struct SupportInfo {
-		bool isGlfwSupported;
-	} support;
+    struct SupportInfo {
+        bool isGlfwSupported;
+    } support;
 
-	struct LimitInfo {
-		vk::SampleCountFlagBits maxMsaaSamples;
-	} limit;
+    struct LimitInfo {
+        vk::SampleCountFlagBits maxMsaaSamples;
+    } limit;
 };
 
 class QueueFamilyIndices {
-	typedef uint32_t QueueIndexKey;
-	std::map<const QueueIndexKey, std::optional<uint32_t>> indices;
+    typedef uint32_t QueueIndexKey;
+    std::map<const QueueIndexKey, std::optional<uint32_t>> indices;
 
-public:
-	static const QueueIndexKey GRAPHICS = 0;
-	static const QueueIndexKey PRESENT = 1;
+  public:
+    static const QueueIndexKey GRAPHICS = 0;
+    static const QueueIndexKey PRESENT = 1;
 
-	QueueFamilyIndices();
+    QueueFamilyIndices();
 
-	uint32_t get(const QueueIndexKey key) const;
-	void set(QueueIndexKey key, uint32_t value);
+    uint32_t get(const QueueIndexKey key) const;
+    void set(QueueIndexKey key, uint32_t value);
 
-	std::set<uint32_t> generateUniqueSet();
+    std::set<uint32_t> generateUniqueSet();
 
-	bool isComplete() const;
-	bool isShareingIndexBetweenGraphicsAndPresent() const;
+    bool isComplete() const;
+    bool isShareingIndexBetweenGraphicsAndPresent() const;
 };
 
 struct PhysicalDeviceInfo {
-	vk::PhysicalDevice device;
-	QueueFamilyIndices queueFamilyIndices;
+    vk::PhysicalDevice device;
+    QueueFamilyIndices queueFamilyIndices;
 };
 
 struct RenderEngineInitConfig {
-	// app info ----------
-	const char* applicationName;
-	uint32_t applicationVersion;
+    // app info ----------
+    const char *applicationName;
+    uint32_t applicationVersion;
 
-	// Layers / Extensions ----------
-	std::vector<const char*> layerNames;
-	std::vector<const char*> instanceExtensionNames;
-	std::vector<const char*> deviceExtensionNames;
+    // Layers / Extensions ----------
+    std::vector<const char *> layerNames;
+    std::vector<const char *> instanceExtensionNames;
+    std::vector<const char *> deviceExtensionNames;
 
-	// callbacks ----------
-	std::function<vk::PhysicalDevice(const RenderEngine*, std::vector<vk::PhysicalDevice>)> suitablePhysicalDevicePicker;
+    // callbacks ----------
+    std::function<vk::PhysicalDevice(const RenderEngine *,
+                                     std::vector<vk::PhysicalDevice>)>
+        suitablePhysicalDevicePicker;
 
-	// Template providers ----------
-	static RenderEngineInitConfig defaultDebugSetting();
+    // Template providers ----------
+    static RenderEngineInitConfig defaultDebugSetting();
 
-private:
-	static RenderEngineInitConfig defaultCommonSetting();
+  private:
+    static RenderEngineInitConfig defaultCommonSetting();
 };
 
 class RenderEngine {
-	// Variables ==========
-	// Basic Vulkan objects ----------
-	vk::PhysicalDevice physicalDevice;
-	vk::Device device;
-	vk::Instance instance;
-	struct Queues {
-		vk::Queue graphicsQueue;
-		vk::Queue presentQueue;
-	} queues;
-	QueueFamilyIndices queueFamilyIndices;
+    // Variables ==========
+    // Basic Vulkan objects ----------
+    vk::PhysicalDevice physicalDevice;
+    vk::Device device;
+    vk::Instance instance;
+    struct Queues {
+        vk::Queue graphicsQueue;
+        vk::Queue presentQueue;
+    } queues;
+    QueueFamilyIndices queueFamilyIndices;
 
-	// Layer / Extension ----------
-	std::vector<const char*> layerNames;
-	std::vector<const char*> instanceExtensionNames;
-	std::vector<const char*> deviceExtensionNames;
-	vk::DebugUtilsMessengerEXT debugMessenger;
-	bool isValidationLayerEnabled = false;
+    // Layer / Extension ----------
+    std::vector<const char *> layerNames;
+    std::vector<const char *> instanceExtensionNames;
+    std::vector<const char *> deviceExtensionNames;
+    vk::DebugUtilsMessengerEXT debugMessenger;
+    bool isValidationLayerEnabled = false;
 
-	// Property / Information ----------
-	RenderEngineInitConfig initConfig;
-	RenderEngineInfo engineInfo;
+    // Property / Information ----------
+    RenderEngineInitConfig initConfig;
+    RenderEngineInfo engineInfo;
 
-	// Misc ----------
-	vk::SurfaceKHR sampleSurface;	// for PhysicalDevice suitability evaluation
-	std::shared_ptr<VmaAllocator> vmaAllocator;
+    // Misc ----------
+    vk::SurfaceKHR sampleSurface; // for PhysicalDevice suitability evaluation
+    std::shared_ptr<VmaAllocator> vmaAllocator;
 
-	// Functions ==========
-	// Destruction ----------
-	void destroyExtensions();
+    // Functions ==========
+    // Destruction ----------
+    void destroyExtensions();
 
-	// Misc ----------
-	static vk::DebugUtilsMessengerCreateInfoEXT getDebugUtilsMessengerCI();
-public:
-	// Functions ==========
-	// Constructor / Desctuctor ----------
-	RenderEngine(RenderEngineInitConfig initConfig);
-	~RenderEngine();
+    // Misc ----------
+    static vk::DebugUtilsMessengerCreateInfoEXT getDebugUtilsMessengerCI();
 
-	// Creation / Setup ----------
-	void createInstance();
-	void createDevice();
-	void setupExtensions();
+  public:
+    // Functions ==========
+    // Constructor / Desctuctor ----------
+    RenderEngine(RenderEngineInitConfig initConfig);
+    ~RenderEngine();
 
-	// Getter ----------
-	const vk::Instance getInstance() const;
-	const vk::PhysicalDevice getPhysicalDevice() const;
-	const vk::Device getDevice() const;
-	const RenderEngineInfo getEngineInfo() const;
-	const QueueFamilyIndices getQueueFamilyIndices() const;
+    // Creation / Setup ----------
+    void createInstance();
+    void createDevice();
+    void setupExtensions();
 
-	// Setter ----------
-	void setSampleSurface(vk::SurfaceKHR surface);
+    // Getter ----------
+    const vk::Instance getInstance() const;
+    const vk::PhysicalDevice getPhysicalDevice() const;
+    const vk::Device getDevice() const;
+    const RenderEngineInfo getEngineInfo() const;
+    const QueueFamilyIndices getQueueFamilyIndices() const;
 
-	// Interface ----------
-	// void draw(ikura::RenderContent content, ikura::RenderTarget);
+    // Setter ----------
+    void setSampleSurface(vk::SurfaceKHR surface);
 
-	// Misc ----------
-	static vk::PhysicalDevice getSuitablePhysicalDeviceInfo(const RenderEngine* pEngine, std::vector<vk::PhysicalDevice> devices);
+    // Interface ----------
+    // void draw(ikura::RenderContent content, ikura::RenderTarget);
+
+    // Misc ----------
+    static vk::PhysicalDevice
+    getSuitablePhysicalDeviceInfo(const RenderEngine *pEngine,
+                                  std::vector<vk::PhysicalDevice> devices);
 };
