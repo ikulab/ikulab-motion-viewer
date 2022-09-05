@@ -19,7 +19,7 @@ NativeWindow::~NativeWindow() {
 }
 
 void NativeWindow::addDefaultRenderTarget() {
-    auto target = std::make_unique<RenderTarget>(swapChainFormat, renderEngine);
+    auto target = std::make_unique<RenderTarget>(swapChainFormat, swapChainExtent, renderEngine);
     target->setDefaultResources();
     renderTargets.push_back(std::move(target));
 }

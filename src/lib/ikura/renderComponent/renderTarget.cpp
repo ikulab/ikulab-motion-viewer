@@ -7,16 +7,24 @@
 
 // Forward declearation of helper functions ----------
 vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine);
-void createImage(const uint32_t width, const uint32_t height,
-                 const uint32_t mipLevels,
+void createImage(const vk::Extent2D imageExtent, const uint32_t mipLevels,
                  const vk::SampleCountFlagBits numSamples,
                  const vk::Format format, const vk::ImageTiling tiling,
                  const vk::ImageUsageFlags usage,
                  const vk::MemoryPropertyFlags properties,
                  VmaAllocator &allocator, vk::Image &image,
                  VmaAllocation &allocation);
+void createImageView(const vk::Image image, const vk::Format format,
+                     const vk::ImageAspectFlags aspectFlags,
+                     const uint32_t mipLevels, vk::ImageView &imageView,
+                     const vk::Device device);
 
 namespace ikura {
+void ImageResource::release(vk::Device device, VmaAllocator allocator) {
+    device.destroyImageView(view);
+    vmaDestroyImage(allocator, image, allocation);
+}
+
 void RenderTarget::createDefaultRenderPass() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Default RenderPass...";
 
@@ -101,22 +109,58 @@ void RenderTarget::createDefaultRenderPass() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Default RenderPass has been created.";
 }
 
-void RenderTarget::createDefaultImageResources() {}
+void RenderTarget::createDefaultImageResources() {
+    // Color Image
+    createImage(swapChainExtent, 1,
+                renderEngine->getEngineInfo().limit.maxMsaaSamples,
+                swapChainFormat, vk::ImageTiling::eOptimal,
+                vk::ImageUsageFlagBits::eTransientAttachment |
+                    vk::ImageUsageFlagBits::eColorAttachment,
+                vk::MemoryPropertyFlagBits::eDeviceLocal,
+                *renderEngine->getVmaAllocator(), colorImageResource.image,
+                colorImageResource.allocation);
+    createImageView(colorImageResource.image, swapChainFormat,
+                    vk::ImageAspectFlagBits::eColor, 1, colorImageResource.view,
+                    renderEngine->getDevice());
+
+    // Depth Image
+    createImage(swapChainExtent, 1,
+                renderEngine->getEngineInfo().limit.maxMsaaSamples,
+                findDepthFormat(renderEngine), vk::ImageTiling::eOptimal,
+                vk::ImageUsageFlagBits::eDepthStencilAttachment,
+                vk::MemoryPropertyFlagBits::eDeviceLocal,
+                *renderEngine->getVmaAllocator(), depthImageResource.image,
+                depthImageResource.allocation);
+    createImageView(depthImageResource.image, findDepthFormat(renderEngine),
+                    vk::ImageAspectFlagBits::eDepth, 1, depthImageResource.view,
+                    renderEngine->getDevice());
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "Default ImageResources has been created.";
+}
 
 void RenderTarget::setDefaultResources() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Creating default RenderTarget resources...";
 
     createDefaultRenderPass();
+    createDefaultImageResources();
 }
 
 RenderTarget::RenderTarget(vk::Format swapChainFormat,
+                           vk::Extent2D swapChainExtent,
                            const std::shared_ptr<RenderEngine> renderEngine) {
     this->swapChainFormat = swapChainFormat;
+    this->swapChainExtent = swapChainExtent;
     this->renderEngine = renderEngine;
 }
 
 RenderTarget::~RenderTarget() {
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying ImageResources...";
+    colorImageResource.release(renderEngine->getDevice(),
+                               *renderEngine->getVmaAllocator());
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "ImageResources has been destroyed.";
+
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying RenderPass...";
     renderEngine->getDevice().destroyRenderPass(renderPass);
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "RenderPass has been destroyed.";
@@ -151,8 +195,7 @@ vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine) {
         "Failed to find supported depth attachment format.");
 }
 
-void createImage(const uint32_t width, const uint32_t height,
-                 const uint32_t mipLevels,
+void createImage(const vk::Extent2D imageExtent, const uint32_t mipLevels,
                  const vk::SampleCountFlagBits numSamples,
                  const vk::Format format, const vk::ImageTiling tiling,
                  const vk::ImageUsageFlags usage,
@@ -161,7 +204,7 @@ void createImage(const uint32_t width, const uint32_t height,
                  VmaAllocation &allocation) {
     vk::ImageCreateInfo imageCI;
     imageCI.imageType = vk::ImageType::e2D;
-    imageCI.extent = vk::Extent3D(width, height, 1);
+    imageCI.extent = vk::Extent3D(imageExtent, 1);
     imageCI.mipLevels = mipLevels;
     imageCI.arrayLayers = 1;
     imageCI.format = format;

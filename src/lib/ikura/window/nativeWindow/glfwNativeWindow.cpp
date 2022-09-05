@@ -151,6 +151,7 @@ void GlfwNativeWindow::createSwapChain() {
 
     swapChain = renderEngine->getDevice().createSwapchainKHR(swapChainCI);
     swapChainFormat = format.format;
+    swapChainExtent = extent;
 
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "SwapChain for '" << name << "' has been created.";

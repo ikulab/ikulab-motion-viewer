@@ -101,6 +101,10 @@ const QueueFamilyIndices RenderEngine::getQueueFamilyIndices() const {
     return queueFamilyIndices;
 }
 
+const std::shared_ptr<VmaAllocator> RenderEngine::getVmaAllocator() const {
+    return vmaAllocator;
+}
+
 void RenderEngine::setSampleSurface(vk::SurfaceKHR surface) {
     this->sampleSurface = surface;
 }

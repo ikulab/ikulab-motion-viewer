@@ -18,6 +18,7 @@ class NativeWindow : public Window {
     vk::SurfaceKHR surface;
     vk::SwapchainKHR swapChain;
     vk::Format swapChainFormat;
+    vk::Extent2D swapChainExtent;
 
     std::vector<vk::Image> swapChainImages;
 

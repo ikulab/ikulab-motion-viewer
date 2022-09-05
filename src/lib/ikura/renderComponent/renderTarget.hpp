@@ -13,6 +13,8 @@ class ImageResource {
     vk::Image image;
     vk::ImageView view;
     VmaAllocation allocation;
+
+    void release(vk::Device device, VmaAllocator allocator);
 };
 
 class RenderTarget {
@@ -31,12 +33,13 @@ class RenderTarget {
 
     std::shared_ptr<RenderEngine> renderEngine;
     vk::Format swapChainFormat;
+    vk::Extent2D swapChainExtent;
 
     void createDefaultRenderPass();
     void createDefaultImageResources();
 
   public:
-    RenderTarget(vk::Format swapChainFormat,
+    RenderTarget(vk::Format swapChainFormat, vk::Extent2D swapChainExtent,
                  const std::shared_ptr<RenderEngine> renderEngine);
     ~RenderTarget();
 
