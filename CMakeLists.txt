@@ -9,8 +9,21 @@ add_compile_options(
 	-std=c++17 -fdiagnostics-color=always -g
 )
 
+option(USE_CLANG "set CXX compiler to Clang" TRUE)
+
+if(USE_CLANG)
+	set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+	set(CMAKE_C_COMPILER "/usr/bin/clang")
+	add_compile_options(
+		-Wno-nullability-completeness
+	)
+else()
+	set(CMAKE_CXX_COMPILER gcc)
+	set(CMAKE_C_COMPILER gcc)
+endif()
+
 # TODO: add `option` statement
-if(${BUILD_TYPE} STREQUAL "Release")
+if("${BUILD_TYPE}" STREQUAL "Release")
 	add_compile_options(-DNODEBUG)
 endif()
 
