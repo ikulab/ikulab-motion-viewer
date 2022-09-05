@@ -7,9 +7,22 @@
 
 // Forward declearation of helper functions ----------
 vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine);
+void createImage(
+	const uint32_t width,
+	const uint32_t height,
+	const uint32_t mipLevels,
+	const vk::SampleCountFlagBits numSamples,
+	const vk::Format format,
+	const vk::ImageTiling tiling,
+	const vk::ImageUsageFlags usage,
+	const vk::MemoryPropertyFlags properties,
+	VmaAllocator& allocator,
+	vk::Image& image,
+	VmaAllocation& allocation
+);
 
 namespace ikura {
-	void RenderTarget::setDefaultResources() {
+	void RenderTarget::createDefaultRenderPass() {
 		VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Default RenderPass...";
 
 		// Attachment Descriptions ----------
@@ -82,7 +95,7 @@ namespace ikura {
 		);
 
 		// RenderPass ----------
-		std::array<vk::AttachmentDescription, 3> attachments = {
+		std::array<vk::AttachmentDescription, 3> attachments ={
 			colorAttachment, depthAttachment, colorAttachmentResolve
 		};
 		vk::RenderPassCreateInfo renderPassCI{};
@@ -95,6 +108,16 @@ namespace ikura {
 
 		renderPass = renderEngine->getDevice().createRenderPass(renderPassCI);
 		VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Default RenderPass has been created.";
+	}
+
+	void RenderTarget::createDefaultImageResources() {
+
+	}
+
+	void RenderTarget::setDefaultResources() {
+		VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating default RenderTarget resources...";
+
+		createDefaultRenderPass();
 	}
 
 	RenderTarget::RenderTarget(vk::Format swapChainFormat, const std::shared_ptr<RenderEngine> renderEngine) {
@@ -136,4 +159,59 @@ vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine) {
 	}
 
 	throw std::runtime_error("Failed to find supported depth attachment format.");
+}
+
+void createImage(
+	const uint32_t width,
+	const uint32_t height,
+	const uint32_t mipLevels,
+	const vk::SampleCountFlagBits numSamples,
+	const vk::Format format,
+	const vk::ImageTiling tiling,
+	const vk::ImageUsageFlags usage,
+	const vk::MemoryPropertyFlags properties,
+	VmaAllocator& allocator,
+	vk::Image& image,
+	VmaAllocation& allocation
+) {
+	vk::ImageCreateInfo imageCI;
+	imageCI.imageType = vk::ImageType::e2D;
+	imageCI.extent = vk::Extent3D(width, height, 1);
+	imageCI.mipLevels = mipLevels;
+	imageCI.arrayLayers = 1;
+	imageCI.format = format;
+	imageCI.tiling = tiling;
+	imageCI.initialLayout = vk::ImageLayout::eUndefined;
+	imageCI.usage = usage;
+	imageCI.samples = numSamples;
+	imageCI.sharingMode = vk::SharingMode::eExclusive;
+
+	VmaAllocationCreateInfo allocCI;
+	allocCI.usage = VMA_MEMORY_USAGE_AUTO;
+
+	auto vkImageCI = (VkImageCreateInfo)imageCI;
+	auto vkImage = (VkImage)image;
+	vmaCreateImage(allocator, &vkImageCI, &allocCI, &vkImage, &allocation, nullptr);
+}
+
+void createImageView(
+	const vk::Image image,
+	const vk::Format format,
+	const vk::ImageAspectFlags aspectFlags,
+	const uint32_t mipLevels,
+	vk::ImageView& imageView,
+	const vk::Device device
+) {
+	vk::ImageViewCreateInfo viewCI;
+	viewCI.image = image;
+	viewCI.viewType = vk::ImageViewType::e2D;
+	viewCI.format = format;
+
+	viewCI.subresourceRange.aspectMask = aspectFlags;
+	viewCI.subresourceRange.baseMipLevel = 0;
+	viewCI.subresourceRange.levelCount = mipLevels;
+	viewCI.subresourceRange.baseArrayLayer = 0;
+	viewCI.subresourceRange.layerCount = 1;
+
+	imageView = device.createImageView(viewCI, nullptr);
 }
