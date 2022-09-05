@@ -5,9 +5,23 @@ project(
 	LANGUAGES CXX
 )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 add_compile_options(
 	-std=c++17 -fdiagnostics-color=always -g
 )
+
+option(USE_CLANG "set CXX compiler to Clang" TRUE)
+
+if(USE_CLANG)
+	set(CMAKE_CXX_COMPILER clang++)
+	set(CMAKE_C_COMPILER clang)
+	add_compile_options(
+		-Wno-nullability-completeness
+	)
+else()
+	set(CMAKE_CXX_COMPILER gcc)
+	set(CMAKE_C_COMPILER gcc)
+endif()
 
 if("${BUILD_TYPE}" STREQUAL "Release")
 	add_compile_options(-DNODEBUG)
