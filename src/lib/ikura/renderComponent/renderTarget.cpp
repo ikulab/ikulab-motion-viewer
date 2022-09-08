@@ -5,24 +5,34 @@
 #include <easylogging++.h>
 #include <vulkan/vulkan.hpp>
 
+#include "../window/nativeWindow/nativeWindow.hpp"
+
 // Forward declearation of helper functions ----------
 vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine);
-void createImage(const vk::Extent2D imageExtent, const uint32_t mipLevels,
+void createImage(ikura::ImageResource &imageResource,
+                 const vk::Extent2D imageExtent, const uint32_t mipLevels,
                  const vk::SampleCountFlagBits numSamples,
                  const vk::Format format, const vk::ImageTiling tiling,
                  const vk::ImageUsageFlags usage,
                  const vk::MemoryPropertyFlags properties,
-                 VmaAllocator& allocator, vk::Image &image,
-                 VmaAllocation& allocation);
-void createImageView(const vk::Image image, const vk::Format format,
+                 VmaAllocator &allocator);
+void createImageView(ikura::ImageResource &imageResource,
+                     const vk::Format format,
                      const vk::ImageAspectFlags aspectFlags,
-                     const uint32_t mipLevels, vk::ImageView &imageView,
-                     const vk::Device device);
+                     const uint32_t mipLevels, const vk::Device device);
 
 namespace ikura {
 void ImageResource::release(vk::Device device, VmaAllocator allocator) {
-    device.destroyImageView(view);
-    vmaDestroyImage(allocator, image, allocation);
+    if (releaseImageView) {
+        device.destroyImageView(view);
+    }
+    if (releaseImage) {
+        if (allocation.has_value()) {
+            vmaDestroyImage(allocator, image, allocation.value());
+        } else {
+            device.destroyImage(image, nullptr);
+        }
+    }
 }
 
 void RenderTarget::createDefaultRenderPass() {
@@ -30,7 +40,7 @@ void RenderTarget::createDefaultRenderPass() {
 
     // Attachment Descriptions ----------
     vk::AttachmentDescription colorAttachment{};
-    colorAttachment.format = swapChainFormat;
+    colorAttachment.format = nativeWindow.lock()->getSwapChainFormat();
     colorAttachment.samples =
         renderEngine->getEngineInfo().limit.maxMsaaSamples;
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
@@ -53,7 +63,7 @@ void RenderTarget::createDefaultRenderPass() {
         vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
     vk::AttachmentDescription colorAttachmentResolve{};
-    colorAttachmentResolve.format = swapChainFormat;
+    colorAttachmentResolve.format = nativeWindow.lock()->getSwapChainFormat();
     colorAttachmentResolve.samples = vk::SampleCountFlagBits::e1;
     colorAttachmentResolve.loadOp = vk::AttachmentLoadOp::eDontCare;
     colorAttachmentResolve.storeOp = vk::AttachmentStoreOp::eStore;
@@ -111,28 +121,27 @@ void RenderTarget::createDefaultRenderPass() {
 
 void RenderTarget::createDefaultImageResources() {
     // Color Image
-    createImage(swapChainExtent, 1,
-                renderEngine->getEngineInfo().limit.maxMsaaSamples,
-                swapChainFormat, vk::ImageTiling::eOptimal,
+    createImage(colorImageResource, nativeWindow.lock()->getSwapChainExtent(),
+                1, renderEngine->getEngineInfo().limit.maxMsaaSamples,
+                nativeWindow.lock()->getSwapChainFormat(),
+                vk::ImageTiling::eOptimal,
                 vk::ImageUsageFlagBits::eTransientAttachment |
                     vk::ImageUsageFlagBits::eColorAttachment,
                 vk::MemoryPropertyFlagBits::eDeviceLocal,
-                *renderEngine->getVmaAllocator(), colorImageResource.image,
-                colorImageResource.allocation);
-    createImageView(colorImageResource.image, swapChainFormat,
-                    vk::ImageAspectFlagBits::eColor, 1, colorImageResource.view,
-                    renderEngine->getDevice());
+                *renderEngine->getVmaAllocator());
+    createImageView(
+        colorImageResource, nativeWindow.lock()->getSwapChainFormat(),
+        vk::ImageAspectFlagBits::eColor, 1, renderEngine->getDevice());
 
     // Depth Image
-    createImage(swapChainExtent, 1,
-                renderEngine->getEngineInfo().limit.maxMsaaSamples,
+    createImage(depthImageResource, nativeWindow.lock()->getSwapChainExtent(),
+                1, renderEngine->getEngineInfo().limit.maxMsaaSamples,
                 findDepthFormat(renderEngine), vk::ImageTiling::eOptimal,
                 vk::ImageUsageFlagBits::eDepthStencilAttachment,
                 vk::MemoryPropertyFlagBits::eDeviceLocal,
-                *renderEngine->getVmaAllocator(), depthImageResource.image,
-                depthImageResource.allocation);
-    createImageView(depthImageResource.image, findDepthFormat(renderEngine),
-                    vk::ImageAspectFlagBits::eDepth, 1, depthImageResource.view,
+                *renderEngine->getVmaAllocator());
+    createImageView(depthImageResource, findDepthFormat(renderEngine),
+                    vk::ImageAspectFlagBits::eDepth, 1,
                     renderEngine->getDevice());
 
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
@@ -147,12 +156,28 @@ void RenderTarget::setDefaultResources() {
     createDefaultImageResources();
 }
 
-RenderTarget::RenderTarget(vk::Format swapChainFormat,
-                           vk::Extent2D swapChainExtent,
+void RenderTarget::initRenderImageResourcesFromNativeWindow() {
+    renderImageResources.resize(
+        nativeWindow.lock()->getSwapChainImages().size());
+    auto format = nativeWindow.lock()->getSwapChainFormat();
+
+    int i = 0;
+    for (const auto &scImg : nativeWindow.lock()->getSwapChainImages()) {
+        renderImageResources[i].image = scImg;
+        createImageView(renderImageResources[i], format,
+                        vk::ImageAspectFlagBits::eColor, 1,
+                        renderEngine->getDevice());
+        renderImageResources[i].releaseImage = false;
+        i++;
+    }
+}
+
+RenderTarget::RenderTarget(const std::shared_ptr<NativeWindow> nativeWindow,
                            const std::shared_ptr<RenderEngine> renderEngine) {
-    this->swapChainFormat = swapChainFormat;
-    this->swapChainExtent = swapChainExtent;
+    this->nativeWindow = nativeWindow;
     this->renderEngine = renderEngine;
+
+    initRenderImageResourcesFromNativeWindow();
 }
 
 RenderTarget::~RenderTarget() {
@@ -161,6 +186,11 @@ RenderTarget::~RenderTarget() {
                                *renderEngine->getVmaAllocator());
     depthImageResource.release(renderEngine->getDevice(),
                                *renderEngine->getVmaAllocator());
+    std::for_each(renderImageResources.begin(), renderImageResources.end(),
+                  [&](ImageResource &ir) {
+                      ir.release(renderEngine->getDevice(),
+                                 nullptr);
+                  });
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "ImageResources has been destroyed.";
 
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying RenderPass...";
@@ -197,13 +227,13 @@ vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine) {
         "Failed to find supported depth attachment format.");
 }
 
-void createImage(const vk::Extent2D imageExtent, const uint32_t mipLevels,
+void createImage(ikura::ImageResource &imageResource,
+                 const vk::Extent2D imageExtent, const uint32_t mipLevels,
                  const vk::SampleCountFlagBits numSamples,
                  const vk::Format format, const vk::ImageTiling tiling,
                  const vk::ImageUsageFlags usage,
                  const vk::MemoryPropertyFlags properties,
-                 VmaAllocator& allocator, vk::Image &image,
-                 VmaAllocation& allocation) {
+                 VmaAllocator &allocator) {
     vk::ImageCreateInfo imageCI;
     imageCI.imageType = vk::ImageType::e2D;
     imageCI.extent = vk::Extent3D(imageExtent, 1);
@@ -223,19 +253,21 @@ void createImage(const vk::Extent2D imageExtent, const uint32_t mipLevels,
 
     auto vkImageCI = (VkImageCreateInfo)imageCI;
     VkImage vkImage;
+    VmaAllocation allocation;
 
     vmaCreateImage(allocator, &vkImageCI, &allocCI, &vkImage, &allocation,
                    nullptr);
 
-    image = vkImage;
+    imageResource.image = vkImage;
+    imageResource.allocation = allocation;
 }
 
-void createImageView(const vk::Image image, const vk::Format format,
+void createImageView(ikura::ImageResource &imageResource,
+                     const vk::Format format,
                      const vk::ImageAspectFlags aspectFlags,
-                     const uint32_t mipLevels, vk::ImageView &imageView,
-                     const vk::Device device) {
+                     const uint32_t mipLevels, const vk::Device device) {
     vk::ImageViewCreateInfo viewCI;
-    viewCI.image = image;
+    viewCI.image = imageResource.image;
     viewCI.viewType = vk::ImageViewType::e2D;
     viewCI.format = format;
 
@@ -245,5 +277,5 @@ void createImageView(const vk::Image image, const vk::Format format,
     viewCI.subresourceRange.baseArrayLayer = 0;
     viewCI.subresourceRange.layerCount = 1;
 
-    imageView = device.createImageView(viewCI, nullptr);
+    imageResource.view = device.createImageView(viewCI, nullptr);
 }

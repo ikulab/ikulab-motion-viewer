@@ -19,8 +19,23 @@ NativeWindow::~NativeWindow() {
 }
 
 void NativeWindow::addDefaultRenderTarget() {
-    auto target = std::make_unique<RenderTarget>(swapChainFormat, swapChainExtent, renderEngine);
+    auto target =
+        std::make_unique<RenderTarget>(shared_from_this(), renderEngine);
     target->setDefaultResources();
     renderTargets.push_back(std::move(target));
+}
+
+const vk::SwapchainKHR NativeWindow::getSwapChain() const { return swapChain; }
+
+const vk::Format NativeWindow::getSwapChainFormat() const {
+    return swapChainFormat;
+}
+
+const vk::Extent2D NativeWindow::getSwapChainExtent() const {
+    return swapChainExtent;
+}
+
+const std::vector<vk::Image> NativeWindow::getSwapChainImages() const {
+    return swapChainImages;
 }
 } // namespace ikura

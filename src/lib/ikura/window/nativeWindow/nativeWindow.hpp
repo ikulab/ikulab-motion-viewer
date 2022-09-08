@@ -10,7 +10,7 @@
 #include "../windowInputContext.hpp"
 
 namespace ikura {
-class NativeWindow : public Window {
+class NativeWindow : public Window, public std::enable_shared_from_this<NativeWindow> {
   protected:
     std::shared_ptr<RenderEngine> renderEngine;
 
@@ -27,5 +27,10 @@ class NativeWindow : public Window {
   public:
     virtual ~NativeWindow();
     void addDefaultRenderTarget() override;
+
+    const vk::SwapchainKHR getSwapChain() const;
+    const vk::Format getSwapChainFormat() const;
+    const vk::Extent2D getSwapChainExtent() const;
+    const std::vector<vk::Image> getSwapChainImages() const;
 };
 } // namespace ikura
