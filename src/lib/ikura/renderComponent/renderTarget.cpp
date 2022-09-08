@@ -12,8 +12,8 @@ void createImage(const vk::Extent2D imageExtent, const uint32_t mipLevels,
                  const vk::Format format, const vk::ImageTiling tiling,
                  const vk::ImageUsageFlags usage,
                  const vk::MemoryPropertyFlags properties,
-                 VmaAllocator &allocator, vk::Image &image,
-                 VmaAllocation &allocation);
+                 VmaAllocator& allocator, vk::Image &image,
+                 VmaAllocation& allocation);
 void createImageView(const vk::Image image, const vk::Format format,
                      const vk::ImageAspectFlags aspectFlags,
                      const uint32_t mipLevels, vk::ImageView &imageView,
@@ -159,6 +159,8 @@ RenderTarget::~RenderTarget() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying ImageResources...";
     colorImageResource.release(renderEngine->getDevice(),
                                *renderEngine->getVmaAllocator());
+    depthImageResource.release(renderEngine->getDevice(),
+                               *renderEngine->getVmaAllocator());
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "ImageResources has been destroyed.";
 
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying RenderPass...";
@@ -200,8 +202,8 @@ void createImage(const vk::Extent2D imageExtent, const uint32_t mipLevels,
                  const vk::Format format, const vk::ImageTiling tiling,
                  const vk::ImageUsageFlags usage,
                  const vk::MemoryPropertyFlags properties,
-                 VmaAllocator &allocator, vk::Image &image,
-                 VmaAllocation &allocation) {
+                 VmaAllocator& allocator, vk::Image &image,
+                 VmaAllocation& allocation) {
     vk::ImageCreateInfo imageCI;
     imageCI.imageType = vk::ImageType::e2D;
     imageCI.extent = vk::Extent3D(imageExtent, 1);
@@ -214,13 +216,18 @@ void createImage(const vk::Extent2D imageExtent, const uint32_t mipLevels,
     imageCI.samples = numSamples;
     imageCI.sharingMode = vk::SharingMode::eExclusive;
 
-    VmaAllocationCreateInfo allocCI;
+    VmaAllocationCreateInfo allocCI{};
     allocCI.usage = VMA_MEMORY_USAGE_AUTO;
+    allocCI.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+    allocCI.priority = 1.0f;
 
     auto vkImageCI = (VkImageCreateInfo)imageCI;
-    auto vkImage = (VkImage)image;
+    VkImage vkImage;
+
     vmaCreateImage(allocator, &vkImageCI, &allocCI, &vkImage, &allocation,
                    nullptr);
+
+    image = vkImage;
 }
 
 void createImageView(const vk::Image image, const vk::Format format,
