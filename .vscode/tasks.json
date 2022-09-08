@@ -9,8 +9,8 @@
 				"-S", ".", "-B", "build",
 				"-D", "BUILD_TYPE=${input:select_debug_or_release}",
 				"-G", "Ninja",
-				"-DCMAKE_EXPORT_COMPILE_COMMANDS=YES"
-			],
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=YES",
+			]
 		},
 		{
 			"label": "build_app",
