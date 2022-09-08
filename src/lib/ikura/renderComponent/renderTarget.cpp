@@ -120,6 +120,7 @@ void RenderTarget::createDefaultRenderPass() {
 }
 
 void RenderTarget::createDefaultImageResources() {
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating default ImageResources...";
     // Color Image
     createImage(colorImageResource, nativeWindow.lock()->getSwapChainExtent(),
                 1, renderEngine->getEngineInfo().limit.maxMsaaSamples,
@@ -148,12 +149,55 @@ void RenderTarget::createDefaultImageResources() {
         << "Default ImageResources has been created.";
 }
 
+void RenderTarget::createDefaultFrameBuffers() {
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating default FrameBuffers...";
+
+    int numOfFrameBuffer = nativeWindow.lock()->getSwapChainImages().size();
+    frameBuffers.resize(numOfFrameBuffer);
+
+    auto extent = nativeWindow.lock()->getSwapChainExtent();
+
+    for (int i = 0; i < numOfFrameBuffer; i++) {
+        std::array<vk::ImageView, 3> attachments = {
+            colorImageResource.view, depthImageResource.view,
+            renderImageResources[i].view};
+
+        vk::FramebufferCreateInfo frameBufferCI{};
+        frameBufferCI.renderPass = renderPass;
+        frameBufferCI.attachmentCount =
+            static_cast<uint32_t>(attachments.size());
+        frameBufferCI.pAttachments = attachments.data();
+        frameBufferCI.width = extent.width;
+        frameBufferCI.height = extent.height;
+        frameBufferCI.layers = 1;
+
+        vk::Result result = renderEngine->getDevice().createFramebuffer(
+            &frameBufferCI, nullptr, &frameBuffers[i]);
+        switch (result) {
+        case vk::Result::eErrorOutOfHostMemory:
+            throw std::runtime_error(
+                "Failed to create frameBuffer: Out Of Host Memory.");
+            break;
+        case vk::Result::eErrorOutOfDeviceMemory:
+            throw std::runtime_error(
+                "Failed to create frameBuffer: Out Of Dev;ice Memory.");
+            break;
+        default:
+            break;
+        }
+    }
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "Default FrameBuffers has been created.";
+}
+
 void RenderTarget::setDefaultResources() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Creating default RenderTarget resources...";
 
     createDefaultRenderPass();
     createDefaultImageResources();
+    createDefaultFrameBuffers();
 }
 
 void RenderTarget::initRenderImageResourcesFromNativeWindow() {
@@ -181,6 +225,13 @@ RenderTarget::RenderTarget(const std::shared_ptr<NativeWindow> nativeWindow,
 }
 
 RenderTarget::~RenderTarget() {
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying default FrameBuffers...";
+    for (const auto &fBuffer : frameBuffers) {
+        renderEngine->getDevice().destroyFramebuffer(fBuffer, nullptr);
+    }
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "Default FrameBuffers has been destroyed.";
+
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying ImageResources...";
     colorImageResource.release(renderEngine->getDevice(),
                                *renderEngine->getVmaAllocator());
@@ -188,8 +239,7 @@ RenderTarget::~RenderTarget() {
                                *renderEngine->getVmaAllocator());
     std::for_each(renderImageResources.begin(), renderImageResources.end(),
                   [&](ImageResource &ir) {
-                      ir.release(renderEngine->getDevice(),
-                                 nullptr);
+                      ir.release(renderEngine->getDevice(), nullptr);
                   });
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "ImageResources has been destroyed.";
 

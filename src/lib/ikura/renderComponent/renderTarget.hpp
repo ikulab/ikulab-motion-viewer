@@ -33,7 +33,7 @@ class RenderTarget {
     std::vector<vk::PipelineLayout> graphicsPipelineLayouts;
     std::vector<vk::Pipeline> graphicsPipelines;
     vk::RenderPass renderPass;
-    vk::Framebuffer frameBuffer;
+    std::vector<vk::Framebuffer> frameBuffers;
 
     // ImageResource ----------
     ImageResource colorImageResource;
@@ -48,6 +48,7 @@ class RenderTarget {
     // Creation of default resources ----------
     void createDefaultRenderPass();
     void createDefaultImageResources();
+    void createDefaultFrameBuffers();
 
     // Init of default resources ----------
     void initRenderImageResourcesFromNativeWindow();
