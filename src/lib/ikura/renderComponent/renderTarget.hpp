@@ -30,8 +30,8 @@ class RenderTarget {
 
     // Basic objects for render ----------
     vk::CommandBuffer commandBuffer;
-    std::vector<vk::PipelineLayout> graphicsPipelineLayouts;
-    std::vector<vk::Pipeline> graphicsPipelines;
+    vk::PipelineLayout graphicsPipelineLayout;
+    vk::Pipeline graphicsPipeline;
     vk::RenderPass renderPass;
     std::vector<vk::Framebuffer> frameBuffers;
 
@@ -42,13 +42,14 @@ class RenderTarget {
 
     // Descriptor ----------
     vk::DescriptorSetLayout descriptorSetLayout;
-    vk::DescriptorPool descriptorPool;
 
     // Methods ==========
     // Creation of default resources ----------
     void createDefaultRenderPass();
     void createDefaultImageResources();
     void createDefaultFrameBuffers();
+    void createDefaultDescriptorSetLayout();
+    void createDefaultGraphicsPipeline();
 
     // Init of default resources ----------
     void initRenderImageResourcesFromNativeWindow();

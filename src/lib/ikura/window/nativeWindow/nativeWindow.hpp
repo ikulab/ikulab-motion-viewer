@@ -12,8 +12,6 @@
 namespace ikura {
 class NativeWindow : public Window, public std::enable_shared_from_this<NativeWindow> {
   protected:
-    std::shared_ptr<RenderEngine> renderEngine;
-
     WindowInputContext inputCtx;
     vk::SurfaceKHR surface;
     vk::SwapchainKHR swapChain;
@@ -27,6 +25,7 @@ class NativeWindow : public Window, public std::enable_shared_from_this<NativeWi
   public:
     virtual ~NativeWindow();
     void addDefaultRenderTarget() override;
+    void addDefaultRenderContent() override;
 
     const vk::SwapchainKHR getSwapChain() const;
     const vk::Format getSwapChainFormat() const;

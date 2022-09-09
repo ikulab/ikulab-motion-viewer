@@ -20,6 +20,8 @@ void createImageView(ikura::ImageResource &imageResource,
                      const vk::Format format,
                      const vk::ImageAspectFlags aspectFlags,
                      const uint32_t mipLevels, const vk::Device device);
+vk::ShaderModule createShaderModuleFromFile(const std::string fileName,
+                                            const vk::Device device);
 
 namespace ikura {
 void ImageResource::release(vk::Device device, VmaAllocator allocator) {
@@ -191,6 +193,176 @@ void RenderTarget::createDefaultFrameBuffers() {
         << "Default FrameBuffers has been created.";
 }
 
+void RenderTarget::createDefaultGraphicsPipeline() {
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating default GraphicsPipeline...";
+
+    auto extent = nativeWindow.lock()->getSwapChainExtent();
+
+    // ShaderModules ----------
+    auto vertShaderModule = createShaderModuleFromFile(
+        "shaders/bin/triangle.vert.spv", renderEngine->getDevice());
+    auto fragShaderModule = createShaderModuleFromFile(
+        "shaders/bin/triangle.frag.spv", renderEngine->getDevice());
+
+    vk::PipelineShaderStageCreateInfo vertShaderStageCI{};
+    vertShaderStageCI.stage = vk::ShaderStageFlagBits::eVertex;
+    vertShaderStageCI.module = vertShaderModule;
+    vertShaderStageCI.pName = "main";
+
+    vk::PipelineShaderStageCreateInfo fragShaderStageCI{};
+    fragShaderStageCI.stage = vk::ShaderStageFlagBits::eFragment;
+    fragShaderStageCI.module = fragShaderModule;
+    fragShaderStageCI.pName = "main";
+
+    std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStages = {
+        vertShaderStageCI, fragShaderStageCI};
+
+    auto bindingDescription = Vertex::getBindingDescription();
+    auto attributeDescriptions = Vertex::getAttributeDescriptions();
+
+    // Pipeline input states ----------
+    vk::PipelineVertexInputStateCreateInfo vertInputStateCI{};
+    vertInputStateCI.vertexBindingDescriptionCount = 1;
+    vertInputStateCI.pVertexBindingDescriptions = &bindingDescription;
+    vertInputStateCI.vertexAttributeDescriptionCount =
+        static_cast<uint32_t>(attributeDescriptions.size());
+    vertInputStateCI.pVertexAttributeDescriptions =
+        attributeDescriptions.data();
+
+    vk::PipelineInputAssemblyStateCreateInfo inputAssemblyCI{};
+    inputAssemblyCI.topology = vk::PrimitiveTopology::eTriangleList;
+    inputAssemblyCI.primitiveRestartEnable = VK_FALSE;
+
+    // Viewport state ----------
+    vk::Viewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)extent.width;
+    viewport.height = (float)extent.height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    vk::Rect2D scissor{};
+    scissor.offset.x = 0;
+    scissor.offset.y = 0;
+    scissor.extent = extent;
+
+    vk::PipelineViewportStateCreateInfo viewportStateCI{};
+    viewportStateCI.viewportCount = 1;
+    viewportStateCI.pViewports = &viewport;
+    viewportStateCI.scissorCount = 1;
+    viewportStateCI.pScissors = &scissor;
+
+    // Other states (render configrations) ----------
+    vk::PipelineRasterizationStateCreateInfo rasterizerCI{};
+    rasterizerCI.depthClampEnable = VK_FALSE;
+    rasterizerCI.rasterizerDiscardEnable = VK_FALSE;
+    rasterizerCI.polygonMode = vk::PolygonMode::eFill;
+    rasterizerCI.lineWidth = 1.0f;
+    rasterizerCI.cullMode = vk::CullModeFlagBits::eBack;
+    rasterizerCI.frontFace = vk::FrontFace::eCounterClockwise;
+    rasterizerCI.depthBiasEnable = VK_FALSE;
+
+    vk::PipelineMultisampleStateCreateInfo multisamplingCI{};
+    // TODO: Enable MSAA
+    multisamplingCI.sampleShadingEnable = VK_FALSE;
+    multisamplingCI.rasterizationSamples =
+        renderEngine->getEngineInfo().limit.maxMsaaSamples;
+    multisamplingCI.minSampleShading = 1.0f;
+    multisamplingCI.pSampleMask = nullptr;
+
+    vk::PipelineDepthStencilStateCreateInfo depthStencil{};
+    depthStencil.depthTestEnable = VK_TRUE;
+    depthStencil.depthWriteEnable = VK_TRUE;
+    depthStencil.depthCompareOp = vk::CompareOp::eLess;
+
+    std::vector<vk::DynamicState> dynamicStates = {
+        vk::DynamicState::eViewport, vk::DynamicState::eLineWidth};
+    vk::PipelineDynamicStateCreateInfo dynamicStateCI{};
+    dynamicStateCI.dynamicStateCount =
+        static_cast<uint32_t>(dynamicStates.size());
+    dynamicStateCI.pDynamicStates = dynamicStates.data();
+
+    // Color blend ----------
+    vk::PipelineColorBlendAttachmentState colorBlendAttachmentState{};
+    colorBlendAttachmentState.colorWriteMask =
+        vk::ColorComponentFlagBits::eA | vk::ColorComponentFlagBits::eR |
+        vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB;
+    colorBlendAttachmentState.blendEnable = VK_FALSE;
+    colorBlendAttachmentState.srcColorBlendFactor = vk::BlendFactor::eOne;
+    colorBlendAttachmentState.dstColorBlendFactor = vk::BlendFactor::eZero;
+    colorBlendAttachmentState.colorBlendOp = vk::BlendOp::eAdd;
+    colorBlendAttachmentState.srcAlphaBlendFactor = vk::BlendFactor::eOne;
+    colorBlendAttachmentState.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    colorBlendAttachmentState.alphaBlendOp = vk::BlendOp::eAdd;
+
+    vk::PipelineColorBlendStateCreateInfo colorBlendStateCI{};
+    colorBlendStateCI.logicOpEnable = VK_FALSE;
+    colorBlendStateCI.logicOp = vk::LogicOp::eCopy;
+    colorBlendStateCI.attachmentCount = 1;
+    colorBlendStateCI.pAttachments = &colorBlendAttachmentState;
+    colorBlendStateCI.blendConstants[0] = 0.0f;
+    colorBlendStateCI.blendConstants[1] = 0.0f;
+    colorBlendStateCI.blendConstants[2] = 0.0f;
+    colorBlendStateCI.blendConstants[3] = 0.0f;
+
+    // Pipeline layout ----------
+    vk::PipelineLayoutCreateInfo pipelineLayoutCI{};
+    pipelineLayoutCI.setLayoutCount = 1;
+    pipelineLayoutCI.pSetLayouts = &descriptorSetLayout;
+    pipelineLayoutCI.pushConstantRangeCount = 0;
+    pipelineLayoutCI.pPushConstantRanges = nullptr;
+
+    graphicsPipelineLayout =
+        renderEngine->getDevice().createPipelineLayout(pipelineLayoutCI);
+
+    // GraphicsPipeline ----------
+    vk::GraphicsPipelineCreateInfo graphicsPipelineCI{};
+    graphicsPipelineCI.stageCount = 2;
+    graphicsPipelineCI.pStages = shaderStages.data();
+
+    graphicsPipelineCI.pVertexInputState = &vertInputStateCI;
+    graphicsPipelineCI.pInputAssemblyState = &inputAssemblyCI;
+    graphicsPipelineCI.pViewportState = &viewportStateCI;
+    graphicsPipelineCI.pRasterizationState = &rasterizerCI;
+    graphicsPipelineCI.pMultisampleState = &multisamplingCI;
+    graphicsPipelineCI.pDepthStencilState = nullptr;
+    graphicsPipelineCI.pColorBlendState = &colorBlendStateCI;
+    graphicsPipelineCI.pDynamicState = nullptr;
+    graphicsPipelineCI.pDepthStencilState = &depthStencil;
+
+    graphicsPipelineCI.layout = graphicsPipelineLayout;
+    graphicsPipelineCI.renderPass = renderPass;
+    graphicsPipelineCI.subpass = 0;
+    graphicsPipelineCI.basePipelineHandle = VK_NULL_HANDLE;
+    graphicsPipelineCI.basePipelineIndex = -1;
+
+    auto result = renderEngine->getDevice().createGraphicsPipeline(
+        VK_NULL_HANDLE, graphicsPipelineCI);
+    switch (result.result) {
+    case vk::Result::eErrorOutOfHostMemory:
+        throw std::runtime_error(
+            "Failed to create GraphicsPipeline: Out Of Host Memory.");
+        break;
+    case vk::Result::eErrorOutOfDeviceMemory:
+        throw std::runtime_error(
+            "Failed to create GraphicsPipeline: Out Of Device Memory.");
+        break;
+    case vk::Result::eSuccess:
+        break;
+    default:
+        throw std::runtime_error("Failed to create GraphicsPipeline.");
+        break;
+    }
+    graphicsPipeline = result.value;
+
+    renderEngine->getDevice().destroyShaderModule(vertShaderModule, nullptr);
+    renderEngine->getDevice().destroyShaderModule(fragShaderModule, nullptr);
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "Default GraphicsPipeline has been created.";
+}
+
 void RenderTarget::setDefaultResources() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Creating default RenderTarget resources...";
@@ -198,6 +370,8 @@ void RenderTarget::setDefaultResources() {
     createDefaultRenderPass();
     createDefaultImageResources();
     createDefaultFrameBuffers();
+    createDefaultDescriptorSetLayout();
+    createDefaultGraphicsPipeline();
 }
 
 void RenderTarget::initRenderImageResourcesFromNativeWindow() {
@@ -225,6 +399,16 @@ RenderTarget::RenderTarget(const std::shared_ptr<NativeWindow> nativeWindow,
 }
 
 RenderTarget::~RenderTarget() {
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying default GraphicsPipelne...";
+    renderEngine->getDevice().destroyPipeline(graphicsPipeline);
+    renderEngine->getDevice().destroyPipelineLayout(graphicsPipelineLayout);
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "Default GraphicsPipeline has been destroyed.";
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying default DescriptorSetLayout...";
+    renderEngine->getDevice().destroyDescriptorSetLayout(descriptorSetLayout);
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Default DescriptorSetLayout has been Destroyed.";
+
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying default FrameBuffers...";
     for (const auto &fBuffer : frameBuffers) {
         renderEngine->getDevice().destroyFramebuffer(fBuffer, nullptr);
@@ -328,4 +512,32 @@ void createImageView(ikura::ImageResource &imageResource,
     viewCI.subresourceRange.layerCount = 1;
 
     imageResource.view = device.createImageView(viewCI, nullptr);
+}
+
+vk::ShaderModule createShaderModuleFromFile(const std::string fileName,
+                                            const vk::Device device) {
+    std::ifstream file(fileName, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open()) {
+        std::string msg = "";
+        msg += "failed to open file '";
+        msg += fileName;
+        msg += "'.";
+        throw std::runtime_error(msg);
+    }
+
+    size_t fileSize = (size_t)file.tellg();
+    std::vector<char> buffer(fileSize);
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+    file.close();
+
+    vk::ShaderModuleCreateInfo shaderModuleCI{};
+    shaderModuleCI.codeSize = buffer.size();
+    shaderModuleCI.pCode = reinterpret_cast<const uint32_t *>(buffer.data());
+
+    vk::ShaderModule shaderModule =
+        device.createShaderModule(shaderModuleCI, nullptr);
+
+    return shaderModule;
 }

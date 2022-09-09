@@ -4,7 +4,12 @@
 
 #include <glm/glm.hpp>
 
+#include "../engine/renderEngine/renderEngine.hpp"
+
 namespace ikura {
+// Forward declearation ----------
+class NativeWindow;
+
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 color;
@@ -47,11 +52,25 @@ struct Vertex {
 };
 
 class RenderContent {
+    std::shared_ptr<RenderEngine> renderEngine;
+    std::weak_ptr<NativeWindow> nativeWindow;
+
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     vk::Buffer vertexBuffer;
     vk::Buffer indexBuffer;
     vk::Buffer uniformBuffer;
+
+    vk::DescriptorPool descriptorPool;
     vk::DescriptorSet descriptorSet;
+
+    void createDefaultDescriptorSets();
+
+  public:
+    RenderContent(std::shared_ptr<NativeWindow> nativeWindow,
+                  std::shared_ptr<RenderEngine> renderEngine);
+    ~RenderContent();
+
+    void setDefaultResources();
 };
 } // namespace ikura
