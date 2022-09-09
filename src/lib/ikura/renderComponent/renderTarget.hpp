@@ -40,15 +40,11 @@ class RenderTarget {
     ImageResource depthImageResource;
     std::vector<ImageResource> renderImageResources;
 
-    // Descriptor ----------
-    vk::DescriptorSetLayout descriptorSetLayout;
-
     // Methods ==========
     // Creation of default resources ----------
     void createDefaultRenderPass();
     void createDefaultImageResources();
     void createDefaultFrameBuffers();
-    void createDefaultDescriptorSetLayout();
     void createDefaultGraphicsPipeline();
 
     // Init of default resources ----------

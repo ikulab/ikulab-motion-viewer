@@ -307,9 +307,10 @@ void RenderTarget::createDefaultGraphicsPipeline() {
     colorBlendStateCI.blendConstants[3] = 0.0f;
 
     // Pipeline layout ----------
+    auto setLayout = nativeWindow.lock()->getDescriptorSetLayout();
     vk::PipelineLayoutCreateInfo pipelineLayoutCI{};
     pipelineLayoutCI.setLayoutCount = 1;
-    pipelineLayoutCI.pSetLayouts = &descriptorSetLayout;
+    pipelineLayoutCI.pSetLayouts = &setLayout;
     pipelineLayoutCI.pushConstantRangeCount = 0;
     pipelineLayoutCI.pPushConstantRanges = nullptr;
 
@@ -370,7 +371,6 @@ void RenderTarget::setDefaultResources() {
     createDefaultRenderPass();
     createDefaultImageResources();
     createDefaultFrameBuffers();
-    createDefaultDescriptorSetLayout();
     createDefaultGraphicsPipeline();
 }
 
@@ -404,10 +404,6 @@ RenderTarget::~RenderTarget() {
     renderEngine->getDevice().destroyPipelineLayout(graphicsPipelineLayout);
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Default GraphicsPipeline has been destroyed.";
-
-    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying default DescriptorSetLayout...";
-    renderEngine->getDevice().destroyDescriptorSetLayout(descriptorSetLayout);
-    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Default DescriptorSetLayout has been Destroyed.";
 
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying default FrameBuffers...";
     for (const auto &fBuffer : frameBuffers) {

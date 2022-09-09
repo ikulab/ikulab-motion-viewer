@@ -28,7 +28,7 @@ void NativeWindow::addDefaultRenderTarget() {
 void NativeWindow::addDefaultRenderContent() {
     auto content = std::make_unique<RenderContent>(shared_from_this(), renderEngine);
     content->setDefaultResources();
-    renderContents.push_back(content);
+    renderContents.push_back(std::move(content));
 }
 
 const vk::SwapchainKHR NativeWindow::getSwapChain() const { return swapChain; }

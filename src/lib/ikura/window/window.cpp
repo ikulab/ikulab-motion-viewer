@@ -6,7 +6,7 @@
 
 namespace ikura {
 void Window::addDefaultRenderTarget() {}
-void addDefaultRenderContent() {}
+void Window::addDefaultRenderContent() {}
 
 const int Window::getNumOfFrames() const { return numOfFrames; }
 
@@ -30,7 +30,7 @@ void Window::createDefaultDescriptorSetLayout() {
     sceneMatLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
     sceneMatLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
-    std::array<vk::DescriptorSetLayoutBinding, NUM_OF_DESCRIPTOR_SETS>
+    std::array<vk::DescriptorSetLayoutBinding, NUM_OF_DESCRIPTORS>
         layoutBindings = {modelMatLayoutBinding, sceneMatLayoutBinding};
     vk::DescriptorSetLayoutCreateInfo layoutCI{};
     layoutCI.bindingCount = layoutBindings.size();
@@ -44,6 +44,10 @@ void Window::createDefaultDescriptorSetLayout() {
 }
 
 Window::~Window() {
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "Desctoying default DescriptorSetLayout...";
     renderEngine->getDevice().destroyDescriptorSetLayout(descriptorSetLayout);
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "Default DescriptorSetLayout has been destroyed.";
 }
 } // namespace ikura

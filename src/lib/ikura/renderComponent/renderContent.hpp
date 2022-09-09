@@ -6,6 +6,10 @@
 
 #include "../engine/renderEngine/renderEngine.hpp"
 
+const int NUM_OF_JOINT_ID = 256;
+const int NUM_OF_ID_OTHER_THAN_JOINTS = 2;
+const int NUM_OF_ID = NUM_OF_JOINT_ID + NUM_OF_ID_OTHER_THAN_JOINTS;
+
 namespace ikura {
 // Forward declearation ----------
 class NativeWindow;
@@ -51,6 +55,23 @@ struct Vertex {
     }
 };
 
+struct ModelMatUBO {
+    alignas(16) glm::mat4 model[NUM_OF_ID];
+};
+
+struct SceneMatUBO {
+    alignas(16) glm::mat4 view;
+    alignas(16) glm::mat4 proj;
+};
+
+class BufferResource {
+  public:
+    vk::Buffer buffer;
+    VmaAllocation alloc;
+
+    void release(VmaAllocator allocator);
+};
+
 class RenderContent {
     std::shared_ptr<RenderEngine> renderEngine;
     std::weak_ptr<NativeWindow> nativeWindow;
@@ -59,11 +80,14 @@ class RenderContent {
     std::vector<uint32_t> indices;
     vk::Buffer vertexBuffer;
     vk::Buffer indexBuffer;
-    vk::Buffer uniformBuffer;
+    // uniformBuffers[frame][set]
+    std::vector<std::vector<BufferResource>> uniformBufferResources;
 
     vk::DescriptorPool descriptorPool;
-    vk::DescriptorSet descriptorSet;
+    // descriptorSets[frame][set]
+    std::vector<std::vector<vk::DescriptorSet>> descriptorSets;
 
+    void createDefaultUniformBuffers();
     void createDefaultDescriptorSets();
 
   public:
