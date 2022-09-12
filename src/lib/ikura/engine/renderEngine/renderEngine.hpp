@@ -93,6 +93,7 @@ class RenderEngine {
         vk::Queue presentQueue;
     } queues;
     QueueFamilyIndices queueFamilyIndices;
+    vk::CommandPool cmdPool;
 
     // Layer / Extension ----------
     std::vector<const char *> layerNames;
@@ -126,6 +127,10 @@ class RenderEngine {
     void createInstance();
     void createDevice();
     void setupExtensions();
+
+    // Command ----------
+    vk::CommandBuffer beginSingleTimeCommands();
+    void endSingleTimeCommands(vk::CommandBuffer commandBuffer);
 
     // Getter ----------
     const vk::Instance getInstance() const;

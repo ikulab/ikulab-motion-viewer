@@ -117,6 +117,14 @@ void RenderEngine::createDevice() {
     VLOG(VLOG_LV_4_PROCESS_TRACKING_SECONDARY)
         << "VmaAllocator has been created.";
 
+    // Create CommandPool
+    vk::CommandPoolCreateInfo cmdPoolCI{};
+    cmdPoolCI.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+    cmdPoolCI.queueFamilyIndex = queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS);
+
+    cmdPool = device.createCommandPool(cmdPoolCI, nullptr);
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "CommandPool has been created.";
+
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Vulkan Device has been created.";
 }
 

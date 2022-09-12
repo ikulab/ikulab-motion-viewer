@@ -64,6 +64,10 @@ RenderEngine::RenderEngine(RenderEngineInitConfig initConfig) {
 }
 
 RenderEngine::~RenderEngine() {
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying CommandPool...";
+    device.destroyCommandPool(cmdPool);
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "CommandPool has been destroyed.";
+
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying VmaAllocator...";
     vmaDestroyAllocator(*vmaAllocator);
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "VmaAllocator has been Destroyed.";
@@ -83,6 +87,40 @@ RenderEngine::~RenderEngine() {
 
     glfwTerminate();
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Terminated GLFW.";
+}
+
+vk::CommandBuffer RenderEngine::beginSingleTimeCommands() {
+    vk::CommandBufferAllocateInfo allocInfo{};
+    allocInfo.level = vk::CommandBufferLevel::ePrimary;
+    allocInfo.commandPool = cmdPool;
+    allocInfo.commandBufferCount = 1;
+
+    vk::CommandBuffer cmdBuffer;
+    auto result = device.allocateCommandBuffers(&allocInfo, &cmdBuffer);
+    if (result != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to allocate CommandBuffer.");
+    }
+
+    vk::CommandBufferBeginInfo beginInfo{};
+    beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+    result = cmdBuffer.begin(&beginInfo);
+    if (result != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to begin command buffer.");
+    }
+
+    return cmdBuffer;
+}
+
+void RenderEngine::endSingleTimeCommands(vk::CommandBuffer cmdBuffer) {
+    cmdBuffer.end();
+
+    vk::SubmitInfo submitInfo{};
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &cmdBuffer;
+
+    queues.graphicsQueue.submit(submitInfo);
+    queues.graphicsQueue.waitIdle();
+    device.freeCommandBuffers(cmdPool, cmdBuffer);
 }
 
 const vk::Instance RenderEngine::getInstance() const { return instance; }

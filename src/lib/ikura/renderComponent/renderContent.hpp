@@ -79,9 +79,9 @@ class RenderContent {
     std::weak_ptr<NativeWindow> nativeWindow;
 
     std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
-    BufferResource vertexBuffer;
-    BufferResource indexBuffer;
+    std::vector<Index> indices;
+    BufferResource vertexBufferResource;
+    BufferResource indexBufferResource;
     // uniformBuffers[frame][set]
     std::vector<std::vector<BufferResource>> uniformBufferResources;
 
@@ -91,7 +91,7 @@ class RenderContent {
 
     void createDefaultUniformBuffers();
     void createDefaultDescriptorSets();
-    void createDefaultVertexIndexBuffer();
+    void assignDefaultVertexAndIndexArray();
 
   public:
     RenderContent(std::shared_ptr<NativeWindow> nativeWindow,
@@ -99,5 +99,12 @@ class RenderContent {
     ~RenderContent();
 
     void setDefaultResources();
+
+    void setVertices(const std::vector<Vertex>& vertices);
+    void setIndices(const std::vector<Index>& indices);
+
+    void uploadVertexBuffer();
+    void uploadIndexBuffer();
+    void uploadVertexAndIndexBuffer();
 };
 } // namespace ikura
