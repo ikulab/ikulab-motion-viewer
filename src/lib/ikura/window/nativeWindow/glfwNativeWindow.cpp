@@ -195,7 +195,50 @@ void GlfwNativeWindow::draw() {
 }
 
 void GlfwNativeWindow::recordCommandBuffer(uint32_t imageIndex) {
+    vk::CommandBufferBeginInfo beginInfo{};
 
+    renderTarget->getRenderCommandBuffer(currentFrame).begin(beginInfo);
+
+    vk::RenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.renderPass = renderTarget->getRenderPass();
+    renderPassInfo.framebuffer = renderTarget->getFramebuffer(imageIndex);
+    renderPassInfo.renderArea.offset = vk::Offset2D(0, 0);
+    renderPassInfo.renderArea.extent = swapChainExtent;
+
+    std::array<vk::ClearValue, 2> clearValues{};
+    clearValues[0].color =
+        vk::ClearColorValue(std::array<uint32_t, 4>{0, 0, 0, 0});
+    clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
+
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassInfo.pClearValues = clearValues.data();
+
+    renderTarget->getRenderCommandBuffer(currentFrame)
+        .beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+
+    renderTarget->getRenderCommandBuffer(currentFrame)
+        .bindPipeline(vk::PipelineBindPoint::eGraphics,
+                      renderTarget->getGraphicsPipeline());
+
+    VkBuffer vertexBuffers[] = {vertexBuffer};
+    VkDeviceSize offsets[] = {0};
+
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+    vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, 0, NUM_OF_DESCRIPTOR_SETS,
+                            descriptorSets[currentFrame].data(), 0, nullptr);
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0,
+                     0, 0);
+
+    ImDrawData *drawData = ImGui::GetDrawData();
+    ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffers[currentFrame]);
+
+    vkCmdEndRenderPass(commandBuffer);
+
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+        throw std::runtime_error("failed to record command buffer.");
+    }
 }
 } // namespace ikura
 

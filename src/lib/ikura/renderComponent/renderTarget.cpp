@@ -437,6 +437,18 @@ vk::Fence &RenderTarget::getRenderingFence(int index) {
     return renderingFence[index];
 }
 
+const vk::RenderPass &RenderTarget::getRenderPass() const {
+    return renderPass;
+}
+
+const vk::Framebuffer &RenderTarget::getFramebuffer(int imageIndex) const {
+    return frameBuffers[imageIndex];
+}
+
+const vk::Pipeline &RenderTarget::getGraphicsPipeline() const {
+    return graphicsPipeline;
+}
+
 RenderTarget::RenderTarget(const std::shared_ptr<NativeWindow> nativeWindow,
                            const std::shared_ptr<RenderEngine> renderEngine) {
     this->nativeWindow = nativeWindow;
