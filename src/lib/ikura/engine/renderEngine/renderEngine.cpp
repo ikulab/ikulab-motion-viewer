@@ -143,6 +143,10 @@ const std::shared_ptr<VmaAllocator> RenderEngine::getVmaAllocator() const {
     return vmaAllocator;
 }
 
+const vk::CommandPool RenderEngine::getCommandPool() const {
+    return cmdPool;
+}
+
 void RenderEngine::setSampleSurface(vk::SurfaceKHR surface) {
     this->sampleSurface = surface;
 }

@@ -21,4 +21,7 @@ class AppEngine {
     void addWindow(std::shared_ptr<ikura::GlfwNativeWindow> glfwNativeWindow);
     void
     addWindow(std::shared_ptr<ikura::ImGuiVirtualWindow> imGuiVirtualWindow);
+
+    int shouldTerminated();
+    void drawAllWindows();
 };

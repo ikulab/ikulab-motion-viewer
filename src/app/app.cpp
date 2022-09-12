@@ -44,4 +44,8 @@ void App::init() {
         renderEngine, glfwWindow, surface, "main"));
 
     std::cout << "Hello Ikura!!" << std::endl;
+
+    while (!appEngine->shouldTerminated()) {
+        appEngine->drawAllWindows();
+    }
 }

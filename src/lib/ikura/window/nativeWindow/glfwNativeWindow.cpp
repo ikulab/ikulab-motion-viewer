@@ -156,6 +156,47 @@ void GlfwNativeWindow::createSwapChain() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "SwapChain for '" << name << "' has been created.";
 }
+
+int GlfwNativeWindow::windowShouldClose() {
+    return glfwWindowShouldClose(window);
+}
+
+void GlfwNativeWindow::draw() {
+    // Wait for previous frame to complete
+    auto result = renderEngine->getDevice().waitForFences(
+        renderTarget->getRenderingFence(currentFrame), VK_TRUE, UINT64_MAX);
+    if (result != vk::Result::eSuccess) {
+        throw std::runtime_error("Error occurred while waiting fence.");
+    }
+    renderEngine->getDevice().resetFences(
+        renderTarget->getRenderingFence(currentFrame));
+
+    // Acquire swapChain image
+    auto nextImage = renderEngine->getDevice().acquireNextImageKHR(
+        swapChain, UINT64_MAX,
+        renderTarget->getImageAvailableSemaphore(currentFrame), VK_NULL_HANDLE);
+
+    if (nextImage.result == vk::Result::eErrorOutOfDateKHR) {
+        // TODO: Recreate SwapChain
+        return;
+    } else if (nextImage.result != vk::Result::eSuccess &&
+               nextImage.result != vk::Result::eSuboptimalKHR) {
+        throw std::runtime_error("Failed to acquire next SwapChain image.");
+    }
+
+    // Prepare command buffer
+    renderTarget->getRenderCommandBuffer(currentFrame).reset();
+    recordCommandBuffer(nextImage.value);
+
+    // Submit queue
+    // つかれた
+
+    currentFrame = (currentFrame + 1) % numOfFrames;
+}
+
+void GlfwNativeWindow::recordCommandBuffer(uint32_t imageIndex) {
+
+}
 } // namespace ikura
 
 vk::SurfaceFormatKHR

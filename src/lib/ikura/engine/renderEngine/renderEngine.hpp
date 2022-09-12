@@ -139,6 +139,7 @@ class RenderEngine {
     const RenderEngineInfo getEngineInfo() const;
     const QueueFamilyIndices getQueueFamilyIndices() const;
     const std::shared_ptr<VmaAllocator> getVmaAllocator() const;
+    const vk::CommandPool getCommandPool() const;
 
     // Setter ----------
     void setSampleSurface(vk::SurfaceKHR surface);

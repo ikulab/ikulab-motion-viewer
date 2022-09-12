@@ -364,6 +364,37 @@ void RenderTarget::createDefaultGraphicsPipeline() {
         << "Default GraphicsPipeline has been created.";
 }
 
+void RenderTarget::createSyncObjects() {
+    auto numOfFrames = nativeWindow.lock()->getNumOfFrames();
+    imageAvailableSemaphores.resize(numOfFrames);
+    renderFinishedSemaphores.resize(numOfFrames);
+    renderingFence.resize(numOfFrames);
+
+    vk::SemaphoreCreateInfo semaphoreCI{};
+    vk::FenceCreateInfo fenceCI{};
+    fenceCI.flags = vk::FenceCreateFlagBits::eSignaled;
+
+    for (int i = 0; i < numOfFrames; i++) {
+        imageAvailableSemaphores[i] =
+            renderEngine->getDevice().createSemaphore(semaphoreCI);
+        renderFinishedSemaphores[i] =
+            renderEngine->getDevice().createSemaphore(semaphoreCI);
+        renderingFence[i] = renderEngine->getDevice().createFence(fenceCI);
+    }
+}
+
+void RenderTarget::createRenderCmdBuffers() {
+    renderCmdBuffers.resize(nativeWindow.lock()->getNumOfFrames());
+
+    vk::CommandBufferAllocateInfo allocInfo{};
+    allocInfo.commandPool = renderEngine->getCommandPool();
+    allocInfo.level = vk::CommandBufferLevel::ePrimary;
+    allocInfo.commandBufferCount = renderCmdBuffers.size();
+
+    renderCmdBuffers =
+        renderEngine->getDevice().allocateCommandBuffers(allocInfo);
+}
+
 void RenderTarget::setDefaultResources() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Creating default RenderTarget resources...";
@@ -390,12 +421,29 @@ void RenderTarget::initRenderImageResourcesFromNativeWindow() {
     }
 }
 
+vk::CommandBuffer &RenderTarget::getRenderCommandBuffer(int index) {
+    return renderCmdBuffers[index];
+}
+
+vk::Semaphore &RenderTarget::getImageAvailableSemaphore(int index) {
+    return imageAvailableSemaphores[index];
+}
+
+vk::Semaphore &RenderTarget::getRenderFinishedSemaphore(int index) {
+    return renderFinishedSemaphores[index];
+}
+
+vk::Fence &RenderTarget::getRenderingFence(int index) {
+    return renderingFence[index];
+}
+
 RenderTarget::RenderTarget(const std::shared_ptr<NativeWindow> nativeWindow,
                            const std::shared_ptr<RenderEngine> renderEngine) {
     this->nativeWindow = nativeWindow;
     this->renderEngine = renderEngine;
 
     initRenderImageResourcesFromNativeWindow();
+    createSyncObjects();
 }
 
 RenderTarget::~RenderTarget() {
@@ -426,6 +474,15 @@ RenderTarget::~RenderTarget() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying RenderPass...";
     renderEngine->getDevice().destroyRenderPass(renderPass);
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "RenderPass has been destroyed.";
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying sync objects...";
+    auto numOfFrame = nativeWindow.lock()->getNumOfFrames();
+    for (int i = 0; i < numOfFrame; i++) {
+        renderEngine->getDevice().destroySemaphore(imageAvailableSemaphores[i]);
+        renderEngine->getDevice().destroySemaphore(renderFinishedSemaphores[i]);
+        renderEngine->getDevice().destroyFence(renderingFence[i]);
+    }
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Sync objects have been destroyed.";
 }
 } // namespace ikura
 

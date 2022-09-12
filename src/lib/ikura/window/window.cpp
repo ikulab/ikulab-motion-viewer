@@ -7,6 +7,7 @@
 namespace ikura {
 void Window::addDefaultRenderTarget() {}
 void Window::addDefaultRenderContent() {}
+void Window::draw() {}
 
 const int Window::getNumOfFrames() const { return numOfFrames; }
 

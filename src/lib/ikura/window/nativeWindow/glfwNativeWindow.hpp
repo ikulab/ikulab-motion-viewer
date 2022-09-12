@@ -17,11 +17,15 @@ class GlfwNativeWindow : public NativeWindow {
     void createSwapChain();
     static void framebufferResizeCallback(GLFWwindow *window, int width,
                                           int height);
+    void recordCommandBuffer(uint32_t imageIndex);
 
   public:
     GlfwNativeWindow(const std::shared_ptr<RenderEngine> renderEngine,
                      GLFWwindow *window, vk::SurfaceKHR surface,
                      std::string name);
     ~GlfwNativeWindow();
+
+    int windowShouldClose() override;
+    void draw() override;
 };
 } // namespace ikura

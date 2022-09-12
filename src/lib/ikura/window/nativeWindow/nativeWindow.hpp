@@ -10,7 +10,8 @@
 #include "../windowInputContext.hpp"
 
 namespace ikura {
-class NativeWindow : public Window, public std::enable_shared_from_this<NativeWindow> {
+class NativeWindow : public Window,
+                     public std::enable_shared_from_this<NativeWindow> {
   protected:
     WindowInputContext inputCtx;
     vk::SurfaceKHR surface;
@@ -19,6 +20,7 @@ class NativeWindow : public Window, public std::enable_shared_from_this<NativeWi
     vk::Extent2D swapChainExtent;
 
     std::vector<vk::Image> swapChainImages;
+    uint32_t currentFrame = 0;
 
     NativeWindow() {}
 
@@ -31,5 +33,8 @@ class NativeWindow : public Window, public std::enable_shared_from_this<NativeWi
     const vk::Format getSwapChainFormat() const;
     const vk::Extent2D getSwapChainExtent() const;
     const std::vector<vk::Image> getSwapChainImages() const;
+
+    virtual int windowShouldClose();
+    void draw() override;
 };
 } // namespace ikura

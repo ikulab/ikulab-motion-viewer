@@ -21,14 +21,15 @@ class Window {
 
     vk::DescriptorSetLayout descriptorSetLayout;
 
-    std::vector<std::unique_ptr<RenderContent>> renderContents;
-    std::vector<std::unique_ptr<RenderTarget>> renderTargets;
+    std::unique_ptr<RenderContent> renderContent;
+    std::unique_ptr<RenderTarget> renderTarget;
 
   public:
     virtual ~Window();
     virtual void createDefaultDescriptorSetLayout();
     virtual void addDefaultRenderTarget();
     virtual void addDefaultRenderContent();
+    virtual void draw();
 
     const int getNumOfFrames() const;
     const vk::DescriptorSetLayout getDescriptorSetLayout() const;

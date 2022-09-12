@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include <optional>
+#include <vector>
 
 #include <vulkan/vulkan.hpp>
 
@@ -29,11 +29,16 @@ class RenderTarget {
     std::weak_ptr<NativeWindow> nativeWindow;
 
     // Basic objects for render ----------
-    vk::CommandBuffer commandBuffer;
+    std::vector<vk::CommandBuffer> renderCmdBuffers;
     vk::PipelineLayout graphicsPipelineLayout;
     vk::Pipeline graphicsPipeline;
     vk::RenderPass renderPass;
     std::vector<vk::Framebuffer> frameBuffers;
+
+    // Sync objects ----------
+    std::vector<vk::Semaphore> imageAvailableSemaphores;
+    std::vector<vk::Semaphore> renderFinishedSemaphores;
+    std::vector<vk::Fence> renderingFence;
 
     // ImageResource ----------
     ImageResource colorImageResource;
@@ -50,11 +55,20 @@ class RenderTarget {
     // Init of default resources ----------
     void initRenderImageResourcesFromNativeWindow();
 
+    // Others ----------
+    void createSyncObjects();
+    void createRenderCmdBuffers();
+
   public:
     RenderTarget(const std::shared_ptr<NativeWindow> nativeWindow,
                  const std::shared_ptr<RenderEngine> renderEngine);
     ~RenderTarget();
 
     void setDefaultResources();
+
+    vk::CommandBuffer &getRenderCommandBuffer(int index);
+    vk::Semaphore &getImageAvailableSemaphore(int index);
+    vk::Semaphore &getRenderFinishedSemaphore(int index);
+    vk::Fence &getRenderingFence(int index);
 };
 } // namespace ikura
