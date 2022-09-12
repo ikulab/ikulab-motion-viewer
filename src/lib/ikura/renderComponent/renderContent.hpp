@@ -55,6 +55,8 @@ struct Vertex {
     }
 };
 
+typedef uint32_t Index;
+
 struct ModelMatUBO {
     alignas(16) glm::mat4 model[NUM_OF_ID];
 };
@@ -78,8 +80,8 @@ class RenderContent {
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-    vk::Buffer vertexBuffer;
-    vk::Buffer indexBuffer;
+    BufferResource vertexBuffer;
+    BufferResource indexBuffer;
     // uniformBuffers[frame][set]
     std::vector<std::vector<BufferResource>> uniformBufferResources;
 
@@ -89,6 +91,7 @@ class RenderContent {
 
     void createDefaultUniformBuffers();
     void createDefaultDescriptorSets();
+    void createDefaultVertexIndexBuffer();
 
   public:
     RenderContent(std::shared_ptr<NativeWindow> nativeWindow,

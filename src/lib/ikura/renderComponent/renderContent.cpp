@@ -38,6 +38,9 @@ void RenderContent::createDefaultUniformBuffers() {
 
             VmaAllocationCreateInfo allocCI{};
             allocCI.usage = VMA_MEMORY_USAGE_AUTO;
+            allocCI.flags =
+                VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+                VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
             auto vkBufferCI = (VkBufferCreateInfo)bufferCI;
             VkBuffer buffer;
@@ -152,6 +155,8 @@ void RenderContent::createDefaultDescriptorSets() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Default DescriptorSets has been created.";
 }
+
+void RenderContent::createDefaultVertexIndexBuffer() {}
 
 void RenderContent::setDefaultResources() {
     createDefaultUniformBuffers();
