@@ -100,11 +100,20 @@ class RenderContent {
 
     void setDefaultResources();
 
-    void setVertices(const std::vector<Vertex>& vertices);
-    void setIndices(const std::vector<Index>& indices);
+    void setVertices(const std::vector<Vertex> &vertices);
+    void setIndices(const std::vector<Index> &indices);
 
+    // Upload to GPU ----------
     void uploadVertexBuffer();
     void uploadIndexBuffer();
     void uploadVertexAndIndexBuffer();
+
+    // Getter ----------
+    const vk::Buffer &getVertexBuffer() const;
+    const vk::Buffer &getIndexBuffer() const;
+    const std::vector<vk::DescriptorSet> &getDescriptorSets(int index);
+
+    const std::vector<Index> &getIndices() const;
+    const std::vector<Vertex> &getVertices() const;
 };
 } // namespace ikura

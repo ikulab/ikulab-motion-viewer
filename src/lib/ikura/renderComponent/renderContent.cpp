@@ -231,6 +231,25 @@ void RenderContent::uploadVertexAndIndexBuffer() {
     uploadVertexBuffer();
     uploadIndexBuffer();
 }
+
+const vk::Buffer &RenderContent::getVertexBuffer() const {
+    return vertexBufferResource.buffer;
+}
+
+const vk::Buffer &RenderContent::getIndexBuffer() const {
+    return indexBufferResource.buffer;
+}
+
+const std::vector<vk::DescriptorSet> &
+RenderContent::getDescriptorSets(int index) {
+    return descriptorSets[index];
+}
+
+const std::vector<Index> &RenderContent::getIndices() const { return indices; }
+
+const std::vector<Vertex> &RenderContent::getVertices() const {
+    return vertices;
+}
 } // namespace ikura
 
 void destroyBufferResourceIfAllocated(ikura::BufferResource &bufferResource,

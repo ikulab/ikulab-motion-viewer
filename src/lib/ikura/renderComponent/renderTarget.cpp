@@ -437,9 +437,7 @@ vk::Fence &RenderTarget::getRenderingFence(int index) {
     return renderingFence[index];
 }
 
-const vk::RenderPass &RenderTarget::getRenderPass() const {
-    return renderPass;
-}
+const vk::RenderPass &RenderTarget::getRenderPass() const { return renderPass; }
 
 const vk::Framebuffer &RenderTarget::getFramebuffer(int imageIndex) const {
     return frameBuffers[imageIndex];
@@ -447,6 +445,10 @@ const vk::Framebuffer &RenderTarget::getFramebuffer(int imageIndex) const {
 
 const vk::Pipeline &RenderTarget::getGraphicsPipeline() const {
     return graphicsPipeline;
+}
+
+const vk::PipelineLayout &RenderTarget::getGraphicsPipelineLayout() const {
+    return graphicsPipelineLayout;
 }
 
 RenderTarget::RenderTarget(const std::shared_ptr<NativeWindow> nativeWindow,

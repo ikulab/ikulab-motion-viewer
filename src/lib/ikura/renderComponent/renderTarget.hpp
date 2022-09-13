@@ -66,7 +66,7 @@ class RenderTarget {
 
     void setDefaultResources();
 
-    // Getter ----------
+    // Getters ----------
     vk::CommandBuffer &getRenderCommandBuffer(int index);
 
     vk::Semaphore &getImageAvailableSemaphore(int index);
@@ -76,5 +76,6 @@ class RenderTarget {
     const vk::RenderPass &getRenderPass() const;
     const vk::Framebuffer &getFramebuffer(int imageIndex) const;
     const vk::Pipeline &getGraphicsPipeline() const;
+    const vk::PipelineLayout &getGraphicsPipelineLayout() const;
 };
 } // namespace ikura
