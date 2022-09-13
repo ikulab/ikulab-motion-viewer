@@ -27,5 +27,9 @@ class GlfwNativeWindow : public NativeWindow {
 
     int windowShouldClose() override;
     void draw() override;
+
+    // Getter ----------
+    const std::unique_ptr<RenderTarget> &getRenderTarget();
+    const std::unique_ptr<RenderContent> &getRenderContent();
 };
 } // namespace ikura

@@ -458,6 +458,7 @@ RenderTarget::RenderTarget(const std::shared_ptr<NativeWindow> nativeWindow,
 
     initRenderImageResourcesFromNativeWindow();
     createSyncObjects();
+    createRenderCmdBuffers();
 }
 
 RenderTarget::~RenderTarget() {

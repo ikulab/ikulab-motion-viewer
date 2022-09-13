@@ -74,6 +74,14 @@ GlfwNativeWindow::~GlfwNativeWindow() {
         << "GLFW Window for '" << name << "' has been destroyed.";
 }
 
+const std::unique_ptr<RenderTarget> &GlfwNativeWindow::getRenderTarget() {
+    return renderTarget;
+}
+
+const std::unique_ptr<RenderContent> &GlfwNativeWindow::getRenderContent() {
+    return renderContent;
+}
+
 void GlfwNativeWindow::createSwapChain() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Creating SwapChain for '" << name << "'...";
@@ -185,7 +193,7 @@ void GlfwNativeWindow::draw() {
     }
 
     // Record command buffer
-    renderTarget->getRenderCommandBuffer(currentFrame).reset();
+    renderTarget->getRenderCommandBuffer(currentFrame).reset({});
     recordCommandBuffer(nextImage.value);
 
     // Submit command buffer

@@ -44,4 +44,8 @@ void AppEngine::drawAllWindows() {
             break;
         }
     }
+
+    for (auto &window : windows) {
+        window->draw();
+    }
 }

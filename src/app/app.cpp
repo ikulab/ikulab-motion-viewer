@@ -40,10 +40,14 @@ void App::init() {
     appEngine = std::make_unique<AppEngine>(renderEngine);
 
     // Add Window
-    appEngine->addWindow(std::make_shared<ikura::GlfwNativeWindow>(
-        renderEngine, glfwWindow, surface, "main"));
+    auto mainWindow = std::make_shared<ikura::GlfwNativeWindow>(
+        renderEngine, glfwWindow, surface, "main");
+    appEngine->addWindow(mainWindow);
 
     std::cout << "Hello Ikura!!" << std::endl;
+
+    mainWindow->getRenderContent()->uploadVertexBuffer();
+    mainWindow->getRenderContent()->uploadIndexBuffer();
 
     while (!appEngine->shouldTerminated()) {
         appEngine->drawAllWindows();
