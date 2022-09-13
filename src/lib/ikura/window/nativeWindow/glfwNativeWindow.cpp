@@ -184,12 +184,44 @@ void GlfwNativeWindow::draw() {
         throw std::runtime_error("Failed to acquire next SwapChain image.");
     }
 
-    // Prepare command buffer
+    // Record command buffer
     renderTarget->getRenderCommandBuffer(currentFrame).reset();
     recordCommandBuffer(nextImage.value);
 
-    // Submit queue
-    // つかれた
+    // Submit command buffer
+    std::array<vk::PipelineStageFlags, 1> waitStages = {
+        vk::PipelineStageFlagBits::eColorAttachmentOutput};
+    vk::SubmitInfo submitInfo{};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.setWaitSemaphores(
+        renderTarget->getImageAvailableSemaphore(currentFrame));
+    submitInfo.pWaitDstStageMask = waitStages.data();
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers =
+        &renderTarget->getRenderCommandBuffer(currentFrame);
+    submitInfo.setSignalSemaphores(
+        renderTarget->getRenderFinishedSemaphore(currentFrame));
+
+    renderEngine->getQueues().graphicsQueue.submit(
+        submitInfo, renderTarget->getRenderingFence(currentFrame));
+
+    // Presentation
+    vk::PresentInfoKHR presentInfo{};
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.setWaitSemaphores(
+        renderTarget->getRenderFinishedSemaphore(currentFrame));
+    presentInfo.swapchainCount = 1;
+    presentInfo.setSwapchains(swapChain);
+    presentInfo.setImageIndices(nextImage.value);
+
+    result = renderEngine->getQueues().presentQueue.presentKHR(presentInfo);
+    if (result == vk::Result::eErrorOutOfDateKHR ||
+        result == vk::Result::eSuboptimalKHR || frameBufferResized) {
+        frameBufferResized = false;
+        // TODO: Recreate SwapChain
+    } else if (result != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to present swapChain image.");
+    }
 
     currentFrame = (currentFrame + 1) % numOfFrames;
 }

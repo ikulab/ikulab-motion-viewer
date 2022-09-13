@@ -140,12 +140,10 @@ class RenderEngine {
     const QueueFamilyIndices getQueueFamilyIndices() const;
     const std::shared_ptr<VmaAllocator> getVmaAllocator() const;
     const vk::CommandPool getCommandPool() const;
+    const Queues &getQueues() const;
 
     // Setter ----------
     void setSampleSurface(vk::SurfaceKHR surface);
-
-    // Interface ----------
-    // void draw(ikura::RenderContent content, ikura::RenderTarget);
 
     // Misc ----------
     static vk::PhysicalDevice

@@ -21,6 +21,7 @@ class NativeWindow : public Window,
 
     std::vector<vk::Image> swapChainImages;
     uint32_t currentFrame = 0;
+    bool swapChainResized = false;
 
     NativeWindow() {}
 
