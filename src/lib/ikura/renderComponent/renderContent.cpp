@@ -174,6 +174,11 @@ RenderContent::RenderContent(std::shared_ptr<NativeWindow> nativeWindow,
                              std::shared_ptr<RenderEngine> renderEngine) {
     this->nativeWindow = nativeWindow;
     this->renderEngine = renderEngine;
+
+    vertices.push_back(Vertex());
+    indices.push_back(0);
+    indices.push_back(1);
+    indices.push_back(2);
 }
 
 RenderContent::~RenderContent() {
@@ -202,6 +207,11 @@ RenderContent::~RenderContent() {
 }
 
 void RenderContent::uploadVertexBuffer() {
+    if (vertices.empty()) {
+        LOG(INFO) << "Vertex array is empty. Stopping vertexBuffer upload.";
+        return;
+    }
+
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Uploading VertexBuffer...";
 
     destroyBufferResourceIfAllocated(vertexBufferResource,
@@ -215,6 +225,11 @@ void RenderContent::uploadVertexBuffer() {
 }
 
 void RenderContent::uploadIndexBuffer() {
+    if (indices.empty()) {
+        LOG(INFO) << "Index array is empty. Stopping indexBuffer upload.";
+        return;
+    }
+
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Uploading IndexBuffer...";
 
     destroyBufferResourceIfAllocated(indexBufferResource,

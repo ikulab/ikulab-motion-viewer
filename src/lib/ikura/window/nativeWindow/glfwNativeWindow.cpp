@@ -241,7 +241,7 @@ void GlfwNativeWindow::recordCommandBuffer(uint32_t imageIndex) {
 
     std::array<vk::ClearValue, 2> clearValues{};
     clearValues[0].color =
-        vk::ClearColorValue(std::array<uint32_t, 4>{0, 0, 0, 0});
+        vk::ClearColorValue(std::array<uint32_t, 4>{1, 0, 0, 0});
     clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
 
     vk::RenderPassBeginInfo renderPassInfo{};
@@ -267,12 +267,13 @@ void GlfwNativeWindow::recordCommandBuffer(uint32_t imageIndex) {
     renderTarget->getRenderCommandBuffer(currentFrame)
         .bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
                             renderTarget->getGraphicsPipelineLayout(), 0,
-                            renderContent->getDescriptorSets(currentFrame),
-                            {0});
+                            renderContent->getDescriptorSets(currentFrame), {});
 
     // Draw ----------
     renderTarget->getRenderCommandBuffer(currentFrame)
-        .drawIndexed(renderContent->getIndices().size(), 1, 0, 0, 0);
+        .drawIndexed(3, 1, 0, 0, 0);
+    // renderTarget->getRenderCommandBuffer(currentFrame)
+    //     .drawIndexed(renderContent->getIndices().size(), 1, 0, 0, 0);
 
     // End ----------
     renderTarget->getRenderCommandBuffer(currentFrame).endRenderPass();
