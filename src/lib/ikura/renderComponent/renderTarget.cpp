@@ -491,7 +491,7 @@ RenderTarget::~RenderTarget() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "RenderPass has been destroyed.";
 
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Destroying sync objects...";
-    auto numOfFrame = nativeWindow.lock()->getNumOfFrames();
+    int numOfFrame = imageAvailableSemaphores.size();
     for (int i = 0; i < numOfFrame; i++) {
         renderEngine->getDevice().destroySemaphore(imageAvailableSemaphores[i]);
         renderEngine->getDevice().destroySemaphore(renderFinishedSemaphores[i]);
