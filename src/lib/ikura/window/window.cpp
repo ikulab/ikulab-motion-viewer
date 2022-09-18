@@ -9,12 +9,6 @@ void Window::addDefaultRenderTarget() {}
 void Window::addDefaultRenderContent() {}
 void Window::draw() {}
 
-const int Window::getNumOfFrames() const { return numOfFrames; }
-
-const vk::DescriptorSetLayout Window::getDescriptorSetLayout() const {
-    return descriptorSetLayout;
-}
-
 void Window::createDefaultDescriptorSetLayout() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Creating default DescriptorSetLayout...";
@@ -51,4 +45,23 @@ Window::~Window() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Default DescriptorSetLayout has been destroyed.";
 }
+
+const int Window::getNumOfFrames() const { return numOfFrames; }
+
+const vk::DescriptorSetLayout Window::getDescriptorSetLayout() const {
+    return descriptorSetLayout;
+}
+
+const int Window::getWidth() const { return width; }
+
+const int Window::getHeight() const { return height; }
+
+const std::unique_ptr<RenderTarget> &Window::getRenderTarget() {
+    return renderTarget;
+}
+
+const std::unique_ptr<RenderContent> &Window::getRenderContent() {
+    return renderContent;
+}
+
 } // namespace ikura

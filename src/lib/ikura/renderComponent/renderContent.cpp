@@ -206,6 +206,14 @@ RenderContent::~RenderContent() {
         << "VertexBuffer and IndexBuffer have been destroyed.";
 }
 
+void RenderContent::setVertices(const std::vector<Vertex> &vertices) {
+    this->vertices = vertices;
+}
+
+void RenderContent::setIndices(const std::vector<Index> &indices) {
+    this->indices = indices;
+}
+
 void RenderContent::uploadVertexBuffer() {
     if (vertices.empty()) {
         LOG(INFO) << "Vertex array is empty. Stopping vertexBuffer upload.";
@@ -245,6 +253,38 @@ void RenderContent::uploadIndexBuffer() {
 void RenderContent::uploadVertexAndIndexBuffer() {
     uploadVertexBuffer();
     uploadIndexBuffer();
+}
+
+// this code is supposed to debug.
+// updates all frame uniform buffers
+void RenderContent::updateUniformBuffer(ModelMatUBO &modelMatUBO,
+                                        SceneMatUBO &sceneMatUBO) {
+    void *data;
+    for (int i = 0; i < nativeWindow.lock()->getNumOfFrames(); i++) {
+        // Model Matrix
+        vmaMapMemory(
+            *renderEngine->getVmaAllocator(),
+            uniformBufferResources[i][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]
+                .alloc,
+            &data);
+        memcpy(data, &modelMatUBO, sizeof(modelMatUBO));
+        vmaUnmapMemory(
+            *renderEngine->getVmaAllocator(),
+            uniformBufferResources[i][DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]
+                .alloc);
+
+        // Scene Matrix
+        vmaMapMemory(
+            *renderEngine->getVmaAllocator(),
+            uniformBufferResources[i][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]
+                .alloc,
+            &data);
+        memcpy(data, &sceneMatUBO, sizeof(sceneMatUBO));
+        vmaUnmapMemory(
+            *renderEngine->getVmaAllocator(),
+            uniformBufferResources[i][DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]
+                .alloc);
+    }
 }
 
 const vk::Buffer &RenderContent::getVertexBuffer() const {

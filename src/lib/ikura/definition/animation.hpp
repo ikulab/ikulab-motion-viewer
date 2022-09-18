@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include <glm/glm.hpp>
+
 typedef uint32_t JointID;
 
 struct Motion {

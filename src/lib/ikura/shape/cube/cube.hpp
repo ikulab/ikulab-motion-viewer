@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 
-#include "../../definition/vertex.hpp"
 #include "../shape.hpp"
 
 class Cube : public Shape {

@@ -15,6 +15,9 @@ class AppEngine {
     std::shared_ptr<RenderEngine> renderEngine;
     std::vector<std::shared_ptr<ikura::Window>> windows;
 
+    // for debug
+    void addTestShapes();
+
   public:
     AppEngine(std::shared_ptr<RenderEngine> renderEngine);
 

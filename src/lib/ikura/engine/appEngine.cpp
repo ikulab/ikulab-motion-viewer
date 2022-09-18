@@ -5,6 +5,11 @@
 #include <vulkan/vulkan.hpp>
 
 #include <GLFW/glfw3.h>
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "../shape/shapes.hpp"
 
 AppEngine::AppEngine(std::shared_ptr<RenderEngine> renderEngine) {
     this->renderEngine = renderEngine;
@@ -15,7 +20,9 @@ void AppEngine::addWindow(
     glfwNativeWindow->createDefaultDescriptorSetLayout();
     glfwNativeWindow->addDefaultRenderTarget();
     glfwNativeWindow->addDefaultRenderContent();
+
     windows.push_back(glfwNativeWindow);
+    addTestShapes();
 }
 
 void AppEngine::addWindow(
@@ -48,4 +55,27 @@ void AppEngine::drawAllWindows() {
     for (auto &window : windows) {
         window->draw();
     }
+}
+
+void AppEngine::addTestShapes() {
+    SingleColorCube cube(1.0, 1.0, 1.0, {0, 0, 0}, {1.0, 1.0, 1.0}, 0);
+
+    windows[0]->getRenderContent()->setVertices(cube.getVertices());
+    windows[0]->getRenderContent()->setIndices(cube.getIndices());
+
+    ModelMatUBO modelMat;
+    modelMat.model[0] = glm::mat4(1.0);
+
+    SceneMatUBO sceneMat;
+    sceneMat.view =
+        glm::lookAt({2.0, 2.0, 4.0} /* eye */, {0.0, 0.0, 0.0} /* center */,
+                    glm::vec3(0.0, 0.0, 1.0) /* up */);
+    sceneMat.proj = glm::perspective(glm::radians(45.0f),
+                                     windows[0]->getWidth() /
+                                         (float)windows[0]->getHeight(),
+                                     0.01f, 1000.0f);
+    // Convert to RightHand Z-up
+    sceneMat.proj[1][1] *= -1;
+
+    windows[0]->getRenderContent()->updateUniformBuffer(modelMat, sceneMat);
 }

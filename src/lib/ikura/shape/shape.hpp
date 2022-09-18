@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "../definition/animation.hpp"
-#include "../definition/vertex.hpp"
+#include "../common/renderPrimitiveTypes.hpp"
 
 class Shape {
   protected:

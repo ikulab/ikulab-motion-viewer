@@ -31,7 +31,13 @@ class Window {
     virtual void addDefaultRenderContent();
     virtual void draw();
 
+    // Getter ----------
     const int getNumOfFrames() const;
     const vk::DescriptorSetLayout getDescriptorSetLayout() const;
+    const int getWidth() const;
+    const int getHeight() const;
+
+    const std::unique_ptr<RenderTarget> &getRenderTarget();
+    const std::unique_ptr<RenderContent> &getRenderContent();
 };
 } // namespace ikura

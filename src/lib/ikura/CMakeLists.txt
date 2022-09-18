@@ -25,4 +25,8 @@ add_subdirectory(./misc)
 target_include_directories(initVulkanHppDispatchLoader PUBLIC "${common_include_dir}")
 target_link_libraries(ikura INTERFACE initVulkanHppDispatchLoader)
 
+add_subdirectory(./shape)
+target_include_directories(shape PUBLIC  "${common_include_dir}")
+target_link_libraries(ikura INTERFACE shape)
+
 target_include_directories(ikura INTERFACE ./)

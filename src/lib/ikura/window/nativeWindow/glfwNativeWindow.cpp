@@ -74,14 +74,6 @@ GlfwNativeWindow::~GlfwNativeWindow() {
         << "GLFW Window for '" << name << "' has been destroyed.";
 }
 
-const std::unique_ptr<RenderTarget> &GlfwNativeWindow::getRenderTarget() {
-    return renderTarget;
-}
-
-const std::unique_ptr<RenderContent> &GlfwNativeWindow::getRenderContent() {
-    return renderContent;
-}
-
 void GlfwNativeWindow::createSwapChain() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Creating SwapChain for '" << name << "'...";
@@ -112,6 +104,8 @@ void GlfwNativeWindow::createSwapChain() {
     vk::PresentModeKHR presentMode =
         chooseSwapChainPresentMode(surfacePresentModes);
     vk::Extent2D extent = chooseSwapChainExtent(surfaceCapabilities, window);
+    this->width = extent.width;
+    this->height = extent.height;
 
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Chose SwapChain format: " << vk::to_string(format.format) << " / "
@@ -271,9 +265,7 @@ void GlfwNativeWindow::recordCommandBuffer(uint32_t imageIndex) {
 
     // Draw ----------
     renderTarget->getRenderCommandBuffer(currentFrame)
-        .drawIndexed(3, 1, 0, 0, 0);
-    // renderTarget->getRenderCommandBuffer(currentFrame)
-    //     .drawIndexed(renderContent->getIndices().size(), 1, 0, 0, 0);
+        .drawIndexed(renderContent->getIndices().size(), 1, 0, 0, 0);
 
     // End ----------
     renderTarget->getRenderCommandBuffer(currentFrame).endRenderPass();
@@ -324,6 +316,7 @@ chooseSwapChainExtent(const vk::SurfaceCapabilitiesKHR &capabilities,
         actualExtent.height =
             std::clamp(actualExtent.height, capabilities.minImageExtent.height,
                        capabilities.maxImageExtent.height);
+
         return actualExtent;
     }
 }

@@ -200,9 +200,9 @@ void RenderTarget::createDefaultGraphicsPipeline() {
 
     // ShaderModules ----------
     auto vertShaderModule = createShaderModuleFromFile(
-        "shaders/bin/triangle.vert.spv", renderEngine->getDevice());
+        "shaders/bin/vert.spv", renderEngine->getDevice());
     auto fragShaderModule = createShaderModuleFromFile(
-        "shaders/bin/triangle.frag.spv", renderEngine->getDevice());
+        "shaders/bin/frag.spv", renderEngine->getDevice());
 
     vk::PipelineShaderStageCreateInfo vertShaderStageCI{};
     vertShaderStageCI.stage = vk::ShaderStageFlagBits::eVertex;
