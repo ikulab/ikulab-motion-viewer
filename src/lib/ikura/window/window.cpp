@@ -14,18 +14,20 @@ void Window::createDefaultDescriptorSetLayout() {
         << "Creating default DescriptorSetLayout...";
 
     vk::DescriptorSetLayoutBinding modelMatLayoutBinding{};
-    modelMatLayoutBinding.binding = DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO;
+    modelMatLayoutBinding.binding =
+        shapes::DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO;
     modelMatLayoutBinding.descriptorCount = 1;
     modelMatLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
     modelMatLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
     vk::DescriptorSetLayoutBinding sceneMatLayoutBinding{};
-    sceneMatLayoutBinding.binding = DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO;
+    sceneMatLayoutBinding.binding =
+        shapes::DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO;
     sceneMatLayoutBinding.descriptorCount = 1;
     sceneMatLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
     sceneMatLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
-    std::array<vk::DescriptorSetLayoutBinding, NUM_OF_DESCRIPTORS>
+    std::array<vk::DescriptorSetLayoutBinding, shapes::NUM_OF_DESCRIPTORS>
         layoutBindings = {modelMatLayoutBinding, sceneMatLayoutBinding};
     vk::DescriptorSetLayoutCreateInfo layoutCI{};
     layoutCI.bindingCount = layoutBindings.size();

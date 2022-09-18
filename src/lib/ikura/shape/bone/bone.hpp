@@ -2,12 +2,14 @@
 
 #include "../shape.hpp"
 
-// TODO: make it pure abstract
+namespace ikura {
+namespace shapes {
 
 class Bone : public Shape {
     float length;
 
-  public:
-    // make constructor protected
+  protected:
     Bone(float length, JointID id);
 };
+} // namespace shapes
+} // namespace ikura

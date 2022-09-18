@@ -5,6 +5,8 @@
 
 #include "./singleColorCube.hpp"
 
+namespace ikura {
+namespace shapes {
 SingleColorCube::SingleColorCube(float width, float height, float depth,
                                  glm::vec3 pos, glm::vec3 color, JointID id)
     : GradationColorCube(width, height, depth, pos, std::array<glm::vec3, 8>(),
@@ -15,3 +17,5 @@ SingleColorCube::SingleColorCube(float width, float height, float depth,
                   [&](glm::vec3 &col) { col = color; });
     init();
 }
+} // namespace shapes
+} // namespace ikura

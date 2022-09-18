@@ -7,6 +7,8 @@
 #include "../cube/singleColorCube.hpp"
 #include "./stickTetrahedronBone.hpp"
 
+namespace ikura {
+namespace shapes {
 StickTetrahedronBone::StickTetrahedronBone(float length, JointID id)
     : Bone(length, id) {
     cube = std::make_unique<SingleColorCube>(length, 1.0, 1.0,
@@ -18,10 +20,12 @@ const std::vector<Vertex> &StickTetrahedronBone::getVertices() const {
     return cube->getVertices();
 }
 
-const std::vector<uint32_t> &StickTetrahedronBone::getIndices() const {
+const std::vector<Index> &StickTetrahedronBone::getIndices() const {
     return cube->getIndices();
 }
 
 void StickTetrahedronBone::setBaseIndex(uint32_t baseIndex) {
     cube->setBaseIndex(baseIndex);
 }
+} // namespace shapes
+} // namespace ikura

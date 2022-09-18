@@ -5,8 +5,8 @@
 #include <ikura.hpp>
 
 class App {
-    std::unique_ptr<AppEngine> appEngine;
-    std::shared_ptr<RenderEngine> renderEngine;
+    std::unique_ptr<ikura::AppEngine> appEngine;
+    std::shared_ptr<ikura::RenderEngine> renderEngine;
 
   public:
     App();

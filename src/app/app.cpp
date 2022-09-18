@@ -9,12 +9,12 @@ App::App() {}
 
 void App::init() {
     // Initialize RenderEngine
-    RenderEngineInitConfig renderConfig =
-        RenderEngineInitConfig::defaultDebugSetting();
+    ikura::RenderEngineInitConfig renderConfig =
+        ikura::RenderEngineInitConfig::defaultDebugSetting();
     renderConfig.applicationName = "IkulabMotionViewer";
     renderConfig.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 
-    renderEngine = std::make_shared<RenderEngine>(renderConfig);
+    renderEngine = std::make_shared<ikura::RenderEngine>(renderConfig);
     renderEngine->createInstance();
     renderEngine->setupExtensions();
 
@@ -37,7 +37,7 @@ void App::init() {
     renderEngine->createDevice();
 
     // Initialize AppEngine
-    appEngine = std::make_unique<AppEngine>(renderEngine);
+    appEngine = std::make_unique<ikura::AppEngine>(renderEngine);
 
     // Add Window
     auto mainWindow = std::make_shared<ikura::GlfwNativeWindow>(

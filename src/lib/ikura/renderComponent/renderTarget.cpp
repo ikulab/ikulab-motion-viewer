@@ -7,23 +7,22 @@
 
 #include "../window/nativeWindow/nativeWindow.hpp"
 
+namespace ikura {
 // Forward declearation of helper functions ----------
 vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine);
-void createImage(ikura::ImageResource &imageResource,
-                 const vk::Extent2D imageExtent, const uint32_t mipLevels,
+void createImage(ImageResource &imageResource, const vk::Extent2D imageExtent,
+                 const uint32_t mipLevels,
                  const vk::SampleCountFlagBits numSamples,
                  const vk::Format format, const vk::ImageTiling tiling,
                  const vk::ImageUsageFlags usage,
                  const vk::MemoryPropertyFlags properties,
                  VmaAllocator &allocator);
-void createImageView(ikura::ImageResource &imageResource,
-                     const vk::Format format,
+void createImageView(ImageResource &imageResource, const vk::Format format,
                      const vk::ImageAspectFlags aspectFlags,
                      const uint32_t mipLevels, const vk::Device device);
 vk::ShaderModule createShaderModuleFromFile(const std::string fileName,
                                             const vk::Device device);
 
-namespace ikura {
 void ImageResource::release(vk::Device device, VmaAllocator allocator) {
     if (releaseImageView) {
         device.destroyImageView(view);
@@ -217,8 +216,8 @@ void RenderTarget::createDefaultGraphicsPipeline() {
     std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStages = {
         vertShaderStageCI, fragShaderStageCI};
 
-    auto bindingDescription = Vertex::getBindingDescription();
-    auto attributeDescriptions = Vertex::getAttributeDescriptions();
+    auto bindingDescription = shapes::Vertex::getBindingDescription();
+    auto attributeDescriptions = shapes::Vertex::getAttributeDescriptions();
 
     // Pipeline input states ----------
     vk::PipelineVertexInputStateCreateInfo vertInputStateCI{};
@@ -499,7 +498,6 @@ RenderTarget::~RenderTarget() {
     }
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Sync objects have been destroyed.";
 }
-} // namespace ikura
 
 vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine) {
     // TODO: Allow changing
@@ -529,8 +527,8 @@ vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine) {
         "Failed to find supported depth attachment format.");
 }
 
-void createImage(ikura::ImageResource &imageResource,
-                 const vk::Extent2D imageExtent, const uint32_t mipLevels,
+void createImage(ImageResource &imageResource, const vk::Extent2D imageExtent,
+                 const uint32_t mipLevels,
                  const vk::SampleCountFlagBits numSamples,
                  const vk::Format format, const vk::ImageTiling tiling,
                  const vk::ImageUsageFlags usage,
@@ -564,8 +562,7 @@ void createImage(ikura::ImageResource &imageResource,
     imageResource.allocation = allocation;
 }
 
-void createImageView(ikura::ImageResource &imageResource,
-                     const vk::Format format,
+void createImageView(ImageResource &imageResource, const vk::Format format,
                      const vk::ImageAspectFlags aspectFlags,
                      const uint32_t mipLevels, const vk::Device device) {
     vk::ImageViewCreateInfo viewCI;
@@ -609,3 +606,4 @@ vk::ShaderModule createShaderModuleFromFile(const std::string fileName,
 
     return shaderModule;
 }
+} // namespace ikura

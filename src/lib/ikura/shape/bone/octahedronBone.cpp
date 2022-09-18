@@ -1,6 +1,8 @@
 #include "./octahedronBone.hpp"
-#include "../sphere.hpp"
+#include "../sphere/sphere.hpp"
 
+namespace ikura {
+namespace shapes {
 OctahedronBone::OctahedronBone(float length, JointID id) : Bone(length, id) {
     glm::vec3 root(length, 0.0, 0.0);
     glm::vec3 tip(0, 0.0, 0.0);
@@ -75,3 +77,5 @@ OctahedronBone::OctahedronBone(float length, JointID id) : Bone(length, id) {
     indices.insert(indices.end(), tipSphere.getIndices().begin(),
                    tipSphere.getIndices().end());
 }
+} // namespace shapes
+} // namespace ikura

@@ -8,6 +8,8 @@
 // TODO: init()をなくす
 // SingleColorCube() からは、全て同じ要素のvec3[]をGradationCube()に渡す
 
+namespace ikura {
+namespace shapes {
 class GradationColorCube : public Cube {
   protected:
     /**
@@ -30,3 +32,5 @@ class GradationColorCube : public Cube {
 
     void init();
 };
+} // namespace shapes
+} // namespace ikura

@@ -7,6 +7,8 @@
 #include "../cube/singleColorCube.hpp"
 #include "./bone.hpp"
 
+namespace ikura {
+namespace shapes {
 class StickTetrahedronBone : public Bone {
     std::unique_ptr<SingleColorCube> cube;
 
@@ -18,3 +20,5 @@ class StickTetrahedronBone : public Bone {
 
     void setBaseIndex(uint32_t baseIndex) override;
 };
+} // namespace shapes
+} // namespace ikura

@@ -5,6 +5,7 @@
 
 #include <easylogging++.h>
 
+namespace ikura {
 // forward declearation of helper functions ----------
 void checkLayersSupport(std::vector<const char *> &layersNames);
 void checkInstanceExtensionsSupport(
@@ -217,3 +218,4 @@ std::vector<const char *> getGlfwRequiredExtensions() {
 
     return result;
 }
+} // namespace ikura

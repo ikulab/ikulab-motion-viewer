@@ -5,6 +5,8 @@
 
 #include "./cube.hpp"
 
+namespace ikura {
+namespace shapes {
 class SeparatedColorCube : public Cube {
     /// order is: [top, bottom, left, right, front, back]
     std::array<glm::vec3, 6> colors;
@@ -13,3 +15,5 @@ class SeparatedColorCube : public Cube {
     SeparatedColorCube(float width, float height, float depth, glm::vec3 pos,
                        std::array<glm::vec3, 6> colors, JointID id);
 };
+} // namespace shapes
+} // namespace ikura

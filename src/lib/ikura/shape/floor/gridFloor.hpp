@@ -2,6 +2,8 @@
 
 #include "./floor.hpp"
 
+namespace ikura {
+namespace shapes {
 class GridFloor : public Floor {
     glm::vec3 color;
     float lineWidth;
@@ -11,3 +13,5 @@ class GridFloor : public Floor {
     GridFloor(float width, float height, float lineWidth, int numSplitX,
               int numSplitY, glm::vec3 color, JointID id);
 };
+} // namespace shapes
+} // namespace ikura

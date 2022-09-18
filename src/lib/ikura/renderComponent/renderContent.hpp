@@ -24,8 +24,8 @@ class RenderContent {
     std::shared_ptr<RenderEngine> renderEngine;
     std::weak_ptr<NativeWindow> nativeWindow;
 
-    std::vector<Vertex> vertices;
-    std::vector<Index> indices;
+    std::vector<shapes::Vertex> vertices;
+    std::vector<shapes::Index> indices;
     BufferResource vertexBufferResource;
     BufferResource indexBufferResource;
     // uniformBuffers[frame][set]
@@ -46,8 +46,8 @@ class RenderContent {
 
     void setDefaultResources();
 
-    void setVertices(const std::vector<Vertex> &vertices);
-    void setIndices(const std::vector<Index> &indices);
+    void setVertices(const std::vector<shapes::Vertex> &vertices);
+    void setIndices(const std::vector<shapes::Index> &indices);
 
     // Upload to GPU ----------
     void uploadVertexBuffer();
@@ -55,15 +55,15 @@ class RenderContent {
     void uploadVertexAndIndexBuffer();
 
     // Update non-cached data
-    void updateUniformBuffer(ModelMatUBO &modelMatUBO,
-                             SceneMatUBO &sceneMatUbo);
+    void updateUniformBuffer(shapes::ModelMatUBO &modelMatUBO,
+                             shapes::SceneMatUBO &sceneMatUbo);
 
     // Getter ----------
     const vk::Buffer &getVertexBuffer() const;
     const vk::Buffer &getIndexBuffer() const;
     const std::vector<vk::DescriptorSet> &getDescriptorSets(int index);
 
-    const std::vector<Index> &getIndices() const;
-    const std::vector<Vertex> &getVertices() const;
+    const std::vector<shapes::Index> &getIndices() const;
+    const std::vector<shapes::Vertex> &getVertices() const;
 };
 } // namespace ikura

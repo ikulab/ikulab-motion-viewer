@@ -2,6 +2,8 @@
 
 #include "./directionDebugObject.hpp"
 
+namespace ikura {
+namespace shapes {
 DirectionDebugObject::DirectionDebugObject(float size, JointID id)
     : Shape(id), size(size) {
     float thickness = size / 8;
@@ -34,3 +36,5 @@ DirectionDebugObject::DirectionDebugObject(float size, JointID id)
         baseIndex += ax->getVertices().size();
     }
 }
+} // namespace shapes
+} // namespace ikura

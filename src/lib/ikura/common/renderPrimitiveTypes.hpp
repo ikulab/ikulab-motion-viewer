@@ -4,6 +4,9 @@
 
 #include <glm/glm.hpp>
 
+namespace ikura {
+namespace shapes {
+
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 color;
@@ -47,3 +50,5 @@ struct Vertex {
 
 typedef uint32_t Index;
 typedef uint32_t JointID;
+} // namespace shapes
+} // namespace ikura

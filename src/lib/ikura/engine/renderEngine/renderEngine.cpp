@@ -17,6 +17,7 @@
 #endif
 #include <vk_mem_alloc.h>
 
+namespace ikura {
 QueueFamilyIndices::QueueFamilyIndices() {
     indices.insert({std::make_pair(GRAPHICS, decltype(indices)::mapped_type()),
                     std::make_pair(PRESENT, decltype(indices)::mapped_type())});
@@ -151,9 +152,7 @@ void RenderEngine::setSampleSurface(vk::SurfaceKHR surface) {
     this->sampleSurface = surface;
 }
 
-void RenderEngine::waitForDeviceIdle() {
-    device.waitIdle();
-}
+void RenderEngine::waitForDeviceIdle() { device.waitIdle(); }
 
 RenderEngineInitConfig RenderEngineInitConfig::defaultDebugSetting() {
     RenderEngineInitConfig initConfig = defaultCommonSetting();
@@ -179,3 +178,4 @@ RenderEngineInitConfig RenderEngineInitConfig::defaultCommonSetting() {
 
     return initConfig;
 }
+} // namespace ikura

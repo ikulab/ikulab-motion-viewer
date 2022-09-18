@@ -2,10 +2,10 @@
 
 #include <glm/glm.hpp>
 
-#include "./shape.hpp"
+#include "../shape.hpp"
 
-// TODO: make it abstract
-
+namespace ikura {
+namespace shapes {
 class Sphere : public Shape {
     glm::vec3 pos;
     float r;
@@ -15,3 +15,5 @@ class Sphere : public Shape {
     Sphere(float r, uint32_t numSplitH, uint32_t numSplitV, glm::vec3 pos,
            JointID id);
 };
+} // namespace shapes
+} // namespace ikura

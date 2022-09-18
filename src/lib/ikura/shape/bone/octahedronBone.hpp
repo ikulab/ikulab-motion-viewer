@@ -2,7 +2,11 @@
 
 #include "./bone.hpp"
 
+namespace ikura {
+namespace shapes {
 class OctahedronBone : public Bone {
   public:
     OctahedronBone(float length, JointID id);
 };
+} // namespace shapes
+} // namespace ikura

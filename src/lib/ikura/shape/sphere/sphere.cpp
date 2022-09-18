@@ -5,6 +5,8 @@
 
 #include "./sphere.hpp"
 
+namespace ikura {
+namespace shapes {
 Sphere::Sphere(float r, uint32_t numSplitH, uint32_t numSplitV, glm::vec3 pos,
                JointID id)
     : Shape(id), pos(pos), r(r), numSplitH(numSplitH), numSplitV(numSplitV) {
@@ -55,3 +57,5 @@ Sphere::Sphere(float r, uint32_t numSplitH, uint32_t numSplitV, glm::vec3 pos,
                         (numSplitH - 2) * numSplitV + m + 1});
     }
 }
+} // namespace shapes
+} // namespace ikura

@@ -4,6 +4,8 @@
 
 #include "./gradationColorCube.hpp"
 
+namespace ikura {
+namespace shapes {
 class SingleColorCube : public GradationColorCube {
     glm::vec3 color;
 
@@ -11,3 +13,5 @@ class SingleColorCube : public GradationColorCube {
     SingleColorCube(float width, float height, float depth, glm::vec3 pos,
                     glm::vec3 color, JointID id);
 };
+} // namespace shapes
+} // namespace ikura

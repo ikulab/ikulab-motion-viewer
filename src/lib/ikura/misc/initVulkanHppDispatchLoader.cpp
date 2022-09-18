@@ -9,6 +9,7 @@
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #endif
 
+namespace ikura {
 void initDispatchLoader() {
     // Initialize Vulkan Hpp Default Dispatcher
     std::unique_ptr<vk::DynamicLoader> vkDynamicLoader =
@@ -19,3 +20,4 @@ void initDispatchLoader() {
             "vkGetInstanceProcAddr");
     VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
 }
+} // namespace ikura

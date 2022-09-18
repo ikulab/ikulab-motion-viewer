@@ -2,6 +2,8 @@
 
 #include "./floor.hpp"
 
+namespace ikura {
+namespace shapes {
 class FilledFloor : public Floor {
     glm::vec3 color;
 
@@ -9,3 +11,5 @@ class FilledFloor : public Floor {
     FilledFloor(float width, float height, glm::vec3 color, bool frontSideOnly,
                 JointID id);
 };
+} // namespace shapes
+} // namespace ikura

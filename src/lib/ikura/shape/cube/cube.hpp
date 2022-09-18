@@ -7,6 +7,8 @@
 
 #include "../shape.hpp"
 
+namespace ikura {
+namespace shapes {
 class Cube : public Shape {
   protected:
     float width, height, depth;
@@ -15,3 +17,5 @@ class Cube : public Shape {
   public:
     Cube(float width, float height, float depth, glm::vec3 pos, JointID id);
 };
+} // namespace shapes
+} // namespace ikura

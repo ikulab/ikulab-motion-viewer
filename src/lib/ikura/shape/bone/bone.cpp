@@ -2,7 +2,11 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-#include "../sphere.hpp"
+#include "../sphere/sphere.hpp"
 #include "./bone.hpp"
 
+namespace ikura {
+namespace shapes {
 Bone::Bone(float length, JointID id) : Shape(id), length(length) {}
+} // namespace shapes
+} // namespace ikura

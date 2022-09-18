@@ -1,5 +1,7 @@
 #include "./separatedColorCube.hpp"
 
+namespace ikura {
+namespace shapes {
 SeparatedColorCube::SeparatedColorCube(float width, float height, float depth,
                                        glm::vec3 pos,
                                        std::array<glm::vec3, 6> colors,
@@ -68,3 +70,5 @@ SeparatedColorCube::SeparatedColorCube(float width, float height, float depth,
                     // Back but Right
                     20, 21, 22, 22, 23, 20});
 }
+} // namespace shapes
+} // namespace ikura

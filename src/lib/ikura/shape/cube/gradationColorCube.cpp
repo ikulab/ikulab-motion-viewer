@@ -1,5 +1,7 @@
 #include "./gradationColorCube.hpp"
 
+namespace ikura {
+namespace shapes {
 GradationColorCube::GradationColorCube(float width, float height, float depth,
                                        glm::vec3 pos,
                                        std::array<glm::vec3, 8> colors,
@@ -46,3 +48,5 @@ void GradationColorCube::init() {
                     // Back
                     0, 4, 5, 5, 1, 0});
 }
+} // namespace shapes
+} // namespace ikura

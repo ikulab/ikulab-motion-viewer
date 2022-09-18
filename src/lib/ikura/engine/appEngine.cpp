@@ -11,12 +11,13 @@
 
 #include "../shape/shapes.hpp"
 
+namespace ikura {
 AppEngine::AppEngine(std::shared_ptr<RenderEngine> renderEngine) {
     this->renderEngine = renderEngine;
 }
 
 void AppEngine::addWindow(
-    std::shared_ptr<ikura::GlfwNativeWindow> glfwNativeWindow) {
+    std::shared_ptr<GlfwNativeWindow> glfwNativeWindow) {
     glfwNativeWindow->createDefaultDescriptorSetLayout();
     glfwNativeWindow->addDefaultRenderTarget();
     glfwNativeWindow->addDefaultRenderContent();
@@ -26,14 +27,14 @@ void AppEngine::addWindow(
 }
 
 void AppEngine::addWindow(
-    std::shared_ptr<ikura::ImGuiVirtualWindow> imGuiVirtualWindow) {
+    std::shared_ptr<ImGuiVirtualWindow> imGuiVirtualWindow) {
     windows.push_back(imGuiVirtualWindow);
 }
 
 int AppEngine::shouldTerminated() {
     return std::any_of(windows.begin(), windows.end(),
-                       [&](const std::shared_ptr<ikura::Window> window) {
-                           auto pw = dynamic_cast<ikura::NativeWindow *>(
+                       [&](const std::shared_ptr<Window> window) {
+                           auto pw = dynamic_cast<NativeWindow *>(
                                window.get());
                            if (pw != nullptr) {
                                return pw->windowShouldClose();
@@ -45,7 +46,7 @@ int AppEngine::shouldTerminated() {
 void AppEngine::drawAllWindows() {
     // Poll GLFW Events (execute once per loop)
     for (const auto &window : windows) {
-        auto pw = dynamic_cast<ikura::GlfwNativeWindow *>(window.get());
+        auto pw = dynamic_cast<GlfwNativeWindow *>(window.get());
         if (pw != nullptr) {
             glfwPollEvents();
             break;
@@ -58,15 +59,16 @@ void AppEngine::drawAllWindows() {
 }
 
 void AppEngine::addTestShapes() {
-    SingleColorCube cube(1.0, 1.0, 1.0, {0, 0, 0}, {1.0, 1.0, 1.0}, 0);
+    shapes::SingleColorCube cube(1.0, 1.0, 1.0, {0, 0, 0},
+                                        {1.0, 1.0, 1.0}, 0);
 
     windows[0]->getRenderContent()->setVertices(cube.getVertices());
     windows[0]->getRenderContent()->setIndices(cube.getIndices());
 
-    ModelMatUBO modelMat;
+    shapes::ModelMatUBO modelMat;
     modelMat.model[0] = glm::mat4(1.0);
 
-    SceneMatUBO sceneMat;
+    shapes::SceneMatUBO sceneMat;
     sceneMat.view =
         glm::lookAt({2.0, 2.0, 4.0} /* eye */, {0.0, 0.0, 0.0} /* center */,
                     glm::vec3(0.0, 0.0, 1.0) /* up */);
@@ -79,3 +81,4 @@ void AppEngine::addTestShapes() {
 
     windows[0]->getRenderContent()->updateUniformBuffer(modelMat, sceneMat);
 }
+} // namespace ikura

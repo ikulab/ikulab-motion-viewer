@@ -4,6 +4,7 @@
 
 #include <easylogging++.h>
 
+namespace ikura {
 /**
  * @brief debug callback for ValidationLayer. prints error content e.g. error
  * message.
@@ -56,3 +57,4 @@ void RenderEngine::destroyExtensions() {
         instance.destroyDebugUtilsMessengerEXT(debugMessenger);
     }
 }
+} // namespace ikura

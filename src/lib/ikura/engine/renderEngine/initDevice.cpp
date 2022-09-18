@@ -8,6 +8,7 @@
 #include <easylogging++.h>
 #include <vk_mem_alloc.h>
 
+namespace ikura {
 struct PhysicalDeviceEvaluation {
     int score;
     bool isQueueFamiliesCompleted;
@@ -120,7 +121,8 @@ void RenderEngine::createDevice() {
     // Create CommandPool
     vk::CommandPoolCreateInfo cmdPoolCI{};
     cmdPoolCI.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-    cmdPoolCI.queueFamilyIndex = queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS);
+    cmdPoolCI.queueFamilyIndex =
+        queueFamilyIndices.get(QueueFamilyIndices::GRAPHICS);
 
     cmdPool = device.createCommandPool(cmdPoolCI, nullptr);
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "CommandPool has been created.";
@@ -305,3 +307,4 @@ vk::SampleCountFlagBits GetMaxMsaaSamples(vk::PhysicalDevice device) {
         return vk::SampleCountFlagBits::e2;
     return vk::SampleCountFlagBits::e1;
 }
+} // namespace ikura

@@ -8,6 +8,8 @@
 
 // TODO: make another abstract class as parent
 
+namespace ikura {
+namespace shapes {
 class DirectionDebugObject : public Shape {
     float size;
     /// x, y, z
@@ -16,3 +18,5 @@ class DirectionDebugObject : public Shape {
   public:
     DirectionDebugObject(float size, JointID id);
 };
+} // namespace shapes
+} // namespace ikura
