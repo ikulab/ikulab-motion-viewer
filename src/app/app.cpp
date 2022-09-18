@@ -52,4 +52,6 @@ void App::init() {
     while (!appEngine->shouldTerminated()) {
         appEngine->drawAllWindows();
     }
+
+    renderEngine->waitForDeviceIdle();
 }

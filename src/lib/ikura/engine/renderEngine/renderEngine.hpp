@@ -149,4 +149,5 @@ class RenderEngine {
     static vk::PhysicalDevice
     getSuitablePhysicalDeviceInfo(const RenderEngine *pEngine,
                                   std::vector<vk::PhysicalDevice> devices);
+    void waitForDeviceIdle();
 };

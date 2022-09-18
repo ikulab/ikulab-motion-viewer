@@ -145,12 +145,14 @@ const std::shared_ptr<VmaAllocator> RenderEngine::getVmaAllocator() const {
 
 const vk::CommandPool RenderEngine::getCommandPool() const { return cmdPool; }
 
-const RenderEngine::Queues &RenderEngine::getQueues() const {
-    return queues;
-}
+const RenderEngine::Queues &RenderEngine::getQueues() const { return queues; }
 
 void RenderEngine::setSampleSurface(vk::SurfaceKHR surface) {
     this->sampleSurface = surface;
+}
+
+void RenderEngine::waitForDeviceIdle() {
+    device.waitIdle();
 }
 
 RenderEngineInitConfig RenderEngineInitConfig::defaultDebugSetting() {
