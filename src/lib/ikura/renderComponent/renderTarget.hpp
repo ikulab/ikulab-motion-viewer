@@ -40,10 +40,16 @@ class RenderTarget {
     std::vector<vk::Semaphore> renderFinishedSemaphores;
     std::vector<vk::Fence> renderingFence;
 
-    // ImageResource ----------
+    // ImageResources ----------
     ImageResource colorImageResource;
     ImageResource depthImageResource;
     std::vector<ImageResource> renderImageResources;
+
+    // Properties ----------
+    vk::Format colorImageFormat;
+    vk::Extent2D imageExtent;
+    int numOfFrames;
+    int numOfColorImages;
 
     // Methods ==========
     // Creation of default resources ----------
@@ -53,15 +59,16 @@ class RenderTarget {
     void createDefaultGraphicsPipeline();
 
     // Init of default resources ----------
-    void initRenderImageResourcesFromNativeWindow();
+    // void initRenderImageResourcesFromNativeWindow();
 
     // Others ----------
     void createSyncObjects();
     void createRenderCmdBuffers();
 
   public:
-    RenderTarget(const std::shared_ptr<NativeWindow> nativeWindow,
-                 const std::shared_ptr<RenderEngine> renderEngine);
+    RenderTarget(const std::shared_ptr<RenderEngine> renderEngine,
+                 vk::Format colorImageFormat, vk::Extent2D imageExtent,
+                 std::vector<vk::Image> &renderImages, int numOfFrames);
     ~RenderTarget();
 
     void setDefaultResources();

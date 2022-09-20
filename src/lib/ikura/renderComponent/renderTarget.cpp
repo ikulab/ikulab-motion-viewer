@@ -41,7 +41,7 @@ void RenderTarget::createDefaultRenderPass() {
 
     // Attachment Descriptions ----------
     vk::AttachmentDescription colorAttachment{};
-    colorAttachment.format = nativeWindow.lock()->getSwapChainFormat();
+    colorAttachment.format = colorImageFormat;
     colorAttachment.samples =
         renderEngine->getEngineInfo().limit.maxMsaaSamples;
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
@@ -64,7 +64,7 @@ void RenderTarget::createDefaultRenderPass() {
         vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
     vk::AttachmentDescription colorAttachmentResolve{};
-    colorAttachmentResolve.format = nativeWindow.lock()->getSwapChainFormat();
+    colorAttachmentResolve.format = colorImageFormat;
     colorAttachmentResolve.samples = vk::SampleCountFlagBits::e1;
     colorAttachmentResolve.loadOp = vk::AttachmentLoadOp::eDontCare;
     colorAttachmentResolve.storeOp = vk::AttachmentStoreOp::eStore;
@@ -123,21 +123,20 @@ void RenderTarget::createDefaultRenderPass() {
 void RenderTarget::createDefaultImageResources() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating default ImageResources...";
     // Color Image
-    createImage(colorImageResource, nativeWindow.lock()->getSwapChainExtent(),
-                1, renderEngine->getEngineInfo().limit.maxMsaaSamples,
-                nativeWindow.lock()->getSwapChainFormat(),
-                vk::ImageTiling::eOptimal,
+    createImage(colorImageResource, imageExtent, 1,
+                renderEngine->getEngineInfo().limit.maxMsaaSamples,
+                colorImageFormat, vk::ImageTiling::eOptimal,
                 vk::ImageUsageFlagBits::eTransientAttachment |
                     vk::ImageUsageFlagBits::eColorAttachment,
                 vk::MemoryPropertyFlagBits::eDeviceLocal,
                 *renderEngine->getVmaAllocator());
-    createImageView(
-        colorImageResource, nativeWindow.lock()->getSwapChainFormat(),
-        vk::ImageAspectFlagBits::eColor, 1, renderEngine->getDevice());
+    createImageView(colorImageResource, colorImageFormat,
+                    vk::ImageAspectFlagBits::eColor, 1,
+                    renderEngine->getDevice());
 
     // Depth Image
-    createImage(depthImageResource, nativeWindow.lock()->getSwapChainExtent(),
-                1, renderEngine->getEngineInfo().limit.maxMsaaSamples,
+    createImage(depthImageResource, imageExtent, 1,
+                renderEngine->getEngineInfo().limit.maxMsaaSamples,
                 findDepthFormat(renderEngine), vk::ImageTiling::eOptimal,
                 vk::ImageUsageFlagBits::eDepthStencilAttachment,
                 vk::MemoryPropertyFlagBits::eDeviceLocal,
@@ -153,12 +152,9 @@ void RenderTarget::createDefaultImageResources() {
 void RenderTarget::createDefaultFrameBuffers() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating default FrameBuffers...";
 
-    int numOfFrameBuffer = nativeWindow.lock()->getSwapChainImages().size();
-    frameBuffers.resize(numOfFrameBuffer);
+    frameBuffers.resize(numOfColorImages);
 
-    auto extent = nativeWindow.lock()->getSwapChainExtent();
-
-    for (int i = 0; i < numOfFrameBuffer; i++) {
+    for (int i = 0; i < numOfColorImages; i++) {
         std::array<vk::ImageView, 3> attachments = {
             colorImageResource.view, depthImageResource.view,
             renderImageResources[i].view};
@@ -168,8 +164,8 @@ void RenderTarget::createDefaultFrameBuffers() {
         frameBufferCI.attachmentCount =
             static_cast<uint32_t>(attachments.size());
         frameBufferCI.pAttachments = attachments.data();
-        frameBufferCI.width = extent.width;
-        frameBufferCI.height = extent.height;
+        frameBufferCI.width = imageExtent.width;
+        frameBufferCI.height = imageExtent.height;
         frameBufferCI.layers = 1;
 
         vk::Result result = renderEngine->getDevice().createFramebuffer(
@@ -194,8 +190,6 @@ void RenderTarget::createDefaultFrameBuffers() {
 
 void RenderTarget::createDefaultGraphicsPipeline() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating default GraphicsPipeline...";
-
-    auto extent = nativeWindow.lock()->getSwapChainExtent();
 
     // ShaderModules ----------
     auto vertShaderModule = createShaderModuleFromFile(
@@ -236,15 +230,15 @@ void RenderTarget::createDefaultGraphicsPipeline() {
     vk::Viewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float)extent.width;
-    viewport.height = (float)extent.height;
+    viewport.width = (float)imageExtent.width;
+    viewport.height = (float)imageExtent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     vk::Rect2D scissor{};
     scissor.offset.x = 0;
     scissor.offset.y = 0;
-    scissor.extent = extent;
+    scissor.extent = imageExtent;
 
     vk::PipelineViewportStateCreateInfo viewportStateCI{};
     viewportStateCI.viewportCount = 1;
@@ -364,7 +358,6 @@ void RenderTarget::createDefaultGraphicsPipeline() {
 }
 
 void RenderTarget::createSyncObjects() {
-    auto numOfFrames = nativeWindow.lock()->getNumOfFrames();
     imageAvailableSemaphores.resize(numOfFrames);
     renderFinishedSemaphores.resize(numOfFrames);
     renderingFence.resize(numOfFrames);
@@ -383,7 +376,7 @@ void RenderTarget::createSyncObjects() {
 }
 
 void RenderTarget::createRenderCmdBuffers() {
-    renderCmdBuffers.resize(nativeWindow.lock()->getNumOfFrames());
+    renderCmdBuffers.resize(numOfFrames);
 
     vk::CommandBufferAllocateInfo allocInfo{};
     allocInfo.commandPool = renderEngine->getCommandPool();
@@ -404,21 +397,20 @@ void RenderTarget::setDefaultResources() {
     createDefaultGraphicsPipeline();
 }
 
-void RenderTarget::initRenderImageResourcesFromNativeWindow() {
-    renderImageResources.resize(
-        nativeWindow.lock()->getSwapChainImages().size());
-    auto format = nativeWindow.lock()->getSwapChainFormat();
+// void RenderTarget::initRenderImageResourcesFromNativeWindow() {
+//     renderImageResources.resize(numOfColorImages);
+//     auto format = colorImageFormat;
 
-    int i = 0;
-    for (const auto &scImg : nativeWindow.lock()->getSwapChainImages()) {
-        renderImageResources[i].image = scImg;
-        createImageView(renderImageResources[i], format,
-                        vk::ImageAspectFlagBits::eColor, 1,
-                        renderEngine->getDevice());
-        renderImageResources[i].releaseImage = false;
-        i++;
-    }
-}
+//     int i = 0;
+//     for (const auto &scImg : nativeWindow.lock()->getSwapChainImages()) {
+//         renderImageResources[i].image = scImg;
+//         createImageView(renderImageResources[i], format,
+//                         vk::ImageAspectFlagBits::eColor, 1,
+//                         renderEngine->getDevice());
+//         renderImageResources[i].releaseImage = false;
+//         i++;
+//     }
+// }
 
 vk::CommandBuffer &RenderTarget::getRenderCommandBuffer(int index) {
     return renderCmdBuffers[index];
@@ -450,12 +442,28 @@ const vk::PipelineLayout &RenderTarget::getGraphicsPipelineLayout() const {
     return graphicsPipelineLayout;
 }
 
-RenderTarget::RenderTarget(const std::shared_ptr<NativeWindow> nativeWindow,
-                           const std::shared_ptr<RenderEngine> renderEngine) {
-    this->nativeWindow = nativeWindow;
+/// passed renderImages will not be released.
+RenderTarget::RenderTarget(const std::shared_ptr<RenderEngine> renderEngine,
+                           vk::Format colorImageFormat,
+                           vk::Extent2D imageExtent,
+                           std::vector<vk::Image> &renderImages,
+                           int numOfFrames) {
     this->renderEngine = renderEngine;
+    this->colorImageFormat = colorImageFormat;
+    this->imageExtent = imageExtent;
+    this->numOfColorImages = renderImages.size();
+    this->numOfFrames = numOfFrames;
 
-    initRenderImageResourcesFromNativeWindow();
+    // init renderImageResources with renderImages
+    renderImageResources.resize(numOfColorImages);
+    for (int i = 0; i < numOfColorImages; i++) {
+        renderImageResources[i].image = renderImages[i];
+        createImageView(renderImageResources[i], colorImageFormat,
+                        vk::ImageAspectFlagBits::eColor, 1,
+                        renderEngine->getDevice());
+        renderImageResources[i].releaseImage = false;
+    }
+
     createSyncObjects();
     createRenderCmdBuffers();
 }
