@@ -300,10 +300,9 @@ void RenderTarget::createDefaultGraphicsPipeline() {
     colorBlendStateCI.blendConstants[3] = 0.0f;
 
     // Pipeline layout ----------
-    auto setLayout = nativeWindow.lock()->getDescriptorSetLayout();
     vk::PipelineLayoutCreateInfo pipelineLayoutCI{};
     pipelineLayoutCI.setLayoutCount = 1;
-    pipelineLayoutCI.pSetLayouts = &setLayout;
+    pipelineLayoutCI.pSetLayouts = &descriptorSetLayout;
     pipelineLayoutCI.pushConstantRangeCount = 0;
     pipelineLayoutCI.pPushConstantRanges = nullptr;
 
@@ -446,6 +445,7 @@ const vk::PipelineLayout &RenderTarget::getGraphicsPipelineLayout() const {
 RenderTarget::RenderTarget(const std::shared_ptr<RenderEngine> renderEngine,
                            vk::Format colorImageFormat,
                            vk::Extent2D imageExtent,
+                           vk::DescriptorSetLayout descriptorSetLayout,
                            std::vector<vk::Image> &renderImages,
                            int numOfFrames) {
     this->renderEngine = renderEngine;
@@ -453,6 +453,7 @@ RenderTarget::RenderTarget(const std::shared_ptr<RenderEngine> renderEngine,
     this->imageExtent = imageExtent;
     this->numOfColorImages = renderImages.size();
     this->numOfFrames = numOfFrames;
+    this->descriptorSetLayout = descriptorSetLayout;
 
     // init renderImageResources with renderImages
     renderImageResources.resize(numOfColorImages);

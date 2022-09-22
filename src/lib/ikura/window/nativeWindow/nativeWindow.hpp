@@ -27,8 +27,6 @@ class NativeWindow : public Window,
 
   public:
     virtual ~NativeWindow();
-    void addDefaultRenderTarget() override;
-    void addDefaultRenderContent() override;
 
     const vk::SwapchainKHR getSwapChain() const;
     const vk::Format getSwapChainFormat() const;

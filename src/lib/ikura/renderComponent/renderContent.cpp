@@ -11,8 +11,7 @@ namespace ikura {
 // Forward declearation of helper functions ----------
 void destroyBufferResourceIfAllocated(BufferResource &bufferResource,
                                       VmaAllocator &allocator);
-void uploadViaStagingBuffer(void *srcData,
-                            BufferResource &dstBufferResource,
+void uploadViaStagingBuffer(void *srcData, BufferResource &dstBufferResource,
                             vk::BufferUsageFlags dstBufferUsage,
                             vk::DeviceSize bufferSize,
                             std::shared_ptr<RenderEngine> renderEngine);
@@ -24,21 +23,19 @@ void BufferResource::release(VmaAllocator allocator) {
 void RenderContent::createDefaultUniformBuffers() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating default UniformBuffers...";
 
-    std::array<vk::DeviceSize, shapes::NUM_OF_DESCRIPTORS>
-        uniformBufferSizes;
+    std::array<vk::DeviceSize, shapes::NUM_OF_DESCRIPTORS> uniformBufferSizes;
     uniformBufferSizes[shapes::DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO] =
         sizeof(shapes::ModelMatUBO);
     uniformBufferSizes[shapes::DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO] =
         sizeof(shapes::SceneMatUBO);
 
-    uniformBufferResources.resize(nativeWindow.lock()->getNumOfFrames());
+    uniformBufferResources.resize(numOfFrames);
 
-    for (size_t frame = 0; frame < nativeWindow.lock()->getNumOfFrames();
-         frame++) {
+    for (size_t frame = 0; frame < numOfFrames; frame++) {
         uniformBufferResources[frame].resize(shapes::NUM_OF_DESCRIPTORS);
 
-        for (size_t descSetIndex = 0;
-             descSetIndex < shapes::NUM_OF_DESCRIPTORS; descSetIndex++) {
+        for (size_t descSetIndex = 0; descSetIndex < shapes::NUM_OF_DESCRIPTORS;
+             descSetIndex++) {
             // TODO: create large DeviceMemory and assign part of them to each
             // uniformBuffers
             vk::BufferCreateInfo bufferCI{};
@@ -75,48 +72,40 @@ void RenderContent::createDefaultDescriptorSets() {
     std::array<vk::DescriptorPoolSize, 2> poolSizes;
     poolSizes[shapes::DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO].type =
         vk::DescriptorType::eUniformBuffer;
-    poolSizes[shapes::DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]
-        .descriptorCount =
-        static_cast<uint32_t>(nativeWindow.lock()->getNumOfFrames() *
-                              shapes::NUM_OF_DESCRIPTORS);
+    poolSizes[shapes::DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO].descriptorCount =
+        static_cast<uint32_t>(numOfFrames * shapes::NUM_OF_DESCRIPTORS);
     poolSizes[shapes::DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO].type =
         vk::DescriptorType::eUniformBuffer;
-    poolSizes[shapes::DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]
-        .descriptorCount =
-        static_cast<uint32_t>(nativeWindow.lock()->getNumOfFrames());
+    poolSizes[shapes::DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO].descriptorCount =
+        static_cast<uint32_t>(numOfFrames);
 
     vk::DescriptorPoolCreateInfo poolCI{};
     poolCI.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolCI.pPoolSizes = poolSizes.data();
     poolCI.maxSets =
-        static_cast<uint32_t>(nativeWindow.lock()->getNumOfFrames() *
-                              shapes::NUM_OF_DESCRIPTOR_SETS);
+        static_cast<uint32_t>(numOfFrames * shapes::NUM_OF_DESCRIPTOR_SETS);
 
     descriptorPool = renderEngine->getDevice().createDescriptorPool(poolCI);
 
     // DescriptorSets ==========
     // Array preparation ----------
-    size_t numOfDescriptorWrites = nativeWindow.lock()->getNumOfFrames() *
-                                   shapes::NUM_OF_DESCRIPTORS;
+    size_t numOfDescriptorWrites = numOfFrames * shapes::NUM_OF_DESCRIPTORS;
 
     std::vector<vk::WriteDescriptorSet> descriptorWrites;
     descriptorWrites.resize(numOfDescriptorWrites);
     std::vector<vk::DescriptorBufferInfo> bufferInfos;
     bufferInfos.resize(numOfDescriptorWrites);
 
-    descriptorSets.resize(nativeWindow.lock()->getNumOfFrames());
+    descriptorSets.resize(numOfFrames);
 
     // DescriptorSet Allocation loop per frame ----------
     size_t index = 0;
-    for (size_t frame = 0; frame < nativeWindow.lock()->getNumOfFrames();
-         frame++) {
+    for (size_t frame = 0; frame < numOfFrames; frame++) {
         // Allocation ----------
-        auto layout = nativeWindow.lock()->getDescriptorSetLayout();
-
         vk::DescriptorSetAllocateInfo allocInfo{};
         allocInfo.descriptorPool = descriptorPool;
         allocInfo.descriptorSetCount = shapes::NUM_OF_DESCRIPTOR_SETS;
-        allocInfo.pSetLayouts = &layout;
+        allocInfo.pSetLayouts = &descriptorSetLayout;
 
         descriptorSets[frame] =
             renderEngine->getDevice().allocateDescriptorSets(allocInfo);
@@ -130,8 +119,9 @@ void RenderContent::createDefaultDescriptorSets() {
         bufferInfos[index].offset = 0;
         bufferInfos[index].range = VK_WHOLE_SIZE;
 
-        descriptorWrites[index].dstSet = descriptorSets
-            [frame][shapes::DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO];
+        descriptorWrites[index].dstSet =
+            descriptorSets[frame]
+                          [shapes::DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO];
         descriptorWrites[index].dstBinding =
             shapes::DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO;
         descriptorWrites[index].dstArrayElement = 0;
@@ -149,8 +139,9 @@ void RenderContent::createDefaultDescriptorSets() {
         bufferInfos[index].offset = 0;
         bufferInfos[index].range = VK_WHOLE_SIZE;
 
-        descriptorWrites[index].dstSet = descriptorSets
-            [frame][shapes::DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO];
+        descriptorWrites[index].dstSet =
+            descriptorSets[frame]
+                          [shapes::DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO];
         descriptorWrites[index].dstBinding =
             shapes::DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO;
         descriptorWrites[index].dstArrayElement = 0;
@@ -174,10 +165,12 @@ void RenderContent::setDefaultResources() {
     createDefaultDescriptorSets();
 }
 
-RenderContent::RenderContent(std::shared_ptr<NativeWindow> nativeWindow,
-                             std::shared_ptr<RenderEngine> renderEngine) {
-    this->nativeWindow = nativeWindow;
+RenderContent::RenderContent(std::shared_ptr<RenderEngine> renderEngine,
+                             vk::DescriptorSetLayout descriptorSetLayout,
+                             int numOfFrames) {
     this->renderEngine = renderEngine;
+    this->descriptorSetLayout = descriptorSetLayout;
+    this->numOfFrames = numOfFrames;
 }
 
 RenderContent::~RenderContent() {
@@ -259,34 +252,30 @@ void RenderContent::uploadVertexAndIndexBuffer() {
 void RenderContent::updateUniformBuffer(shapes::ModelMatUBO &modelMatUBO,
                                         shapes::SceneMatUBO &sceneMatUBO) {
     void *data;
-    for (int i = 0; i < nativeWindow.lock()->getNumOfFrames(); i++) {
+    for (int i = 0; i < numOfFrames; i++) {
         // Model Matrix
-        vmaMapMemory(
-            *renderEngine->getVmaAllocator(),
-            uniformBufferResources
-                [i][shapes::DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]
-                    .alloc,
-            &data);
+        vmaMapMemory(*renderEngine->getVmaAllocator(),
+                     uniformBufferResources
+                         [i][shapes::DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]
+                             .alloc,
+                     &data);
         memcpy(data, &modelMatUBO, sizeof(modelMatUBO));
-        vmaUnmapMemory(
-            *renderEngine->getVmaAllocator(),
-            uniformBufferResources
-                [i][shapes::DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]
-                    .alloc);
+        vmaUnmapMemory(*renderEngine->getVmaAllocator(),
+                       uniformBufferResources
+                           [i][shapes::DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO]
+                               .alloc);
 
         // Scene Matrix
-        vmaMapMemory(
-            *renderEngine->getVmaAllocator(),
-            uniformBufferResources
-                [i][shapes::DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]
-                    .alloc,
-            &data);
+        vmaMapMemory(*renderEngine->getVmaAllocator(),
+                     uniformBufferResources
+                         [i][shapes::DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]
+                             .alloc,
+                     &data);
         memcpy(data, &sceneMatUBO, sizeof(sceneMatUBO));
-        vmaUnmapMemory(
-            *renderEngine->getVmaAllocator(),
-            uniformBufferResources
-                [i][shapes::DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]
-                    .alloc);
+        vmaUnmapMemory(*renderEngine->getVmaAllocator(),
+                       uniformBufferResources
+                           [i][shapes::DESCRIPTOR_SET_BINDING_SCENE_MATRIX_UBO]
+                               .alloc);
     }
 }
 
@@ -319,8 +308,7 @@ void destroyBufferResourceIfAllocated(BufferResource &bufferResource,
     }
 }
 
-void uploadViaStagingBuffer(void *srcData,
-                            BufferResource &dstBufferResource,
+void uploadViaStagingBuffer(void *srcData, BufferResource &dstBufferResource,
                             vk::BufferUsageFlags dstBufferUsage,
                             vk::DeviceSize bufferSize,
                             std::shared_ptr<RenderEngine> renderEngine) {

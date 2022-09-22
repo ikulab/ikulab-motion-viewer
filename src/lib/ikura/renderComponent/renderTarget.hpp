@@ -9,9 +9,6 @@
 #include "../engine/renderEngine/renderEngine.hpp"
 
 namespace ikura {
-// Forward declearation ----------
-class NativeWindow;
-
 class ImageResource {
   public:
     vk::Image image;
@@ -26,7 +23,6 @@ class ImageResource {
 class RenderTarget {
     // Variables ==========
     std::shared_ptr<RenderEngine> renderEngine;
-    std::weak_ptr<NativeWindow> nativeWindow;
 
     // Basic objects for render ----------
     std::vector<vk::CommandBuffer> renderCmdBuffers;
@@ -48,6 +44,7 @@ class RenderTarget {
     // Properties ----------
     vk::Format colorImageFormat;
     vk::Extent2D imageExtent;
+    vk::DescriptorSetLayout descriptorSetLayout;
     int numOfFrames;
     int numOfColorImages;
 
@@ -68,6 +65,7 @@ class RenderTarget {
   public:
     RenderTarget(const std::shared_ptr<RenderEngine> renderEngine,
                  vk::Format colorImageFormat, vk::Extent2D imageExtent,
+                 vk::DescriptorSetLayout descriptorSetLayout,
                  std::vector<vk::Image> &renderImages, int numOfFrames);
     ~RenderTarget();
 

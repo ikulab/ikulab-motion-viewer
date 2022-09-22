@@ -5,8 +5,6 @@
 #include "../renderComponent/defaultSetting.hpp"
 
 namespace ikura {
-void Window::addDefaultRenderTarget() {}
-void Window::addDefaultRenderContent() {}
 void Window::draw() {}
 
 void Window::createDefaultDescriptorSetLayout() {
@@ -58,11 +56,11 @@ const int Window::getWidth() const { return width; }
 
 const int Window::getHeight() const { return height; }
 
-const std::unique_ptr<RenderTarget> &Window::getRenderTarget() {
+const std::shared_ptr<RenderTarget> &Window::getRenderTarget() {
     return renderTarget;
 }
 
-const std::unique_ptr<RenderContent> &Window::getRenderContent() {
+const std::shared_ptr<RenderContent> &Window::getRenderContent() {
     return renderContent;
 }
 

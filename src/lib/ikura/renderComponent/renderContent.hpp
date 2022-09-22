@@ -9,9 +9,6 @@
 #include "../engine/renderEngine/renderEngine.hpp"
 
 namespace ikura {
-// Forward declearation ----------
-class NativeWindow;
-
 class BufferResource {
   public:
     vk::Buffer buffer;
@@ -21,27 +18,36 @@ class BufferResource {
 };
 
 class RenderContent {
+    // Variables ==========
     std::shared_ptr<RenderEngine> renderEngine;
-    std::weak_ptr<NativeWindow> nativeWindow;
 
+    // Index / Vertex ----------
     std::vector<shapes::Vertex> vertices;
     std::vector<shapes::Index> indices;
+
+    // Buffers ----------
     BufferResource vertexBufferResource;
     BufferResource indexBufferResource;
     // uniformBuffers[frame][set]
     std::vector<std::vector<BufferResource>> uniformBufferResources;
 
+    // about DescriptorSet ----------
     vk::DescriptorPool descriptorPool;
     // descriptorSets[frame][set]
     std::vector<std::vector<vk::DescriptorSet>> descriptorSets;
+    vk::DescriptorSetLayout descriptorSetLayout;
 
+    // Properties ----------
+    int numOfFrames;
+
+    // Functions ==========
     void createDefaultUniformBuffers();
     void createDefaultDescriptorSets();
     void assignDefaultVertexAndIndexArray();
 
   public:
-    RenderContent(std::shared_ptr<NativeWindow> nativeWindow,
-                  std::shared_ptr<RenderEngine> renderEngine);
+    RenderContent(std::shared_ptr<RenderEngine> renderEngine,
+                  vk::DescriptorSetLayout descriptorSetLayout, int numOfFrames);
     ~RenderContent();
 
     void setDefaultResources();

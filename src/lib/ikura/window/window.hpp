@@ -21,8 +21,8 @@ class Window {
 
     vk::DescriptorSetLayout descriptorSetLayout;
 
-    std::unique_ptr<RenderContent> renderContent;
-    std::unique_ptr<RenderTarget> renderTarget;
+    std::shared_ptr<RenderContent> renderContent;
+    std::shared_ptr<RenderTarget> renderTarget;
 
   public:
     virtual ~Window();
@@ -37,7 +37,7 @@ class Window {
     const int getWidth() const;
     const int getHeight() const;
 
-    const std::unique_ptr<RenderTarget> &getRenderTarget();
-    const std::unique_ptr<RenderContent> &getRenderContent();
+    const std::shared_ptr<RenderTarget> &getRenderTarget();
+    const std::shared_ptr<RenderContent> &getRenderContent();
 };
 } // namespace ikura

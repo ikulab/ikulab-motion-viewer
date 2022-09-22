@@ -18,18 +18,6 @@ NativeWindow::~NativeWindow() {
         << "Surface for '" << name << "' has been destroyed.";
 }
 
-void NativeWindow::addDefaultRenderTarget() {
-    renderTarget =
-        std::make_unique<RenderTarget>(shared_from_this(), renderEngine);
-    renderTarget->setDefaultResources();
-}
-
-void NativeWindow::addDefaultRenderContent() {
-    renderContent =
-        std::make_unique<RenderContent>(shared_from_this(), renderEngine);
-    renderContent->setDefaultResources();
-}
-
 const vk::SwapchainKHR NativeWindow::getSwapChain() const { return swapChain; }
 
 const vk::Format NativeWindow::getSwapChainFormat() const {
