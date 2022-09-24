@@ -18,6 +18,7 @@ class BufferResource {
 };
 
 class RenderContent {
+  protected:
     // Variables ==========
     std::shared_ptr<RenderEngine> renderEngine;
 

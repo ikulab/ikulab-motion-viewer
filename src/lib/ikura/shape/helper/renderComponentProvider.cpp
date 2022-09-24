@@ -52,11 +52,6 @@ RenderComponentProvider::createRenderTargetForShapes(
     return renderTarget;
 }
 
-// void NativeWindow::addDefaultRenderContent() {
-//     renderContent =
-//         std::make_unique<RenderContent>(shared_from_this(), renderEngine);
-//     renderContent->setDefaultResources();
-// }
 std::shared_ptr<RenderContent>
 RenderComponentProvider::createRenderContentForShapes(
     const std::shared_ptr<RenderEngine> renderEngine,

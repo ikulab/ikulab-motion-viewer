@@ -1,1 +1,3 @@
-add_library(renderComponent STATIC renderContent.cpp renderTarget.cpp)
+file(GLOB_RECURSE SOURCES *.cpp)
+
+add_library(renderComponent STATIC ${SOURCES})

@@ -21,6 +21,7 @@ class ImageResource {
 };
 
 class RenderTarget {
+  protected:
     // Variables ==========
     std::shared_ptr<RenderEngine> renderEngine;
 
@@ -49,27 +50,33 @@ class RenderTarget {
     int numOfColorImages;
 
     // Methods ==========
-    // Creation of default resources ----------
-    void createDefaultRenderPass();
-    void createDefaultImageResources();
-    void createDefaultFrameBuffers();
-    void createDefaultGraphicsPipeline();
+    virtual void createSyncObjects();
+    virtual void createRenderCmdBuffers();
 
-    // Init of default resources ----------
-    // void initRenderImageResourcesFromNativeWindow();
-
-    // Others ----------
-    void createSyncObjects();
-    void createRenderCmdBuffers();
+    // helper functions ----------
+    static vk::Format
+    findDepthFormat(std::shared_ptr<RenderEngine> renderEngine);
+    static void createImage(
+        ImageResource &imageResource, const vk::Extent2D imageExtent,
+        const uint32_t mipLevels, const vk::SampleCountFlagBits numSamples,
+        const vk::Format format, const vk::ImageTiling tiling,
+        const vk::ImageUsageFlags usage,
+        const vk::MemoryPropertyFlags properties, VmaAllocator &allocator);
+    static void createImageView(ImageResource &imageResource,
+                                const vk::Format format,
+                                const vk::ImageAspectFlags aspectFlags,
+                                const uint32_t mipLevels,
+                                const vk::Device device);
+    static vk::ShaderModule
+    createShaderModuleFromFile(const std::string fileName,
+                               const vk::Device device);
 
   public:
     RenderTarget(const std::shared_ptr<RenderEngine> renderEngine,
                  vk::Format colorImageFormat, vk::Extent2D imageExtent,
                  vk::DescriptorSetLayout descriptorSetLayout,
                  std::vector<vk::Image> &renderImages, int numOfFrames);
-    ~RenderTarget();
-
-    void setDefaultResources();
+    virtual ~RenderTarget();
 
     // Getters ----------
     vk::CommandBuffer &getRenderCommandBuffer(int index);
