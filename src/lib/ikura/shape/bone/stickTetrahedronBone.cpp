@@ -16,15 +16,15 @@ StickTetrahedronBone::StickTetrahedronBone(float length, JointID id)
                                              glm::vec3(0.8, 0.8, 0.8), id);
 }
 
-const std::vector<Vertex> &StickTetrahedronBone::getVertices() const {
+const std::vector<BasicVertex> &StickTetrahedronBone::getVertices() const {
     return cube->getVertices();
 }
 
-const std::vector<Index> &StickTetrahedronBone::getIndices() const {
+const std::vector<BasicIndex> &StickTetrahedronBone::getIndices() const {
     return cube->getIndices();
 }
 
-void StickTetrahedronBone::setBaseIndex(uint32_t baseIndex) {
+void StickTetrahedronBone::setBaseIndex(BasicIndex baseIndex) {
     cube->setBaseIndex(baseIndex);
 }
 } // namespace shapes

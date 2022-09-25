@@ -16,14 +16,8 @@ AppEngine::AppEngine(std::shared_ptr<RenderEngine> renderEngine) {
     this->renderEngine = renderEngine;
 }
 
-void AppEngine::addWindow(
-    std::shared_ptr<GlfwNativeWindow> glfwNativeWindow) {
-    glfwNativeWindow->createDefaultDescriptorSetLayout();
-    glfwNativeWindow->addDefaultRenderTarget();
-    glfwNativeWindow->addDefaultRenderContent();
-
+void AppEngine::addWindow(std::shared_ptr<GlfwNativeWindow> glfwNativeWindow) {
     windows.push_back(glfwNativeWindow);
-    addTestShapes();
 }
 
 void AppEngine::addWindow(
@@ -34,8 +28,7 @@ void AppEngine::addWindow(
 int AppEngine::shouldTerminated() {
     return std::any_of(windows.begin(), windows.end(),
                        [&](const std::shared_ptr<Window> window) {
-                           auto pw = dynamic_cast<NativeWindow *>(
-                               window.get());
+                           auto pw = dynamic_cast<NativeWindow *>(window.get());
                            if (pw != nullptr) {
                                return pw->windowShouldClose();
                            }
@@ -44,7 +37,7 @@ int AppEngine::shouldTerminated() {
 }
 
 void AppEngine::drawAllWindows() {
-    // Poll GLFW Events (execute once per loop)
+    // Poll all GLFW Window Events (execute once per loop)
     for (const auto &window : windows) {
         auto pw = dynamic_cast<GlfwNativeWindow *>(window.get());
         if (pw != nullptr) {
@@ -56,29 +49,5 @@ void AppEngine::drawAllWindows() {
     for (auto &window : windows) {
         window->draw();
     }
-}
-
-void AppEngine::addTestShapes() {
-    shapes::SingleColorCube cube(1.0, 1.0, 1.0, {0, 0, 0},
-                                        {1.0, 1.0, 1.0}, 0);
-
-    windows[0]->getRenderContent()->setVertices(cube.getVertices());
-    windows[0]->getRenderContent()->setIndices(cube.getIndices());
-
-    shapes::ModelMatUBO modelMat;
-    modelMat.model[0] = glm::mat4(1.0);
-
-    shapes::SceneMatUBO sceneMat;
-    sceneMat.view =
-        glm::lookAt({2.0, 2.0, 4.0} /* eye */, {0.0, 0.0, 0.0} /* center */,
-                    glm::vec3(0.0, 0.0, 1.0) /* up */);
-    sceneMat.proj = glm::perspective(glm::radians(45.0f),
-                                     windows[0]->getWidth() /
-                                         (float)windows[0]->getHeight(),
-                                     0.01f, 1000.0f);
-    // Convert to RightHand Z-up
-    sceneMat.proj[1][1] *= -1;
-
-    windows[0]->getRenderContent()->updateUniformBuffer(modelMat, sceneMat);
 }
 } // namespace ikura

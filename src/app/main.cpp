@@ -18,6 +18,8 @@ int main() {
 
     try {
         app.init();
+        std::cout << "Hello Ikura!!" << std::endl;
+        app.run();
     } catch (const std::runtime_error &e) {
         LOG(FATAL) << e.what();
         return EXIT_FAILURE;

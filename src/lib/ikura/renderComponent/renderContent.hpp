@@ -19,12 +19,15 @@ class BufferResource {
 
 class RenderContent {
   protected:
+    RenderContent(std::shared_ptr<RenderEngine> renderEngine,
+                  vk::DescriptorSetLayout descriptorSetLayout, int numOfFrames);
+
     // Variables ==========
     std::shared_ptr<RenderEngine> renderEngine;
 
     // Index / Vertex ----------
-    std::vector<shapes::Vertex> vertices;
-    std::vector<shapes::Index> indices;
+    std::vector<Vertex> vertices;
+    std::vector<Index> indices;
 
     // Buffers ----------
     BufferResource vertexBufferResource;
@@ -41,36 +44,20 @@ class RenderContent {
     // Properties ----------
     int numOfFrames;
 
-    // Functions ==========
-    void createDefaultUniformBuffers();
-    void createDefaultDescriptorSets();
-    void assignDefaultVertexAndIndexArray();
-
   public:
-    RenderContent(std::shared_ptr<RenderEngine> renderEngine,
-                  vk::DescriptorSetLayout descriptorSetLayout, int numOfFrames);
     ~RenderContent();
-
-    void setDefaultResources();
-
-    void setVertices(const std::vector<shapes::Vertex> &vertices);
-    void setIndices(const std::vector<shapes::Index> &indices);
 
     // Upload to GPU ----------
     void uploadVertexBuffer();
     void uploadIndexBuffer();
     void uploadVertexAndIndexBuffer();
 
-    // Update non-cached data
-    void updateUniformBuffer(shapes::ModelMatUBO &modelMatUBO,
-                             shapes::SceneMatUBO &sceneMatUbo);
-
     // Getter ----------
     const vk::Buffer &getVertexBuffer() const;
     const vk::Buffer &getIndexBuffer() const;
     const std::vector<vk::DescriptorSet> &getDescriptorSets(int index);
 
-    const std::vector<shapes::Index> &getIndices() const;
-    const std::vector<shapes::Vertex> &getVertices() const;
+    const std::vector<Index> &getIndices() const;
+    const std::vector<Vertex> &getVertices() const;
 };
 } // namespace ikura

@@ -15,10 +15,10 @@ class StickTetrahedronBone : public Bone {
   public:
     StickTetrahedronBone(float length, JointID id);
 
-    const std::vector<Vertex> &getVertices() const override;
+    const std::vector<BasicVertex> &getVertices() const override;
     const std::vector<uint32_t> &getIndices() const override;
 
-    void setBaseIndex(uint32_t baseIndex) override;
+    void setBaseIndex(BasicIndex baseIndex) override;
 };
 } // namespace shapes
 } // namespace ikura

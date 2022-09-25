@@ -179,8 +179,8 @@ void BasicRenderTarget::setupGraphicsPipeline() {
     std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStages = {
         vertShaderStageCI, fragShaderStageCI};
 
-    auto bindingDescription = shapes::Vertex::getBindingDescription();
-    auto attributeDescriptions = shapes::Vertex::getAttributeDescriptions();
+    auto bindingDescription = BasicVertex::getBindingDescription();
+    auto attributeDescriptions = BasicVertex::getAttributeDescriptions();
 
     // Pipeline input states ----------
     vk::PipelineVertexInputStateCreateInfo vertInputStateCI{};

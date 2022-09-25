@@ -149,7 +149,7 @@ RenderTarget::~RenderTarget() {
 }
 
 // Static functions ----------
-vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine) {
+vk::Format RenderTarget::findDepthFormat(std::shared_ptr<RenderEngine> renderEngine) {
     // TODO: Allow changing
     auto tiling = vk::ImageTiling::eOptimal;
     auto feature = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
@@ -177,7 +177,7 @@ vk::Format findDepthFormat(std::shared_ptr<RenderEngine> renderEngine) {
         "Failed to find supported depth attachment format.");
 }
 
-void createImage(ImageResource &imageResource, const vk::Extent2D imageExtent,
+void RenderTarget::createImage(ImageResource &imageResource, const vk::Extent2D imageExtent,
                  const uint32_t mipLevels,
                  const vk::SampleCountFlagBits numSamples,
                  const vk::Format format, const vk::ImageTiling tiling,
@@ -212,7 +212,7 @@ void createImage(ImageResource &imageResource, const vk::Extent2D imageExtent,
     imageResource.allocation = allocation;
 }
 
-void createImageView(ImageResource &imageResource, const vk::Format format,
+void RenderTarget::createImageView(ImageResource &imageResource, const vk::Format format,
                      const vk::ImageAspectFlags aspectFlags,
                      const uint32_t mipLevels, const vk::Device device) {
     vk::ImageViewCreateInfo viewCI;
@@ -229,7 +229,7 @@ void createImageView(ImageResource &imageResource, const vk::Format format,
     imageResource.view = device.createImageView(viewCI, nullptr);
 }
 
-vk::ShaderModule createShaderModuleFromFile(const std::string fileName,
+vk::ShaderModule RenderTarget::createShaderModuleFromFile(const std::string fileName,
                                             const vk::Device device) {
     std::ifstream file(fileName, std::ios::ate | std::ios::binary);
 

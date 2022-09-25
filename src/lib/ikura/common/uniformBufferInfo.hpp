@@ -3,18 +3,14 @@
 #include <glm/glm.hpp>
 
 namespace ikura {
-namespace shapes {
-const int NUM_OF_JOINT_ID = 256;
-const int NUM_OF_ID_OTHER_THAN_JOINTS = 2;
-const int NUM_OF_ID = NUM_OF_JOINT_ID + NUM_OF_ID_OTHER_THAN_JOINTS;
+const int NUM_OF_MODEL_MATRIX = 256;
 
-struct ModelMatUBO {
-    alignas(16) glm::mat4 model[NUM_OF_ID];
+struct BasicModelMatUBO {
+    alignas(16) glm::mat4 model[NUM_OF_MODEL_MATRIX];
 };
 
-struct SceneMatUBO {
+struct BasicSceneMatUBO {
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
 };
-} // namespace shapes
 } // namespace ikura

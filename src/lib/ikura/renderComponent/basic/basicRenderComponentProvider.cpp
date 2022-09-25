@@ -1,12 +1,11 @@
-#include "./renderComponentProvider.hpp"
+#include "./basicRenderComponentProvider.hpp"
 
 #include <easylogging++.h>
 
 #include "./descriptorSetProps.hpp"
 
-namespace ikura::shapes {
-
-void RenderComponentProvider::createDescriptorSetlayout() {
+namespace ikura {
+void BasicRenderComponentProvider::createDescriptorSetlayout() {
     vk::DescriptorSetLayoutBinding modelMatLayoutBinding{};
     modelMatLayoutBinding.binding = DESCRIPTOR_SET_BINDING_MODEL_MATRIX_UBO;
     modelMatLayoutBinding.descriptorCount = 1;
@@ -29,22 +28,31 @@ void RenderComponentProvider::createDescriptorSetlayout() {
         renderEngine->getDevice().createDescriptorSetLayout(layoutCI);
 }
 
-RenderComponentProvider::RenderComponentProvider() {
-    VLOG(VLOG_LV_3_PROCESS_TRACKING)
-        << "Creating DescriptorSetLayout for shapes.";
+BasicRenderComponentProvider::BasicRenderComponentProvider(
+    const std::shared_ptr<RenderEngine> renderEngine) {
+    this->renderEngine = renderEngine;
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Basic DescriptorSetLayout.";
     createDescriptorSetlayout();
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
-        << "DescriptiorSetLayout for shapes has been created.";
+        << "Basic DescriptiorSetLayout has been created.";
 }
 
-std::shared_ptr<RenderTarget>
-RenderComponentProvider::createRenderTargetForShapes(
-    const std::shared_ptr<RenderEngine> renderEngine,
+BasicRenderComponentProvider::~BasicRenderComponentProvider() {
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "Desctroying Basic DescriptorSetLayout...";
+    renderEngine->getDevice().destroyDescriptorSetLayout(descriptorSetLayout);
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "Basic DescriptorSetLayout has been deleted.";
+}
+
+std::shared_ptr<BasicRenderTarget>
+BasicRenderComponentProvider::createBasicRenderTarget(
     const std::shared_ptr<NativeWindow> nativeWindow) {
 
     auto images = renderEngine->getDevice().getSwapchainImagesKHR(
         nativeWindow->getSwapChain());
-    auto renderTarget = std::make_shared<RenderTarget>(
+    auto renderTarget = std::make_shared<BasicRenderTarget>(
         renderEngine, nativeWindow->getSwapChainFormat(),
         nativeWindow->getSwapChainExtent(), descriptorSetLayout, images,
         nativeWindow->getNumOfFrames());
@@ -52,15 +60,14 @@ RenderComponentProvider::createRenderTargetForShapes(
     return renderTarget;
 }
 
-std::shared_ptr<RenderContent>
-RenderComponentProvider::createRenderContentForShapes(
-    const std::shared_ptr<RenderEngine> renderEngine,
+std::shared_ptr<BasicRenderContent>
+BasicRenderComponentProvider::createBasicRenderContent(
     const std::shared_ptr<NativeWindow> nativeWindow) {
 
-    auto renderContent = std::make_shared<RenderContent>(
+    auto renderContent = std::make_shared<BasicRenderContent>(
         renderEngine, descriptorSetLayout, nativeWindow->getNumOfFrames());
-	
-	return renderContent;
+
+    return renderContent;
 }
 
-} // namespace ikura::shapes
+} // namespace ikura

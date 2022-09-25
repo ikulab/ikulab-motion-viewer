@@ -28,6 +28,7 @@ OctahedronBone::OctahedronBone(float length, JointID id) : Bone(length, id) {
                                         {midBottom, rootColorWhite, id},
                                         {midRight, rootColorWhite, id},
                                     });
+
     // bottom-left area
     vertices.insert(vertices.end(), {{root, rootColorGray, id},
                                      {midLeft, rootColorGray, id},
@@ -63,7 +64,7 @@ OctahedronBone::OctahedronBone(float length, JointID id) : Bone(length, id) {
     Sphere rootSphere(length * 0.03, 10, 10, glm::vec3(length, 0.0, 0.0), id);
     Sphere tipSphere(length * 0.02, 10, 10, glm::vec3(0.0, 0.0, 0.0), id);
 
-    uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
+    BasicIndex baseIndex = static_cast<uint32_t>(vertices.size());
     rootSphere.setBaseIndex(baseIndex);
     baseIndex += static_cast<uint32_t>(rootSphere.getVertices().size());
     tipSphere.setBaseIndex(baseIndex);

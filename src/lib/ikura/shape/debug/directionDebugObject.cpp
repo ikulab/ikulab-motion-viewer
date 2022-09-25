@@ -22,15 +22,15 @@ DirectionDebugObject::DirectionDebugObject(float size, JointID id)
 
     // vertices
     for (const auto &ax : axes) {
-        const std::vector<Vertex> &vec = ax->getVertices();
+        const std::vector<BasicVertex> &vec = ax->getVertices();
         vertices.insert(vertices.end(), vec.begin(), vec.end());
     }
 
     // indices
-    uint32_t baseIndex = 0;
+    BasicIndex baseIndex = 0;
     for (const auto &ax : axes) {
         ax->setBaseIndex(baseIndex);
-        const std::vector<uint32_t> &idx = ax->getIndices();
+        const std::vector<BasicIndex> &idx = ax->getIndices();
         indices.insert(indices.end(), idx.begin(), idx.end());
 
         baseIndex += ax->getVertices().size();

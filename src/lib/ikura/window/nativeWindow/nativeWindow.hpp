@@ -10,8 +10,7 @@
 #include "../windowInputContext.hpp"
 
 namespace ikura {
-class NativeWindow : public Window,
-                     public std::enable_shared_from_this<NativeWindow> {
+class NativeWindow : public Window {
   protected:
     WindowInputContext inputCtx;
     vk::SurfaceKHR surface;
