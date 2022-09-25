@@ -5,7 +5,6 @@
 #include <easylogging++.h>
 
 #include "../window/nativeWindow/nativeWindow.hpp"
-#include "./defaultSetting.hpp"
 
 namespace ikura {
 void BufferResource::release(VmaAllocator allocator) {
