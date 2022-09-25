@@ -31,6 +31,7 @@ class NativeWindow : public Window {
     const vk::Format getSwapChainFormat() const;
     const vk::Extent2D getSwapChainExtent() const;
     const std::vector<vk::Image> getSwapChainImages() const;
+    const uint32_t getCurrentFrameIndex() const;
 
     virtual int windowShouldClose();
     void draw() override;

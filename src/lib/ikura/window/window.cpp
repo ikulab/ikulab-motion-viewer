@@ -2,8 +2,6 @@
 
 #include <easylogging++.h>
 
-#include "../renderComponent/defaultSetting.hpp"
-
 namespace ikura {
 void Window::draw() {}
 

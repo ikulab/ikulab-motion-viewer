@@ -32,6 +32,10 @@ const std::vector<vk::Image> NativeWindow::getSwapChainImages() const {
     return swapChainImages;
 }
 
+const uint32_t NativeWindow::getCurrentFrameIndex() const {
+    return currentFrame;
+}
+
 int NativeWindow::windowShouldClose() { return 0; }
 
 void NativeWindow::draw() {}
