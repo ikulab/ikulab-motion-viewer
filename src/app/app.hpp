@@ -12,8 +12,10 @@ class App {
     std::shared_ptr<ikura::BasicRenderTarget> renderTarget;
     std::shared_ptr<ikura::BasicRenderContent> renderContent;
 
+    void initIkura();
+    void setShapes();
+
   public:
     App();
-    void init();
     void run();
 };

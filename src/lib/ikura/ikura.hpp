@@ -14,4 +14,4 @@
 #include "renderComponent/basic/basicRenderTarget.hpp"
 
 // shapes
-#include "shape/shape.hpp"
+#include "shape/shapes.hpp"

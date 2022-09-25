@@ -5,9 +5,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-App::App() {}
-
-void App::init() {
+void App::initIkura() {
     // Initialize RenderEngine
     ikura::RenderEngineInitConfig renderConfig =
         ikura::RenderEngineInitConfig::defaultDebugSetting();
@@ -32,14 +30,14 @@ void App::init() {
     }
     vk::SurfaceKHR surface = vk::SurfaceKHR(vkSurface);
 
-    // Create RenderEngine's Device
+    // Create Device in RenderEngine (requires sample Surface)
     renderEngine->setSampleSurface(surface);
     renderEngine->createDevice();
 
     // Initialize AppEngine
     appEngine = std::make_unique<ikura::AppEngine>(renderEngine);
 
-    // Setup Window
+    // Setup ikura Window
     mainWindow = std::make_shared<ikura::GlfwNativeWindow>(
         renderEngine, glfwWindow, surface, "main");
     ikura::BasicRenderComponentProvider basicRenderComponentProvider(
@@ -56,13 +54,31 @@ void App::init() {
     appEngine->addWindow(mainWindow);
 }
 
-void App::run() {
-    renderContent->setDemoShape();
-    renderContent->updateDemoUBO(mainWindow);
+void App::setShapes() {
+    auto cube =
+        ikura::shapes::SeparatedColorCube(1.0, 1.0, 1.0, {0.0, 0.0, 0.0},
+                                          {{{0.0, 0.0, 1.0},
+                                            {0.0, 1.0, 0.0},
+                                            {0.0, 1.0, 1.0},
+                                            {1.0, 0.0, 0.0},
+                                            {1.0, 0.0, 1.0},
+                                            {1.0, 1.0, 0.0}}},
+                                          0);
+    renderContent->setVertices(cube.getVertices());
+    renderContent->setIndices(cube.getIndices());
 
     renderContent->uploadVertexBuffer();
     renderContent->uploadIndexBuffer();
 
+    renderContent->updateDemoUBO(mainWindow);
+}
+
+App::App() {
+    initIkura();
+    setShapes();
+}
+
+void App::run() {
     while (!appEngine->shouldTerminated()) {
         appEngine->drawAllWindows();
     }

@@ -14,10 +14,8 @@ int main() {
     el::Loggers::reconfigureAllLoggers(conf);
     el::Loggers::setVerboseLevel(4);
 
-    App app;
-
     try {
-        app.init();
+        App app;
         std::cout << "Hello Ikura!!" << std::endl;
         app.run();
     } catch (const std::runtime_error &e) {
