@@ -7,6 +7,10 @@ namespace ikura {
 class Window;
 
 class BasicRenderContent : public RenderContent {
+  protected:
+    std::vector<BasicVertex> vertices;
+    std::vector<BasicIndex> indices;
+
     void setupUniformBuffers();
     void setupDescriptorSets();
 
@@ -20,6 +24,11 @@ class BasicRenderContent : public RenderContent {
 
     void updateUniformBuffer(int frameIndex, BasicModelMatUBO &modelMatUBO,
                              BasicSceneMatUBO &sceneMatUBO);
+
+    // Implementation of virtual functions ----------
+    void uploadVertexBuffer() override;
+    void uploadIndexBuffer() override;
+    const size_t getNumOfIndex() override;
 
     // Demo ----------
     void setDemoShape();

@@ -265,7 +265,7 @@ void GlfwNativeWindow::recordCommandBuffer(uint32_t imageIndex) {
 
     // Draw ----------
     renderTarget->getRenderCommandBuffer(currentFrame)
-        .drawIndexed(renderContent->getIndices().size(), 1, 0, 0, 0);
+        .drawIndexed(renderContent->getNumOfIndex(), 1, 0, 0, 0);
 
     // End ----------
     renderTarget->getRenderCommandBuffer(currentFrame).endRenderPass();

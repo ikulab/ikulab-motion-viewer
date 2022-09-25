@@ -6,12 +6,7 @@
 
 namespace ikura {
 
-class Vertex {
-  public:
-    virtual size_t getDataSize() { return 0; };
-
-    static void *convetToDataVector(std::vector<Vertex> vertices);
-};
+class Vertex {};
 
 class BasicVertex : public Vertex {
   public:
@@ -35,8 +30,6 @@ class BasicVertex : public Vertex {
         data = newData;
     }
 
-    size_t getDataSize() override { return sizeof(Data); }
-
     static vk::VertexInputBindingDescription getBindingDescription() {
         vk::VertexInputBindingDescription bindingDescription{};
         bindingDescription.binding = 0;
@@ -46,8 +39,8 @@ class BasicVertex : public Vertex {
         return bindingDescription;
     }
 
-    std::vector<
-        vk::VertexInputAttributeDescription> static getAttributeDescriptions() {
+    static std::vector<vk::VertexInputAttributeDescription>
+    getAttributeDescriptions() {
         std::vector<vk::VertexInputAttributeDescription> attributeDescriptions(
             3);
         attributeDescriptions[0].binding = 0;
@@ -67,6 +60,19 @@ class BasicVertex : public Vertex {
 
         return attributeDescriptions;
     }
+
+    static std::vector<Data>
+    convertToDataVector(std::vector<BasicVertex> vertices) {
+        std::vector<Data> dataVec(vertices.size());
+
+        for (int i = 0; i < vertices.size(); i++) {
+            dataVec[i] = vertices[i].data;
+        }
+
+        return dataVec;
+    }
+
+    static size_t getDataSize() { return sizeof(Data); }
 
     bool operator==(const BasicVertex &other) const {
         return (data.pos == other.data.pos && data.color == other.data.color &&

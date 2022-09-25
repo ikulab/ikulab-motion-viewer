@@ -200,6 +200,47 @@ void BasicRenderContent::updateUniformBuffer(int frameIndex,
                                   .alloc);
 }
 
+void BasicRenderContent::uploadIndexBuffer() {
+    if (indices.empty()) {
+        LOG(INFO) << "Index array is empty. Stopping indexBuffer upload.";
+        return;
+    }
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Uploading IndexBuffer...";
+
+    indexBufferResource.release(*renderEngine->getVmaAllocator());
+
+    uploadViaStagingBuffer(indices.data(), indexBufferResource,
+                           vk::BufferUsageFlagBits::eIndexBuffer,
+                           sizeof(indices[0]) * indices.size(), renderEngine);
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "IndexBuffer has been uploaded.";
+}
+
+void BasicRenderContent::uploadVertexBuffer() {
+    if (vertices.empty()) {
+        LOG(INFO) << "Vertex array is empty. Stopping vertexBuffer upload.";
+        return;
+    }
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Uploading VertexBuffer...";
+
+    vertexBufferResource.release(*renderEngine->getVmaAllocator());
+
+    uploadViaStagingBuffer(
+        BasicVertex::convertToDataVector(vertices).data(), vertexBufferResource,
+        vk::BufferUsageFlagBits::eVertexBuffer,
+        sizeof(BasicVertex::Data) * BasicVertex::getDataSize(), renderEngine);
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "VertexBuffer has been uploaded.";
+}
+
+const size_t BasicRenderContent::getNumOfIndex() {
+    return indices.size();
+}
+
+// Demo ----------
+
 void BasicRenderContent::setDemoShape() {
     shapes::SingleColorCube cube(1.0, 1.0, 1.0, {0, 0, 0}, {1.0, 1.0, 1.0}, 0);
 
@@ -221,7 +262,7 @@ void BasicRenderContent::updateDemoUBO(std::shared_ptr<Window> window) {
     // Convert to RightHand Z-up
     sceneMat.proj[1][1] *= -1;
 
-	// update all frame
+    // update all frame
     for (int i = 0; i < window->getNumOfFrames(); i++) {
         updateUniformBuffer(i, modelMat, sceneMat);
     }
