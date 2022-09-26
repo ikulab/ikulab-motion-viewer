@@ -7,6 +7,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "../engine/renderEngine/renderEngine.hpp"
+#include "./renderComponentProvider.hpp"
 
 namespace ikura {
 class ImageResource {
@@ -78,6 +79,9 @@ class RenderTarget {
                  std::vector<vk::Image> &renderImages, int numOfFrames);
     virtual ~RenderTarget();
 
+    virtual void recreateResourcesForSwapChainRecreation(
+        vk::Extent2D imageExtent, std::vector<vk::Image> renderImages);
+
     // Getters ----------
     vk::CommandBuffer &getRenderCommandBuffer(int index);
 
@@ -89,5 +93,8 @@ class RenderTarget {
     const vk::Framebuffer &getFramebuffer(int imageIndex) const;
     const vk::Pipeline &getGraphicsPipeline() const;
     const vk::PipelineLayout &getGraphicsPipelineLayout() const;
+
+    // Destroyers ----------
+    void destroyResourcesForSwapChainRecreation();
 };
 } // namespace ikura

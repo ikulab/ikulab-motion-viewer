@@ -16,6 +16,7 @@ void BufferResource::release(VmaAllocator allocator) {
 RenderContent::RenderContent(std::shared_ptr<RenderEngine> renderEngine,
                              vk::DescriptorSetLayout descriptorSetLayout,
                              int numOfFrames) {
+
     this->renderEngine = renderEngine;
     this->descriptorSetLayout = descriptorSetLayout;
     this->numOfFrames = numOfFrames;

@@ -335,8 +335,30 @@ BasicRenderTarget::BasicRenderTarget(
                    descriptorSetLayout, renderImages, numOfFrames) {
 
     setupRenderPass();
-	setupImageResources();
-	setupFrameBuffers();
-	setupGraphicsPipeline();
+    setupImageResources();
+    setupFrameBuffers();
+    setupGraphicsPipeline();
+}
+
+void BasicRenderTarget::recreateResourcesForSwapChainRecreation(
+    vk::Extent2D imageExtent, std::vector<vk::Image> renderImages) {
+
+    this->imageExtent = imageExtent;
+    this->numOfColorImages = renderImages.size();
+
+    // init renderImageResources with renderImages
+    renderImageResources.resize(numOfColorImages);
+    for (int i = 0; i < numOfColorImages; i++) {
+        renderImageResources[i].image = renderImages[i];
+        RenderTarget::createImageView(renderImageResources[i], colorImageFormat,
+                                      vk::ImageAspectFlagBits::eColor, 1,
+                                      renderEngine->getDevice());
+        renderImageResources[i].releaseImage = false;
+    }
+
+    setupImageResources();
+    setupRenderPass();
+    setupGraphicsPipeline();
+    setupFrameBuffers();
 }
 } // namespace ikura

@@ -51,6 +51,9 @@ void RenderTarget::createRenderCmdBuffers() {
         renderEngine->getDevice().allocateCommandBuffers(allocInfo);
 }
 
+void RenderTarget::recreateResourcesForSwapChainRecreation(
+    vk::Extent2D imageExtent, std::vector<vk::Image> renderImages) {}
+
 vk::CommandBuffer &RenderTarget::getRenderCommandBuffer(int index) {
     return renderCmdBuffers[index];
 }
@@ -79,6 +82,24 @@ const vk::Pipeline &RenderTarget::getGraphicsPipeline() const {
 
 const vk::PipelineLayout &RenderTarget::getGraphicsPipelineLayout() const {
     return graphicsPipelineLayout;
+}
+
+void RenderTarget::destroyResourcesForSwapChainRecreation() {
+    colorImageResource.release(renderEngine->getDevice(),
+                               *renderEngine->getVmaAllocator());
+    depthImageResource.release(renderEngine->getDevice(),
+                               *renderEngine->getVmaAllocator());
+    for (auto &renderImageResource : renderImageResources) {
+        renderImageResource.release(renderEngine->getDevice(),
+                                    *renderEngine->getVmaAllocator());
+    }
+
+    for (auto &frameBuffer : frameBuffers) {
+        renderEngine->getDevice().destroyFramebuffer(frameBuffer);
+    }
+    renderEngine->getDevice().destroyPipeline(graphicsPipeline);
+    renderEngine->getDevice().destroyPipelineLayout(graphicsPipelineLayout);
+    renderEngine->getDevice().destroyRenderPass(renderPass);
 }
 
 /// passed renderImages will not be released.
@@ -149,7 +170,8 @@ RenderTarget::~RenderTarget() {
 }
 
 // Static functions ----------
-vk::Format RenderTarget::findDepthFormat(std::shared_ptr<RenderEngine> renderEngine) {
+vk::Format
+RenderTarget::findDepthFormat(std::shared_ptr<RenderEngine> renderEngine) {
     // TODO: Allow changing
     auto tiling = vk::ImageTiling::eOptimal;
     auto feature = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
@@ -177,13 +199,12 @@ vk::Format RenderTarget::findDepthFormat(std::shared_ptr<RenderEngine> renderEng
         "Failed to find supported depth attachment format.");
 }
 
-void RenderTarget::createImage(ImageResource &imageResource, const vk::Extent2D imageExtent,
-                 const uint32_t mipLevels,
-                 const vk::SampleCountFlagBits numSamples,
-                 const vk::Format format, const vk::ImageTiling tiling,
-                 const vk::ImageUsageFlags usage,
-                 const vk::MemoryPropertyFlags properties,
-                 VmaAllocator &allocator) {
+void RenderTarget::createImage(
+    ImageResource &imageResource, const vk::Extent2D imageExtent,
+    const uint32_t mipLevels, const vk::SampleCountFlagBits numSamples,
+    const vk::Format format, const vk::ImageTiling tiling,
+    const vk::ImageUsageFlags usage, const vk::MemoryPropertyFlags properties,
+    VmaAllocator &allocator) {
     vk::ImageCreateInfo imageCI;
     imageCI.imageType = vk::ImageType::e2D;
     imageCI.extent = vk::Extent3D(imageExtent, 1);
@@ -212,9 +233,11 @@ void RenderTarget::createImage(ImageResource &imageResource, const vk::Extent2D 
     imageResource.allocation = allocation;
 }
 
-void RenderTarget::createImageView(ImageResource &imageResource, const vk::Format format,
-                     const vk::ImageAspectFlags aspectFlags,
-                     const uint32_t mipLevels, const vk::Device device) {
+void RenderTarget::createImageView(ImageResource &imageResource,
+                                   const vk::Format format,
+                                   const vk::ImageAspectFlags aspectFlags,
+                                   const uint32_t mipLevels,
+                                   const vk::Device device) {
     vk::ImageViewCreateInfo viewCI;
     viewCI.image = imageResource.image;
     viewCI.viewType = vk::ImageViewType::e2D;
@@ -229,8 +252,9 @@ void RenderTarget::createImageView(ImageResource &imageResource, const vk::Forma
     imageResource.view = device.createImageView(viewCI, nullptr);
 }
 
-vk::ShaderModule RenderTarget::createShaderModuleFromFile(const std::string fileName,
-                                            const vk::Device device) {
+vk::ShaderModule
+RenderTarget::createShaderModuleFromFile(const std::string fileName,
+                                         const vk::Device device) {
     std::ifstream file(fileName, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {

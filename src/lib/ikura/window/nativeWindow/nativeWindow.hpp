@@ -24,6 +24,8 @@ class NativeWindow : public Window {
 
     NativeWindow() {}
 
+    virtual void recreateSwapChain();
+
   public:
     virtual ~NativeWindow();
 

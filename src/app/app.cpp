@@ -44,12 +44,12 @@ void App::initIkura() {
     // Setup ikura Window
     mainWindow = std::make_shared<ikura::GlfwNativeWindow>(
         renderEngine, glfwWindow, surface, "main");
-    ikura::BasicRenderComponentProvider basicRenderComponentProvider(
-        renderEngine);
+    basicRenderComponentProvider =
+        std::make_shared<ikura::BasicRenderComponentProvider>(renderEngine);
     renderTarget =
-        basicRenderComponentProvider.createBasicRenderTarget(mainWindow);
+        basicRenderComponentProvider->createBasicRenderTarget(mainWindow);
     renderContent =
-        basicRenderComponentProvider.createBasicRenderContent(mainWindow);
+        basicRenderComponentProvider->createBasicRenderContent(mainWindow);
 
     mainWindow->setRenderTarget(renderTarget);
     mainWindow->setRenderContent(renderContent);
@@ -73,26 +73,43 @@ void App::setShapes() {
 
     renderContent->uploadVertexBuffer();
     renderContent->uploadIndexBuffer();
+}
 
-    renderContent->updateDemoUBO(mainWindow);
+void App::setGlfwWindowEvents() {
+    auto window = mainWindow->getGLFWWindow();
+
+    glfwSetWindowUserPointer(window, this);
+
+    glfwSetCursorPosCallback(window, cursorPositionCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetScrollCallback(window, scrollCallback);
+    glfwSetKeyCallback(window, keyCallback);
 }
 
 App::App() {
     initIkura();
     setShapes();
+    setGlfwWindowEvents();
 }
 
 void App::run() {
+    float angle = 0.0;
+    appEngine->setStartTime();
+
     while (!appEngine->shouldTerminated()) {
+        appEngine->vSync();
+        camera.updateCamera(mouse, keyboard);
+        mouse.resetScroll();
+
         auto currentFrame = mainWindow->getCurrentFrameIndex();
         ikura::BasicModelMatUBO modelMat;
         ikura::BasicSceneMatUBO sceneMat;
 
-        modelMat.model[0] = glm::mat4(1.0);
+        modelMat.model[0] =
+            glm::rotate(glm::mat4(1.0), angle, glm::vec3(0, 0, 1.0));
+        angle = M_PI * appEngine->getSecondsFromStart() / 4.0;
 
-        sceneMat.view =
-            glm::lookAt({2.0, 2.0, 4.0} /* eye */, {0.0, 0.0, 0.0} /* center */,
-                        glm::vec3(0.0, 0.0, 1.0) /* up */);
+        sceneMat.view = camera.generateViewMat();
         sceneMat.proj = glm::perspective(glm::radians(45.0f),
                                          mainWindow->getWidth() /
                                              (float)mainWindow->getHeight(),

@@ -4,7 +4,8 @@ void Camera::updateCamera(Mouse mouseCtx, Keyboard keyCtx) {
     const static double DIFF_RATIO = 0.01;
     const static double SCROLL_RATIO = 1.1;
 
-    bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow);
+    // bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow);
+    bool isWindowFocused = false;
 
     if (!isWindowFocused) {
         if (mouseCtx.leftButton) {

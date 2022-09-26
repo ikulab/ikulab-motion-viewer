@@ -13,11 +13,13 @@ class GlfwNativeWindow : public NativeWindow {
     GLFWwindow *window;
 
     bool frameBufferResized = false;
+    vk::SwapchainCreateInfoKHR swapChainCICache;
 
     void createSwapChain();
     static void framebufferResizeCallback(GLFWwindow *window, int width,
                                           int height);
     void recordCommandBuffer(uint32_t imageIndex);
+    void recreateSwapChain() override;
 
   public:
     GlfwNativeWindow(const std::shared_ptr<RenderEngine> renderEngine,
@@ -27,5 +29,7 @@ class GlfwNativeWindow : public NativeWindow {
 
     int windowShouldClose() override;
     void draw() override;
+
+    GLFWwindow *getGLFWWindow() const;
 };
 } // namespace ikura

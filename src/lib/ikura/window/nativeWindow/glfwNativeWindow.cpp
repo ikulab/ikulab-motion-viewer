@@ -154,6 +154,7 @@ void GlfwNativeWindow::createSwapChain() {
     swapChain = renderEngine->getDevice().createSwapchainKHR(swapChainCI);
     swapChainFormat = format.format;
     swapChainExtent = extent;
+    swapChainCICache = swapChainCI;
 
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "SwapChain for '" << name << "' has been created.";
@@ -179,7 +180,7 @@ void GlfwNativeWindow::draw() {
         renderTarget->getImageAvailableSemaphore(currentFrame), VK_NULL_HANDLE);
 
     if (nextImage.result == vk::Result::eErrorOutOfDateKHR) {
-        // TODO: Recreate SwapChain
+        recreateSwapChain();
         return;
     } else if (nextImage.result != vk::Result::eSuccess &&
                nextImage.result != vk::Result::eSuboptimalKHR) {
@@ -220,13 +221,15 @@ void GlfwNativeWindow::draw() {
     if (result == vk::Result::eErrorOutOfDateKHR ||
         result == vk::Result::eSuboptimalKHR || frameBufferResized) {
         frameBufferResized = false;
-        // TODO: Recreate SwapChain
+        recreateSwapChain();
     } else if (result != vk::Result::eSuccess) {
         throw std::runtime_error("Failed to present swapChain image.");
     }
 
     currentFrame = (currentFrame + 1) % numOfFrames;
 }
+
+GLFWwindow *GlfwNativeWindow::getGLFWWindow() const { return window; }
 
 void GlfwNativeWindow::recordCommandBuffer(uint32_t imageIndex) {
     // Beggin ----------
@@ -271,6 +274,33 @@ void GlfwNativeWindow::recordCommandBuffer(uint32_t imageIndex) {
     renderTarget->getRenderCommandBuffer(currentFrame).endRenderPass();
     renderTarget->getRenderCommandBuffer(currentFrame).end();
 }
+
+void GlfwNativeWindow::recreateSwapChain() {
+    renderEngine->getDevice().waitIdle();
+
+    // Clean up SwapChain
+    renderTarget->destroyResourcesForSwapChainRecreation();
+    renderEngine->getDevice().destroySwapchainKHR(swapChain);
+
+    // Recreate SwapChain ----------
+    auto extent = chooseSwapChainExtent(
+        renderEngine->getPhysicalDevice().getSurfaceCapabilitiesKHR(surface),
+        window);
+
+    vk::SwapchainCreateInfoKHR swapChainCI = swapChainCICache;
+    swapChainCI.imageExtent = extent;
+    swapChain = renderEngine->getDevice().createSwapchainKHR(swapChainCI);
+
+    swapChainExtent = extent;
+    swapChainImages =
+        renderEngine->getDevice().getSwapchainImagesKHR(swapChain);
+    width = extent.width;
+    height = extent.height;
+
+    renderTarget->recreateResourcesForSwapChainRecreation(swapChainExtent,
+                                                          swapChainImages);
+}
+
 } // namespace ikura
 
 vk::SurfaceFormatKHR
@@ -305,6 +335,10 @@ chooseSwapChainExtent(const vk::SurfaceCapabilitiesKHR &capabilities,
         return capabilities.currentExtent;
     } else {
         int width, height;
+        while (width == 0 || height == 0) {
+            glfwGetFramebufferSize(window, &width, &height);
+            glfwWaitEvents();
+        }
         glfwGetFramebufferSize(window, &width, &height);
 
         vk::Extent2D actualExtent = {static_cast<uint32_t>(width),

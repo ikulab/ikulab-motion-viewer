@@ -235,9 +235,7 @@ void BasicRenderContent::uploadVertexBuffer() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "VertexBuffer has been uploaded.";
 }
 
-const size_t BasicRenderContent::getNumOfIndex() {
-    return indices.size();
-}
+const size_t BasicRenderContent::getNumOfIndex() { return indices.size(); }
 
 // Demo ----------
 

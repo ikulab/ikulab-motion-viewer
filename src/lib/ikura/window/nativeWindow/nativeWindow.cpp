@@ -4,6 +4,8 @@
 #include <vulkan/vulkan.hpp>
 
 namespace ikura {
+void NativeWindow::recreateSwapChain() {}
+
 NativeWindow::~NativeWindow() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Destroying SwapChain for '" << name << "'...";

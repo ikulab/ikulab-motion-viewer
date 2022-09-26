@@ -6,14 +6,14 @@
 
 #include "../../engine/renderEngine/renderEngine.hpp"
 #include "../../window/nativeWindow/nativeWindow.hpp"
+#include "../renderComponentProvider.hpp"
 #include "./basicRenderContent.hpp"
 #include "./basicRenderTarget.hpp"
 
 namespace ikura {
 // Provides Basic RenderComponent compatible with shapes
-class BasicRenderComponentProvider {
-    std::shared_ptr<RenderEngine> renderEngine;
-    vk::DescriptorSetLayout descriptorSetLayout;
+class BasicRenderComponentProvider
+    : public RenderComponentProvider {
 
     void createDescriptorSetlayout();
 

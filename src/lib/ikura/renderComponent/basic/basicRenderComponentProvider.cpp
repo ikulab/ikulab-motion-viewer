@@ -29,8 +29,8 @@ void BasicRenderComponentProvider::createDescriptorSetlayout() {
 }
 
 BasicRenderComponentProvider::BasicRenderComponentProvider(
-    const std::shared_ptr<RenderEngine> renderEngine) {
-    this->renderEngine = renderEngine;
+    const std::shared_ptr<RenderEngine> renderEngine)
+    : RenderComponentProvider(renderEngine) {
 
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating Basic DescriptorSetLayout.";
     createDescriptorSetlayout();
@@ -38,13 +38,7 @@ BasicRenderComponentProvider::BasicRenderComponentProvider(
         << "Basic DescriptiorSetLayout has been created.";
 }
 
-BasicRenderComponentProvider::~BasicRenderComponentProvider() {
-    VLOG(VLOG_LV_3_PROCESS_TRACKING)
-        << "Desctroying Basic DescriptorSetLayout...";
-    renderEngine->getDevice().destroyDescriptorSetLayout(descriptorSetLayout);
-    VLOG(VLOG_LV_3_PROCESS_TRACKING)
-        << "Basic DescriptorSetLayout has been deleted.";
-}
+BasicRenderComponentProvider::~BasicRenderComponentProvider() {}
 
 std::shared_ptr<BasicRenderTarget>
 BasicRenderComponentProvider::createBasicRenderTarget(
