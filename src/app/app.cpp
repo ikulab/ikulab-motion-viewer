@@ -5,6 +5,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/gtc/matrix_transform.hpp>
+
 void App::initIkura() {
     // Initialize RenderEngine
     ikura::RenderEngineInitConfig renderConfig =
@@ -80,6 +84,24 @@ App::App() {
 
 void App::run() {
     while (!appEngine->shouldTerminated()) {
+        auto currentFrame = mainWindow->getCurrentFrameIndex();
+        ikura::BasicModelMatUBO modelMat;
+        ikura::BasicSceneMatUBO sceneMat;
+
+        modelMat.model[0] = glm::mat4(1.0);
+
+        sceneMat.view =
+            glm::lookAt({2.0, 2.0, 4.0} /* eye */, {0.0, 0.0, 0.0} /* center */,
+                        glm::vec3(0.0, 0.0, 1.0) /* up */);
+        sceneMat.proj = glm::perspective(glm::radians(45.0f),
+                                         mainWindow->getWidth() /
+                                             (float)mainWindow->getHeight(),
+                                         0.01f, 1000.0f);
+        // Convert to RightHand Z-up
+        sceneMat.proj[1][1] *= -1;
+
+        renderContent->updateUniformBuffer(currentFrame, modelMat, sceneMat);
+
         appEngine->drawAllWindows();
     }
 
