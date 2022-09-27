@@ -19,12 +19,16 @@ class Window {
     std::string name;
     int numOfFrames = 3;
 
+    bool resourceDestroyed = false;
+
     std::shared_ptr<RenderContent> renderContent;
     std::shared_ptr<RenderTarget> renderTarget;
 
   public:
     virtual ~Window();
     virtual void draw();
+    virtual bool closed();
+    virtual void destroyResources();
 
     // Getters ----------
     const int getNumOfFrames() const;

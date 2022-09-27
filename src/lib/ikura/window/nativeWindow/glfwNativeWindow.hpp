@@ -10,6 +10,7 @@
 
 namespace ikura {
 class GlfwNativeWindow : public NativeWindow {
+  protected:
     GLFWwindow *window;
 
     bool frameBufferResized = false;
@@ -20,6 +21,8 @@ class GlfwNativeWindow : public NativeWindow {
                                           int height);
     void recordCommandBuffer(uint32_t imageIndex);
     void recreateSwapChain() override;
+      
+    void destroyGlfwWindow();
 
   public:
     GlfwNativeWindow(const std::shared_ptr<RenderEngine> renderEngine,
@@ -27,8 +30,9 @@ class GlfwNativeWindow : public NativeWindow {
                      std::string name);
     ~GlfwNativeWindow();
 
-    int windowShouldClose() override;
+    void destroyResources() override;
     void draw() override;
+    bool closed() override;
 
     GLFWwindow *getGLFWWindow() const;
 };

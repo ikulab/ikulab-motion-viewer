@@ -5,7 +5,11 @@
 namespace ikura {
 void Window::draw() {}
 
+bool Window::closed() { return false; }
+
 Window::~Window() {}
+
+void Window::destroyResources() {}
 
 // Getters ----------
 

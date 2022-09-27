@@ -6,18 +6,26 @@
 namespace ikura {
 void NativeWindow::recreateSwapChain() {}
 
-NativeWindow::~NativeWindow() {
+void NativeWindow::destroySwapChain() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Destroying SwapChain for '" << name << "'...";
     renderEngine->getDevice().destroySwapchainKHR(swapChain);
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "SwapChain for '" << name << "' has been destroyed.";
+}
 
+void NativeWindow::destroySurface() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Destroying Surface for '" << name << "'...";
     renderEngine->getInstance().destroySurfaceKHR(surface);
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Surface for '" << name << "' has been destroyed.";
+}
+
+NativeWindow::~NativeWindow() {
+    if (!resourceDestroyed) {
+        destroyResources();
+    }
 }
 
 const vk::SwapchainKHR NativeWindow::getSwapChain() const { return swapChain; }
@@ -37,8 +45,6 @@ const std::vector<vk::Image> NativeWindow::getSwapChainImages() const {
 const uint32_t NativeWindow::getCurrentFrameIndex() const {
     return currentFrame;
 }
-
-int NativeWindow::windowShouldClose() { return 0; }
 
 void NativeWindow::draw() {}
 

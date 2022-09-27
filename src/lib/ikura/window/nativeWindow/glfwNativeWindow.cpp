@@ -67,11 +67,9 @@ GlfwNativeWindow::GlfwNativeWindow(
 }
 
 GlfwNativeWindow::~GlfwNativeWindow() {
-    VLOG(VLOG_LV_3_PROCESS_TRACKING)
-        << "Destroying GLFW Window for '" << name << "'...";
-    glfwDestroyWindow(window);
-    VLOG(VLOG_LV_3_PROCESS_TRACKING)
-        << "GLFW Window for '" << name << "' has been destroyed.";
+    if (!resourceDestroyed) {
+        destroyGlfwWindow();
+    }
 }
 
 void GlfwNativeWindow::createSwapChain() {
@@ -160,9 +158,15 @@ void GlfwNativeWindow::createSwapChain() {
         << "SwapChain for '" << name << "' has been created.";
 }
 
-int GlfwNativeWindow::windowShouldClose() {
-    return glfwWindowShouldClose(window);
+void GlfwNativeWindow::destroyResources() {
+    destroyGlfwWindow();
+    destroySwapChain();
+    destroySurface();
+
+    resourceDestroyed = true;
 }
+
+bool GlfwNativeWindow::closed() { return glfwWindowShouldClose(window) != 0; }
 
 void GlfwNativeWindow::draw() {
     // Wait for previous frame to complete
@@ -301,6 +305,13 @@ void GlfwNativeWindow::recreateSwapChain() {
                                                           swapChainImages);
 }
 
+void GlfwNativeWindow::destroyGlfwWindow() {
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "Destroying GLFW Window for '" << name << "'...";
+    glfwDestroyWindow(window);
+    VLOG(VLOG_LV_3_PROCESS_TRACKING)
+        << "GLFW Window for '" << name << "' has been destroyed.";
+}
 } // namespace ikura
 
 vk::SurfaceFormatKHR

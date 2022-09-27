@@ -43,9 +43,15 @@ void App::initIkura() {
     // Initialize AppEngine
     appEngine = std::make_unique<ikura::AppEngine>(renderEngine);
 
-    // Setup ikura Window
+    // Setup main ikura Window ----------
+    GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
+    int xpos, ypos;
+    glfwGetMonitorWorkarea(primaryMonitor, &xpos, &ypos, nullptr, nullptr);
+
+    glfwSetWindowPos(glfwWindow, xpos + 100, ypos + 100);
     mainWindow = std::make_shared<ikura::GlfwNativeWindow>(
         renderEngine, glfwWindow, surface, "main");
+
     basicRenderComponentProvider =
         std::make_shared<ikura::BasicRenderComponentProvider>(renderEngine);
     mainRenderTarget =
@@ -56,9 +62,10 @@ void App::initIkura() {
     mainWindow->setRenderTarget(mainRenderTarget);
     mainWindow->setRenderContent(mainRenderContent);
 
-    // Setup ikura sub Window
+    // Setup ikura sub Window ----------
     glfwWindow =
         glfwCreateWindow(400, 300, "Ikura Window Sub", nullptr, nullptr);
+    glfwSetWindowPos(glfwWindow, xpos + 600, ypos + 100);
 
     if ((glfwCreateWindowSurface(renderEngine->getInstance(), glfwWindow,
                                  nullptr, &vkSurface)) != VK_SUCCESS) {
@@ -75,7 +82,7 @@ void App::initIkura() {
     subWindow->setRenderTarget(subRenderTarget);
     subWindow->setRenderContent(mainRenderContent);
 
-    // Add Window
+    // Add Window ----------
     appEngine->addWindow(mainWindow);
     appEngine->addWindow(subWindow);
 }

@@ -26,6 +26,9 @@ class NativeWindow : public Window {
 
     virtual void recreateSwapChain();
 
+    virtual void destroySwapChain();
+    virtual void destroySurface();
+
   public:
     virtual ~NativeWindow();
 
@@ -35,7 +38,6 @@ class NativeWindow : public Window {
     const std::vector<vk::Image> getSwapChainImages() const;
     const uint32_t getCurrentFrameIndex() const;
 
-    virtual int windowShouldClose();
     void draw() override;
 };
 } // namespace ikura

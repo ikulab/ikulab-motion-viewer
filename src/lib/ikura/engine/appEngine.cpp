@@ -1,5 +1,6 @@
 #include "./appEngine.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <thread>
 
@@ -57,14 +58,9 @@ void AppEngine::setStartTime() {
 float AppEngine::getSecondsFromStart() const { return secondsFromStart; }
 
 int AppEngine::shouldTerminated() {
-    return std::all_of(windows.begin(), windows.end(),
-                       [&](const std::shared_ptr<Window> window) {
-                           auto pw = dynamic_cast<NativeWindow *>(window.get());
-                           if (pw != nullptr) {
-                               return pw->windowShouldClose();
-                           }
-                           return 0;
-                       });
+    return std::all_of(
+        windows.begin(), windows.end(),
+        [&](const std::shared_ptr<Window> window) { return window->closed(); });
 }
 
 void AppEngine::drawAllWindows() {
@@ -83,6 +79,15 @@ void AppEngine::drawAllWindows() {
 }
 
 void AppEngine::destroyClosedWindow() {
-    
+    auto endIter =
+        std::remove_if(windows.begin(), windows.end(), [](std::shared_ptr<Window> window) {
+            bool closed = window->closed();
+            if (closed) {
+                window->destroyResources();
+            }
+            return closed;
+        });
+
+    windows.assign(windows.begin(), endIter);
 }
 } // namespace ikura
