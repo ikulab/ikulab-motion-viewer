@@ -9,6 +9,8 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <imgui/imgui.h>
+
 void App::initIkura() {
     // Initialize RenderEngine
     ikura::RenderEngineInitConfig renderConfig =
@@ -32,7 +34,7 @@ void App::initIkura() {
         throw std::runtime_error(
             "Failed to create VkSurfaceKHR from glfwCreateWindowSurface().");
     }
-    vk::SurfaceKHR surface = vk::SurfaceKHR(vkSurface);
+    vk::SurfaceKHR surface = vkSurface;
 
     // Create Device in RenderEngine (requires sample Surface)
     renderEngine->setSampleSurface(surface);
@@ -46,16 +48,36 @@ void App::initIkura() {
         renderEngine, glfwWindow, surface, "main");
     basicRenderComponentProvider =
         std::make_shared<ikura::BasicRenderComponentProvider>(renderEngine);
-    renderTarget =
+    mainRenderTarget =
         basicRenderComponentProvider->createBasicRenderTarget(mainWindow);
-    renderContent =
+    mainRenderContent =
         basicRenderComponentProvider->createBasicRenderContent(mainWindow);
 
-    mainWindow->setRenderTarget(renderTarget);
-    mainWindow->setRenderContent(renderContent);
+    mainWindow->setRenderTarget(mainRenderTarget);
+    mainWindow->setRenderContent(mainRenderContent);
+
+    // Setup ikura sub Window
+    glfwWindow =
+        glfwCreateWindow(400, 300, "Ikura Window Sub", nullptr, nullptr);
+
+    if ((glfwCreateWindowSurface(renderEngine->getInstance(), glfwWindow,
+                                 nullptr, &vkSurface)) != VK_SUCCESS) {
+        throw std::runtime_error(
+            "Failed to create VkSurfaceKHR from glfwCreateWindowSurface().");
+    }
+    surface = vkSurface;
+
+    subWindow = std::make_shared<ikura::GlfwNativeWindow>(
+        renderEngine, glfwWindow, surface, "sub");
+
+    subRenderTarget =
+        basicRenderComponentProvider->createBasicRenderTarget(subWindow);
+    subWindow->setRenderTarget(subRenderTarget);
+    subWindow->setRenderContent(mainRenderContent);
 
     // Add Window
     appEngine->addWindow(mainWindow);
+    appEngine->addWindow(subWindow);
 }
 
 void App::setShapes() {
@@ -68,16 +90,14 @@ void App::setShapes() {
                                             {1.0, 0.0, 1.0},
                                             {1.0, 1.0, 0.0}}},
                                           0);
-    renderContent->setVertices(cube.getVertices());
-    renderContent->setIndices(cube.getIndices());
+    mainRenderContent->setVertices(cube.getVertices());
+    mainRenderContent->setIndices(cube.getIndices());
 
-    renderContent->uploadVertexBuffer();
-    renderContent->uploadIndexBuffer();
+    mainRenderContent->uploadVertexBuffer();
+    mainRenderContent->uploadIndexBuffer();
 }
 
-void App::setGlfwWindowEvents() {
-    auto window = mainWindow->getGLFWWindow();
-
+void App::setGlfwWindowEvents(GLFWwindow *window) {
     glfwSetWindowUserPointer(window, this);
 
     glfwSetCursorPosCallback(window, cursorPositionCallback);
@@ -89,7 +109,7 @@ void App::setGlfwWindowEvents() {
 App::App() {
     initIkura();
     setShapes();
-    setGlfwWindowEvents();
+    setGlfwWindowEvents(mainWindow->getGLFWWindow());
 }
 
 void App::run() {
@@ -117,9 +137,11 @@ void App::run() {
         // Convert to RightHand Z-up
         sceneMat.proj[1][1] *= -1;
 
-        renderContent->updateUniformBuffer(currentFrame, modelMat, sceneMat);
+        mainRenderContent->updateUniformBuffer(currentFrame, modelMat,
+                                               sceneMat);
 
         appEngine->drawAllWindows();
+        appEngine->destroyClosedWindow();
     }
 
     renderEngine->waitForDeviceIdle();

@@ -34,5 +34,6 @@ class AppEngine {
 
     int shouldTerminated();
     void drawAllWindows();
+    void destroyClosedWindow();
 };
 } // namespace ikura

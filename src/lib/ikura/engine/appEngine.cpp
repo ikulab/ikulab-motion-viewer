@@ -57,7 +57,7 @@ void AppEngine::setStartTime() {
 float AppEngine::getSecondsFromStart() const { return secondsFromStart; }
 
 int AppEngine::shouldTerminated() {
-    return std::any_of(windows.begin(), windows.end(),
+    return std::all_of(windows.begin(), windows.end(),
                        [&](const std::shared_ptr<Window> window) {
                            auto pw = dynamic_cast<NativeWindow *>(window.get());
                            if (pw != nullptr) {
@@ -80,5 +80,9 @@ void AppEngine::drawAllWindows() {
     for (auto &window : windows) {
         window->draw();
     }
+}
+
+void AppEngine::destroyClosedWindow() {
+    
 }
 } // namespace ikura
