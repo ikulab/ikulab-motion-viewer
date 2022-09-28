@@ -20,5 +20,5 @@ class Mouse {
     double scrollOffsetX = 0.0;
     double scrollOffsetY = 0.0;
 
-    void resetScroll();
+    void reset();
 };

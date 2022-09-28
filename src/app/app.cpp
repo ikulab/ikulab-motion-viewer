@@ -159,7 +159,7 @@ void App::run() {
                         [](const std::shared_ptr<ikura::VirtualWindow> window) {
                             return window->isFocused();
                         }));
-        mouse.resetScroll();
+        mouse.reset();
 
         updateMatrices();
         updateUI();
