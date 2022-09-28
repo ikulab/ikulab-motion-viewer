@@ -9,13 +9,12 @@
 
 #include "../window/nativeWindow/glfwNativeWindow.hpp"
 #include "../window/virtualWindow/imGuiVirtualWindow.hpp"
-#include "../window/window.hpp"
 #include "./renderEngine/renderEngine.hpp"
 
 namespace ikura {
 class AppEngine {
     std::shared_ptr<RenderEngine> renderEngine;
-    std::vector<std::shared_ptr<Window>> windows;
+    std::vector<std::shared_ptr<NativeWindow>> nativeWindows;
 
     float fps = 60.0;
     std::chrono::_V2::system_clock::time_point startTime;
@@ -26,7 +25,6 @@ class AppEngine {
     AppEngine(std::shared_ptr<RenderEngine> renderEngine);
 
     void addWindow(std::shared_ptr<GlfwNativeWindow> glfwNativeWindow);
-    void addWindow(std::shared_ptr<ImGuiVirtualWindow> imGuiVirtualWindow);
 
     void vSync();
     void setStartTime();

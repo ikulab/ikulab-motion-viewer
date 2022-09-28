@@ -3,6 +3,8 @@
 #include <easylogging++.h>
 #include <vulkan/vulkan.hpp>
 
+#include "../virtualWindow/virtualWindow.hpp"
+
 namespace ikura {
 void NativeWindow::recreateSwapChain() {}
 
@@ -28,6 +30,13 @@ NativeWindow::~NativeWindow() {
     }
 }
 
+void NativeWindow::draw() {}
+
+void NativeWindow::addVirtualWindow(
+    std::shared_ptr<VirtualWindow> virtualWindow) {
+    virtualWindows.push_back(virtualWindow);
+}
+
 const vk::SwapchainKHR NativeWindow::getSwapChain() const { return swapChain; }
 
 const vk::Format NativeWindow::getSwapChainFormat() const {
@@ -38,7 +47,7 @@ const vk::Extent2D NativeWindow::getSwapChainExtent() const {
     return swapChainExtent;
 }
 
-const std::vector<vk::Image> NativeWindow::getSwapChainImages() const {
+const std::vector<vk::Image> &NativeWindow::getSwapChainImages() const {
     return swapChainImages;
 }
 
@@ -46,6 +55,8 @@ const uint32_t NativeWindow::getCurrentFrameIndex() const {
     return currentFrame;
 }
 
-void NativeWindow::draw() {}
-
+const std::vector<std::shared_ptr<VirtualWindow>> &
+NativeWindow::getVirtualWindows() const {
+    return virtualWindows;
+}
 } // namespace ikura

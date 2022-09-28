@@ -19,12 +19,7 @@ AppEngine::AppEngine(std::shared_ptr<RenderEngine> renderEngine) {
 }
 
 void AppEngine::addWindow(std::shared_ptr<GlfwNativeWindow> glfwNativeWindow) {
-    windows.push_back(glfwNativeWindow);
-}
-
-void AppEngine::addWindow(
-    std::shared_ptr<ImGuiVirtualWindow> imGuiVirtualWindow) {
-    windows.push_back(imGuiVirtualWindow);
+    nativeWindows.push_back(glfwNativeWindow);
 }
 
 void AppEngine::vSync() {
@@ -58,14 +53,15 @@ void AppEngine::setStartTime() {
 float AppEngine::getSecondsFromStart() const { return secondsFromStart; }
 
 int AppEngine::shouldTerminated() {
-    return std::all_of(
-        windows.begin(), windows.end(),
-        [&](const std::shared_ptr<Window> window) { return window->closed(); });
+    return std::all_of(nativeWindows.begin(), nativeWindows.end(),
+                       [&](const std::shared_ptr<NativeWindow> window) {
+                           return window->closed();
+                       });
 }
 
 void AppEngine::drawAllWindows() {
     // Poll all GLFW Window Events (execute once per loop)
-    for (const auto &window : windows) {
+    for (const auto &window : nativeWindows) {
         auto pw = dynamic_cast<GlfwNativeWindow *>(window.get());
         if (pw != nullptr) {
             glfwPollEvents();
@@ -73,21 +69,21 @@ void AppEngine::drawAllWindows() {
         }
     }
 
-    for (auto &window : windows) {
+    for (auto &window : nativeWindows) {
         window->draw();
     }
 }
 
 void AppEngine::destroyClosedWindow() {
-    auto endIter =
-        std::remove_if(windows.begin(), windows.end(), [](std::shared_ptr<Window> window) {
-            bool closed = window->closed();
-            if (closed) {
-                window->destroyResources();
-            }
-            return closed;
-        });
+    auto endIter = std::remove_if(nativeWindows.begin(), nativeWindows.end(),
+                                  [](std::shared_ptr<NativeWindow> window) {
+                                      bool closed = window->closed();
+                                      if (closed) {
+                                          window->destroyResources();
+                                      }
+                                      return closed;
+                                  });
 
-    windows.assign(windows.begin(), endIter);
+    nativeWindows.assign(nativeWindows.begin(), endIter);
 }
 } // namespace ikura

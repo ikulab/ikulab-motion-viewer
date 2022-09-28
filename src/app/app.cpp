@@ -1,5 +1,6 @@
 #include "./app.hpp"
 
+#include <algorithm>
 #include <iostream>
 
 #define GLFW_INCLUDE_VULKAN
@@ -23,9 +24,24 @@ void App::initIkura() {
     renderEngine->setupExtensions();
 
     // Create GLFW Window
+    GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
+    int xpos, ypos, monitorW, monitorH;
+    glfwGetMonitorWorkarea(primaryMonitor, &xpos, &ypos, &monitorW, &monitorH);
+
+    int windowW, windowH;
+    if (monitorW < 1920 || monitorH < 1080) {
+        windowW = monitorW;
+        windowH = monitorH;
+    }
+    else {
+        windowW = 1920;
+        windowH = 1080;
+    }
+
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow *glfwWindow =
-        glfwCreateWindow(400, 300, "Ikura Window", nullptr, nullptr);
+        glfwCreateWindow(windowW, windowH, "Ikura Window", nullptr, nullptr);
+    glfwSetWindowPos(glfwWindow, xpos, ypos);
 
     // Create Surface
     VkSurfaceKHR vkSurface;
@@ -44,11 +60,6 @@ void App::initIkura() {
     appEngine = std::make_unique<ikura::AppEngine>(renderEngine);
 
     // Setup main ikura Window ----------
-    GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
-    int xpos, ypos;
-    glfwGetMonitorWorkarea(primaryMonitor, &xpos, &ypos, nullptr, nullptr);
-
-    glfwSetWindowPos(glfwWindow, xpos + 100, ypos + 100);
     mainWindow = std::make_shared<ikura::GlfwNativeWindow>(
         renderEngine, glfwWindow, surface, "main");
 
@@ -61,30 +72,17 @@ void App::initIkura() {
 
     mainWindow->setRenderTarget(mainRenderTarget);
     mainWindow->setRenderContent(mainRenderContent);
+    setGlfwWindowEvents(mainWindow->getGLFWWindow());
 
-    // Setup ikura sub Window ----------
-    glfwWindow =
-        glfwCreateWindow(400, 300, "Ikura Window Sub", nullptr, nullptr);
-    glfwSetWindowPos(glfwWindow, xpos + 600, ypos + 100);
-
-    if ((glfwCreateWindowSurface(renderEngine->getInstance(), glfwWindow,
-                                 nullptr, &vkSurface)) != VK_SUCCESS) {
-        throw std::runtime_error(
-            "Failed to create VkSurfaceKHR from glfwCreateWindowSurface().");
-    }
-    surface = vkSurface;
-
-    subWindow = std::make_shared<ikura::GlfwNativeWindow>(
-        renderEngine, glfwWindow, surface, "sub");
-
-    subRenderTarget =
-        basicRenderComponentProvider->createBasicRenderTarget(subWindow);
-    subWindow->setRenderTarget(subRenderTarget);
-    subWindow->setRenderContent(mainRenderContent);
+    // Setup ikura ImGuiWindow ----------
+    imGuiVirtualWindow =
+        std::make_shared<ikura::ImGuiVirtualWindow>(renderEngine, mainWindow);
 
     // Add Window ----------
     appEngine->addWindow(mainWindow);
-    appEngine->addWindow(subWindow);
+    // appEngine->addWindow(subWindow);
+
+    mainWindow->addVirtualWindow(imGuiVirtualWindow);
 }
 
 void App::setShapes() {
@@ -113,39 +111,58 @@ void App::setGlfwWindowEvents(GLFWwindow *window) {
     glfwSetKeyCallback(window, keyCallback);
 }
 
+void App::updateMatrices() {
+    float angle = M_PI * appEngine->getSecondsFromStart() / 4.0;
+
+    auto currentFrame = mainWindow->getCurrentFrameIndex();
+    ikura::BasicModelMatUBO modelMat;
+    ikura::BasicSceneMatUBO sceneMat;
+
+    modelMat.model[0] =
+        glm::rotate(glm::mat4(1.0), angle, glm::vec3(0, 0, 1.0));
+
+    sceneMat.view = camera.generateViewMat();
+    sceneMat.proj = glm::perspective(glm::radians(45.0f),
+                                     mainWindow->getWidth() /
+                                         (float)mainWindow->getHeight(),
+                                     0.01f, 1000.0f);
+    // Convert to RightHand Z-up
+    sceneMat.proj[1][1] *= -1;
+
+    mainRenderContent->updateUniformBuffer(currentFrame, modelMat, sceneMat);
+}
+
+void App::updateUI() {
+    imGuiVirtualWindow->setCurrentImGuiContext();
+    imGuiVirtualWindow->newFrame();
+
+    ImGui::ShowDemoWindow();
+
+    ImGui::Render();
+}
+
 App::App() {
     initIkura();
     setShapes();
-    setGlfwWindowEvents(mainWindow->getGLFWWindow());
 }
 
 void App::run() {
-    float angle = 0.0;
     appEngine->setStartTime();
 
     while (!appEngine->shouldTerminated()) {
         appEngine->vSync();
-        camera.updateCamera(mouse, keyboard);
+
+        camera.updateCamera(
+            mouse, keyboard,
+            std::any_of(mainWindow->getVirtualWindows().begin(),
+                        mainWindow->getVirtualWindows().end(),
+                        [](const std::shared_ptr<ikura::VirtualWindow> window) {
+                            return window->isFocused();
+                        }));
         mouse.resetScroll();
 
-        auto currentFrame = mainWindow->getCurrentFrameIndex();
-        ikura::BasicModelMatUBO modelMat;
-        ikura::BasicSceneMatUBO sceneMat;
-
-        modelMat.model[0] =
-            glm::rotate(glm::mat4(1.0), angle, glm::vec3(0, 0, 1.0));
-        angle = M_PI * appEngine->getSecondsFromStart() / 4.0;
-
-        sceneMat.view = camera.generateViewMat();
-        sceneMat.proj = glm::perspective(glm::radians(45.0f),
-                                         mainWindow->getWidth() /
-                                             (float)mainWindow->getHeight(),
-                                         0.01f, 1000.0f);
-        // Convert to RightHand Z-up
-        sceneMat.proj[1][1] *= -1;
-
-        mainRenderContent->updateUniformBuffer(currentFrame, modelMat,
-                                               sceneMat);
+        updateMatrices();
+        updateUI();
 
         appEngine->drawAllWindows();
         appEngine->destroyClosedWindow();

@@ -18,9 +18,7 @@ class App {
     std::shared_ptr<ikura::BasicRenderTarget> mainRenderTarget;
     std::shared_ptr<ikura::BasicRenderContent> mainRenderContent;
 
-    std::shared_ptr<ikura::GlfwNativeWindow> subWindow;
-    std::shared_ptr<ikura::BasicRenderTarget> subRenderTarget;
-    std::shared_ptr<ikura::BasicRenderContent> subRenderContent;
+    std::shared_ptr<ikura::ImGuiVirtualWindow> imGuiVirtualWindow;
 
     std::shared_ptr<ikura::BasicRenderComponentProvider>
         basicRenderComponentProvider;
@@ -35,6 +33,10 @@ class App {
     void initIkura();
     void setShapes();
     void setGlfwWindowEvents(GLFWwindow *window);
+
+    // Update ----------
+    void updateMatrices();
+    void updateUI();
 
     // Glfw Callbacks ----------
     static void cursorPositionCallback(GLFWwindow *window, double xPos,

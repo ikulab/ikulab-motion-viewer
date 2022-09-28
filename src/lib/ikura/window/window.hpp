@@ -26,7 +26,6 @@ class Window {
 
   public:
     virtual ~Window();
-    virtual void draw();
     virtual bool closed();
     virtual void destroyResources();
 

@@ -2,6 +2,8 @@
 
 #include <easylogging++.h>
 
+#include "../virtualWindow/virtualWindow.hpp"
+
 // Forward declearation of helper functions ----------
 vk::SurfaceFormatKHR
 chooseSwapChainFormat(const std::vector<vk::SurfaceFormatKHR> &formats);
@@ -273,6 +275,12 @@ void GlfwNativeWindow::recordCommandBuffer(uint32_t imageIndex) {
     // Draw ----------
     renderTarget->getRenderCommandBuffer(currentFrame)
         .drawIndexed(renderContent->getNumOfIndex(), 1, 0, 0, 0);
+
+    // VirtualWindows ----------
+    for (auto &vWindow : virtualWindows) {
+        vWindow->recordCommandBuffer(
+            renderTarget->getRenderCommandBuffer(currentFrame));
+    }
 
     // End ----------
     renderTarget->getRenderCommandBuffer(currentFrame).endRenderPass();

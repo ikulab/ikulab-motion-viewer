@@ -3,8 +3,6 @@
 #include <easylogging++.h>
 
 namespace ikura {
-void Window::draw() {}
-
 bool Window::closed() { return false; }
 
 Window::~Window() {}

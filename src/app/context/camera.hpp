@@ -21,7 +21,7 @@ class Camera {
     float distance = 10.0;
 
   public:
-    void updateCamera(Mouse mouseCtx, Keyboard keyCtx);
+    void updateCamera(Mouse mouseCtx, Keyboard keyCtx, bool isWindowFocused);
 
     glm::vec3 generatePos();
     glm::mat4 generateViewMat();
