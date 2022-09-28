@@ -5,7 +5,7 @@ namespace shapes {
 SeparatedColorCube::SeparatedColorCube(float width, float height, float depth,
                                        glm::vec3 pos,
                                        std::array<glm::vec3, 6> colors,
-                                       JointID id)
+                                       GroupID id)
     : Cube(width, height, depth, pos, id), colors(colors) {
 
     this->id = id;

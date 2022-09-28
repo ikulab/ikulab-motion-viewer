@@ -7,6 +7,7 @@
 #include "./context/camera.hpp"
 #include "./context/keyboard.hpp"
 #include "./context/mouse.hpp"
+#include "./motionUtil/animator.hpp"
 
 class App {
     // Variables ==========
@@ -27,6 +28,9 @@ class App {
     Camera camera;
     Keyboard keyboard;
     Mouse mouse;
+
+    // Misc ----------
+    Animator animator;
 
     // Functions ==========
     // Init ----------

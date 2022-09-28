@@ -7,6 +7,6 @@
 
 namespace ikura {
 namespace shapes {
-Bone::Bone(float length, JointID id) : Shape(id), length(length) {}
+Bone::Bone(float length, GroupID id) : Shape(id), length(length) {}
 } // namespace shapes
 } // namespace ikura

@@ -9,10 +9,12 @@
 
 #include <glm/glm.hpp>
 
-#include "./definition/animation.hpp"
-#include "./definition/common.hpp"
+#include <ikura.hpp>
 
-#include "./shape/shape.hpp"
+#include "./common.hpp"
+
+// forward declearation
+struct Motion;
 
 class Animator {
     std::vector<std::vector<std::unique_ptr<Motion>>> motions;
@@ -23,31 +25,33 @@ class Animator {
 
   public:
     class Joint {
-        JointID id;
+        ikura::GroupID id;
         std::string name;
         glm::vec3 pos;
-        std::vector<JointID> parentIDs;
+        std::vector<ikura::GroupID> parentIDs;
         bool isEdge;
 
-        static JointID currentID;
+        static ikura::GroupID currentID;
 
       public:
-        Joint(std::string name, JointID id, glm::vec3 pos,
-              std::vector<JointID> parentIDs, bool isEdge)
+        Joint(std::string name, ikura::GroupID id, glm::vec3 pos,
+              std::vector<ikura::GroupID> parentIDs, bool isEdge)
             : name(name), id(id), pos(pos), parentIDs(parentIDs),
               isEdge(isEdge) {}
 
-        JointID getID() const;
+        ikura::GroupID getID() const;
         glm::vec3 getPos() const;
-        std::vector<JointID> getParentIDs() const;
+        std::vector<ikura::GroupID> getParentIDs() const;
         bool getIsEdge() const;
 
         void showInfo();
     };
 
     void initFromBVH(std::string filePath);
-    std::array<std::unique_ptr<Shape>, NUM_OF_JOINT_ID> generateBones();
-    std::array<glm::mat4, NUM_OF_JOINT_ID> generateModelMatrices(float time);
+    void
+    generateBones(std::vector<std::shared_ptr<ikura::shapes::Shape>> &bones);
+    std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX>
+    generateModelMatrices(float time);
 
     uint32_t getNumOfJoints() const;
     uint32_t getNumOfFrames() const;

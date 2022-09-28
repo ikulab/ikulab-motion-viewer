@@ -3,7 +3,7 @@
 namespace ikura {
 namespace shapes {
 GridFloor::GridFloor(float width, float height, float lineWidth, int numSplitX,
-                     int numSplitY, glm::vec3 color, JointID id)
+                     int numSplitY, glm::vec3 color, GroupID id)
     : Floor(width, height, id), lineWidth(lineWidth), numSplitX(numSplitX),
       numSPlitY(numSplitY) {
 

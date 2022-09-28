@@ -5,7 +5,7 @@ namespace shapes {
 GradationColorCube::GradationColorCube(float width, float height, float depth,
                                        glm::vec3 pos,
                                        std::array<glm::vec3, 8> colors,
-                                       JointID id)
+                                       GroupID id)
     : Cube(width, height, depth, pos, id), colors(colors) {}
 
 void GradationColorCube::init() {

@@ -15,7 +15,7 @@ class Cube : public Shape {
     glm::vec3 pos;
 
   public:
-    Cube(float width, float height, float depth, glm::vec3 pos, JointID id);
+    Cube(float width, float height, float depth, glm::vec3 pos, GroupID id);
 };
 } // namespace shapes
 } // namespace ikura

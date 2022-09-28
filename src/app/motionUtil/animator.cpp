@@ -6,13 +6,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "./animator.hpp"
+#include "./bvhParser.hpp"
 #include "./shape/bone/octahedronBone.hpp"
 #include "./shape/cube/singleColorCube.hpp"
-#include "./util/bvhParser.hpp"
 
 void Animator::initFromBVH(std::string filePath) {
     BVHParser parser(filePath);
     parser.parseBVH();
+    assert(parser.getNumOfFrames() <= ikura::NUM_OF_MODEL_MATRIX);
+
     joints = parser.getSkentonData();
     motions = parser.getMotionData();
     numOfFrames = parser.getNumOfFrames();
@@ -20,11 +22,13 @@ void Animator::initFromBVH(std::string filePath) {
     loopDuration = frameRate * numOfFrames;
 }
 
-JointID Animator::Joint::getID() const { return id; }
+ikura::GroupID Animator::Joint::getID() const { return id; }
 
 glm::vec3 Animator::Joint::getPos() const { return pos; }
 
-std::vector<JointID> Animator::Joint::getParentIDs() const { return parentIDs; }
+std::vector<ikura::GroupID> Animator::Joint::getParentIDs() const {
+    return parentIDs;
+}
 
 bool Animator::Joint::getIsEdge() const { return isEdge; }
 
@@ -40,8 +44,9 @@ void Animator::Joint::showInfo() {
     std::cout << "\tPosition: ( " << pos.x << ", " << pos.y << ", " << pos.z
               << " )" << std::endl;
     std::cout << "\tParents: ( " << std::ends;
-    std::for_each(parentIDs.begin(), parentIDs.end(),
-                  [](JointID id) { std::cout << id << ", " << std::ends; });
+    std::for_each(parentIDs.begin(), parentIDs.end(), [](ikura::GroupID id) {
+        std::cout << id << ", " << std::ends;
+    });
     std::cout << ")" << std::endl;
 }
 
@@ -67,7 +72,7 @@ void Animator::showMotionInfo() {
     }
 }
 
-std::array<glm::mat4, NUM_OF_JOINT_ID>
+std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX>
 Animator::generateModelMatrices(float time) {
     float timeInLoop = std::fmod(time, (loopDuration - frameRate));
     uint32_t prevFrameIdx = std::floor(timeInLoop / frameRate);
@@ -79,7 +84,7 @@ Animator::generateModelMatrices(float time) {
 
     // calculate current motion
     std::vector<Motion> currentMotion;
-    for (JointID id = 0; id < joints.size(); id++) {
+    for (ikura::GroupID id = 0; id < joints.size(); id++) {
         Motion m{};
         m.pos = motions[prevFrameIdx][id]->pos;
         m.rot = motions[prevFrameIdx][id]->rot;
@@ -87,18 +92,19 @@ Animator::generateModelMatrices(float time) {
     }
 
     // generate result matrices
-    std::array<glm::mat4, NUM_OF_JOINT_ID> result;
+    std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX> result;
 
-    for (JointID id = 0; id < joints.size(); id++) {
+    for (ikura::GroupID id = 0; id < joints.size(); id++) {
         result[id] = glm::mat4(1.0);
         // convert "right-hand Y-up" to "right-hand Z-up"
         result[id] *= glm::rotate(glm::mat4(1.0), glm::radians(90.0f),
                                   glm::vec3(1.0, 0.0, 0.0));
 
-        const std::vector<JointID> &parentIDs = joints[id]->getParentIDs();
+        const std::vector<ikura::GroupID> &parentIDs =
+            joints[id]->getParentIDs();
 
         for (size_t parentIdx = 0; parentIdx < parentIDs.size(); parentIdx++) {
-            JointID pID = parentIDs[parentIdx];
+            ikura::GroupID pID = parentIDs[parentIdx];
             // Move to each parent's position
             if (pID == 0) {
                 // Motion position
@@ -146,20 +152,25 @@ Animator::generateModelMatrices(float time) {
     return result;
 }
 
-std::array<std::unique_ptr<Shape>, NUM_OF_JOINT_ID> Animator::generateBones() {
-    std::array<std::unique_ptr<Shape>, NUM_OF_JOINT_ID> result;
-    for (JointID id = 0; id < joints.size(); id++) {
-        // Root Joint
+void Animator::generateBones(
+    std::vector<std::shared_ptr<ikura::shapes::Shape>> &bones) {
+    assert(joints.size() <= ikura::NUM_OF_MODEL_MATRIX);
+    bones.clear();
+    bones.resize(joints.size());
+
+    uint32_t baseIndex;
+    for (ikura::GroupID id = 0; id < joints.size(); id++) {
         if (joints[id]->getParentIDs().empty()) {
-            // result[i] = std::make_unique<Shape>(i);
-            result[id] = std::make_unique<SingleColorCube>(
+            // Root Joint
+            bones[id] = std::make_shared<ikura::shapes::SingleColorCube>(
                 2.0, 2.0, 2.0, glm::vec3(0.0, 0.0, 0.0),
                 glm::vec3(1.0, 0.0, 0.0), id);
         } else {
             float length = glm::length(joints[id]->getPos());
-            result[id] = std::make_unique<OctahedronBone>(length, id);
+            bones[id] =
+                std::make_shared<ikura::shapes::OctahedronBone>(length, id);
         }
+        bones[id]->setBaseIndex(baseIndex);
+        baseIndex = bones[id]->getVertices().size();
     }
-
-    return std::move(result);
 }

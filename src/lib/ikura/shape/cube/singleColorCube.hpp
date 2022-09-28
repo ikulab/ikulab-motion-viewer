@@ -11,7 +11,7 @@ class SingleColorCube : public GradationColorCube {
 
   public:
     SingleColorCube(float width, float height, float depth, glm::vec3 pos,
-                    glm::vec3 color, JointID id);
+                    glm::vec3 color, GroupID id);
 };
 } // namespace shapes
 } // namespace ikura

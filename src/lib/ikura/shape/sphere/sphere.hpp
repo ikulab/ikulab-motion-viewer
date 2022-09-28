@@ -13,7 +13,7 @@ class Sphere : public Shape {
 
   public:
     Sphere(float r, uint32_t numSplitH, uint32_t numSplitV, glm::vec3 pos,
-           JointID id);
+           GroupID id);
 };
 } // namespace shapes
 } // namespace ikura

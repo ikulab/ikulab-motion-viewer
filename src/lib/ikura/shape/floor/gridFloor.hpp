@@ -11,7 +11,7 @@ class GridFloor : public Floor {
 
   public:
     GridFloor(float width, float height, float lineWidth, int numSplitX,
-              int numSplitY, glm::vec3 color, JointID id);
+              int numSplitY, glm::vec3 color, GroupID id);
 };
 } // namespace shapes
 } // namespace ikura

@@ -9,7 +9,7 @@
 
 namespace ikura {
 namespace shapes {
-StickTetrahedronBone::StickTetrahedronBone(float length, JointID id)
+StickTetrahedronBone::StickTetrahedronBone(float length, GroupID id)
     : Bone(length, id) {
     cube = std::make_unique<SingleColorCube>(length, 1.0, 1.0,
                                              glm::vec3(length / 2.0f, 0.0, 0.0),

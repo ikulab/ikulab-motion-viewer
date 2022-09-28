@@ -8,7 +8,7 @@ class Floor : public Shape {
     float width, height;
 
   public:
-    Floor(float width, float height, JointID id);
+    Floor(float width, float height, GroupID id);
 };
 } // namespace shapes
 } // namespace ikura

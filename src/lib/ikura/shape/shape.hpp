@@ -4,23 +4,26 @@
 #include <vector>
 
 #include "../common/renderPrimitiveTypes.hpp"
-#include "../definition/animation.hpp"
 
 namespace ikura {
 namespace shapes {
+typedef uint32_t GroupID;
+
 class Shape {
   protected:
     std::vector<BasicVertex> vertices;
     std::vector<BasicIndex> indices;
-    JointID id;
+    GroupID id;
+    BasicIndex baseIndex = 0;
 
   public:
-    Shape(JointID id);
+    Shape(GroupID id);
 
-    const virtual std::vector<BasicVertex> &getVertices() const;
-    const virtual std::vector<BasicIndex> &getIndices() const;
+    virtual const std::vector<BasicVertex> &getVertices() const;
+    virtual const std::vector<BasicIndex> &getIndices() const;
 
-    void virtual setBaseIndex(BasicIndex baseIndex);
+    virtual void setBaseIndex(BasicIndex baseIndex);
+    virtual BasicIndex getBaseIndex();
 };
 } // namespace shapes
 } // namespace ikura

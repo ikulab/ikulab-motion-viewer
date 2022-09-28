@@ -13,7 +13,7 @@ class SeparatedColorCube : public Cube {
 
   public:
     SeparatedColorCube(float width, float height, float depth, glm::vec3 pos,
-                       std::array<glm::vec3, 6> colors, JointID id);
+                       std::array<glm::vec3, 6> colors, GroupID id);
 };
 } // namespace shapes
 } // namespace ikura

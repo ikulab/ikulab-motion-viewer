@@ -3,7 +3,7 @@
 
 namespace ikura {
 namespace shapes {
-OctahedronBone::OctahedronBone(float length, JointID id) : Bone(length, id) {
+OctahedronBone::OctahedronBone(float length, GroupID id) : Bone(length, id) {
     glm::vec3 root(length, 0.0, 0.0);
     glm::vec3 tip(0, 0.0, 0.0);
 

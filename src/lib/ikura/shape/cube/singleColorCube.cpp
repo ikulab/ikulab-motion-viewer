@@ -8,7 +8,7 @@
 namespace ikura {
 namespace shapes {
 SingleColorCube::SingleColorCube(float width, float height, float depth,
-                                 glm::vec3 pos, glm::vec3 color, JointID id)
+                                 glm::vec3 pos, glm::vec3 color, GroupID id)
     : GradationColorCube(width, height, depth, pos, std::array<glm::vec3, 8>(),
                          id),
       color(color) {

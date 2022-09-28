@@ -1,3 +1,5 @@
+#include "./bvhParser.hpp"
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -9,47 +11,9 @@
 
 #include <glm/glm.hpp>
 
-#include "../animator.hpp"
-#include "../definition/animation.hpp"
-#include "./bvhParser.hpp"
-
-bool Channel::isValidChannel(std::string str) {
-    return (str == "Xposition" || str == "Yposition" || str == "Zposition" ||
-            str == "Xrotation" || str == "Yrotation" || str == "Zrotation");
-}
-
-Channel::Channel Channel::convertStr2Channel(std::string str) {
-    if (str == "Xposition")
-        return Xposition;
-    else if (str == "Yposition")
-        return Yposition;
-    else if (str == "Zposition")
-        return Zposition;
-    else if (str == "Xrotation")
-        return Xrotation;
-    else if (str == "Yrotation")
-        return Yrotation;
-    else if (str == "Zrotation")
-        return Zrotation;
-
-    std::string msg;
-    msg += "Invalid channel '";
-    msg += str;
-    msg += "'.";
-    throw std::runtime_error(msg);
-}
-
-BVHParser::BVHParser(std::string filePath) {
-    inputStream = std::make_unique<std::ifstream>(filePath);
-
-    if (!inputStream->is_open()) {
-        std::string msg;
-        msg += "failed to open .bvh file '";
-        msg += filePath;
-        msg += "'.";
-        throw std::runtime_error(msg);
-    }
-}
+// Forward declearation of helper functions ----------
+bool isValidChannel(std::string str);
+Channel convertStr2Channel(std::string str);
 
 void BVHParser::parseJoints(bool isJointTokenRead) {
     std::string input, jointName;
@@ -59,6 +23,18 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
     bool isEndSite = false;
 
     jointIDStack.push_back(currentID);
+
+    auto throwTooManyJointsError = [&] {
+        std::string msg;
+        msg += "Too many Joints in '";
+        msg += filePath;
+        msg += "'.\n";
+        msg += "The max number of Joints in ikura is: ";
+        msg += std::to_string(ikura::NUM_OF_MODEL_MATRIX);
+        msg += ".";
+
+        throw std::runtime_error(msg);
+    };
 
     // Root / Joint / End Site definition
     if (!isJointTokenRead) {
@@ -160,7 +136,7 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
         // register channels
         for (uint32_t i = 0; i < numOfChannels; i++) {
             *inputStream >> input;
-            if (!Channel::isValidChannel(input)) {
+            if (!isValidChannel(input)) {
                 std::string msg;
                 msg += "Invalid Channel name at #";
                 msg += i;
@@ -168,10 +144,13 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
                 throw parse_failed_error(msg, inputStream);
             }
 
-            channels.push_back({currentID, Channel::convertStr2Channel(input)});
+            channels.push_back({currentID, convertStr2Channel(input)});
         }
 
         currentID++;
+        if (currentID > ikura::NUM_OF_MODEL_MATRIX) {
+            throwTooManyJointsError();
+        }
         parseJoints(false);
     }
 
@@ -180,6 +159,9 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
         *inputStream >> input;
         if (input == TOKEN_JOINT) {
             currentID++;
+            if (currentID > ikura::NUM_OF_MODEL_MATRIX) {
+                throwTooManyJointsError();
+            }
             parseJoints(true);
         } else if (input == TOKEN_END_BRACKET && !inputStream->eof()) {
             break;
@@ -193,7 +175,7 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
     }
 
     // create Joint
-    JointID id = jointIDStack.back();
+    ikura::GroupID id = jointIDStack.back();
     jointIDStack.pop_back();
     skelton.push_back(std::move(std::make_unique<Animator::Joint>(
         jointName, id, pos, jointIDStack, isEndSite)));
@@ -259,7 +241,7 @@ void BVHParser::parseMotion() {
 
     std::stringstream strStream;
     uint32_t numOfChannels = static_cast<uint32_t>(channels.size());
-    JointID id;
+    ikura::GroupID id;
     float value;
     for (uint32_t frame = 0; frame < numOfFrames; frame++) {
         strStream.clear();
@@ -288,22 +270,22 @@ void BVHParser::parseMotion() {
 
             id = channels[i].first;
             switch (channels[i].second) {
-            case Channel::Channel::Xposition:
+            case Channel::Xposition:
                 motion[frame][id]->pos.x = value;
                 break;
-            case Channel::Channel::Yposition:
+            case Channel::Yposition:
                 motion[frame][id]->pos.y = value;
                 break;
-            case Channel::Channel::Zposition:
+            case Channel::Zposition:
                 motion[frame][id]->pos.z = value;
                 break;
-            case Channel::Channel::Xrotation:
+            case Channel::Xrotation:
                 motion[frame][id]->rot.x = value;
                 break;
-            case Channel::Channel::Yrotation:
+            case Channel::Yrotation:
                 motion[frame][id]->rot.y = value;
                 break;
-            case Channel::Channel::Zrotation:
+            case Channel::Zrotation:
                 motion[frame][id]->rot.z = value;
                 break;
             }
@@ -346,5 +328,39 @@ void BVHParser::parseBVH() {
         std::cerr << e.what() << std::endl;
         std::cerr << e.where() << std::endl;
         exit(1);
+    }
+}
+
+Channel convertStr2Channel(std::string str) {
+    if (str == "Xposition")
+        return Xposition;
+    else if (str == "Yposition")
+        return Yposition;
+    else if (str == "Zposition")
+        return Zposition;
+    else if (str == "Xrotation")
+        return Xrotation;
+    else if (str == "Yrotation")
+        return Yrotation;
+    else if (str == "Zrotation")
+        return Zrotation;
+
+    std::string msg;
+    msg += "Invalid channel '";
+    msg += str;
+    msg += "'.";
+    throw std::runtime_error(msg);
+}
+
+BVHParser::BVHParser(std::string filePath) {
+    this->filePath = filePath;
+    inputStream = std::make_unique<std::ifstream>(filePath);
+
+    if (!inputStream->is_open()) {
+        std::string msg;
+        msg += "failed to open .bvh file '";
+        msg += filePath;
+        msg += "'.";
+        throw std::runtime_error(msg);
     }
 }

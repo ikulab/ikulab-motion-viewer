@@ -3,7 +3,7 @@
 namespace ikura {
 namespace shapes {
 FilledFloor::FilledFloor(float width, float height, glm::vec3 color,
-                         bool frontSideOnly, JointID id)
+                         bool frontSideOnly, GroupID id)
     : color(color), Floor(width, height, id) {
 
     vertices.assign({{{-width / 2, -height / 2, 0}, color, id},

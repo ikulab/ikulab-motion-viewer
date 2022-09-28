@@ -1,10 +1,10 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include <string>
 #include <vector>
 
-#include "../animator.hpp"
+#include "./animator.hpp"
+#include "./common.hpp"
 
 #define TOKEN_TOP "HIERARCHY"
 #define TOKEN_ROOT "ROOT"
@@ -22,7 +22,6 @@
 #define TOKEN_BEGGIN_BRACKET "{"
 #define TOKEN_END_BRACKET "}"
 
-namespace Channel {
 enum Channel {
     Xposition,
     Yposition,
@@ -31,11 +30,6 @@ enum Channel {
     Yrotation,
     Zrotation
 };
-
-bool isValidChannel(std::string str);
-
-Channel convertStr2Channel(std::string str);
-}; // namespace Channel
 
 class parse_failed_error : public std::runtime_error {
     std::string errorLine;
@@ -87,12 +81,13 @@ class BVHParser {
 
     std::unique_ptr<std::ifstream> inputStream;
     bool isRootDefined = false;
-    JointID currentID = 0;
-    std::vector<std::pair<JointID, Channel::Channel>> channels;
-    std::vector<JointID> jointIDStack;
+    ikura::GroupID currentID = 0;
+    std::vector<std::pair<ikura::GroupID, Channel>> channels;
+    std::vector<ikura::GroupID> jointIDStack;
 
     uint32_t numOfFrames;
     float frameRate;
+    std::string filePath;
 
   public:
     BVHParser(std::string filePath);

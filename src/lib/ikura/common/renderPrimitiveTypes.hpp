@@ -83,5 +83,5 @@ class BasicVertex : public Vertex {
 typedef uint32_t Index;
 typedef Index BasicIndex;
 // todo: delete this
-typedef uint32_t JointID;
+typedef uint32_t GroupID;
 } // namespace ikura

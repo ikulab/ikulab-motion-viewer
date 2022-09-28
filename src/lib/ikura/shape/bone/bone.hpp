@@ -9,7 +9,7 @@ class Bone : public Shape {
     float length;
 
   protected:
-    Bone(float length, JointID id);
+    Bone(float length, GroupID id);
 };
 } // namespace shapes
 } // namespace ikura

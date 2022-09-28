@@ -9,7 +9,7 @@ class FilledFloor : public Floor {
 
   public:
     FilledFloor(float width, float height, glm::vec3 color, bool frontSideOnly,
-                JointID id);
+                GroupID id);
 };
 } // namespace shapes
 } // namespace ikura

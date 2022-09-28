@@ -8,7 +8,7 @@
 namespace ikura {
 namespace shapes {
 Sphere::Sphere(float r, uint32_t numSplitH, uint32_t numSplitV, glm::vec3 pos,
-               JointID id)
+               GroupID id)
     : Shape(id), pos(pos), r(r), numSplitH(numSplitH), numSplitV(numSplitV) {
 
     // Top vertex (n = 0)

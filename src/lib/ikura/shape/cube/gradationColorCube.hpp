@@ -28,7 +28,7 @@ class GradationColorCube : public Cube {
 
   public:
     GradationColorCube(float width, float height, float depth, glm::vec3 pos,
-                       std::array<glm::vec3, 8> colors, JointID id);
+                       std::array<glm::vec3, 8> colors, GroupID id);
 
     void init();
 };

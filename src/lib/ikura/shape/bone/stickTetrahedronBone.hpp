@@ -13,7 +13,7 @@ class StickTetrahedronBone : public Bone {
     std::unique_ptr<SingleColorCube> cube;
 
   public:
-    StickTetrahedronBone(float length, JointID id);
+    StickTetrahedronBone(float length, GroupID id);
 
     const std::vector<BasicVertex> &getVertices() const override;
     const std::vector<uint32_t> &getIndices() const override;

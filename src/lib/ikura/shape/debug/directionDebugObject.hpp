@@ -16,7 +16,7 @@ class DirectionDebugObject : public Shape {
     std::array<std::unique_ptr<SingleColorCube>, 3> axes;
 
   public:
-    DirectionDebugObject(float size, JointID id);
+    DirectionDebugObject(float size, GroupID id);
 };
 } // namespace shapes
 } // namespace ikura

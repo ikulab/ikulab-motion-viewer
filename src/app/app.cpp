@@ -32,8 +32,7 @@ void App::initIkura() {
     if (monitorW < 1920 || monitorH < 1080) {
         windowW = monitorW;
         windowH = monitorH;
-    }
-    else {
+    } else {
         windowW = 1920;
         windowH = 1080;
     }
@@ -86,17 +85,40 @@ void App::initIkura() {
 }
 
 void App::setShapes() {
-    auto cube =
-        ikura::shapes::SeparatedColorCube(1.0, 1.0, 1.0, {0.0, 0.0, 0.0},
-                                          {{{0.0, 0.0, 1.0},
-                                            {0.0, 1.0, 0.0},
-                                            {0.0, 1.0, 1.0},
-                                            {1.0, 0.0, 0.0},
-                                            {1.0, 0.0, 1.0},
-                                            {1.0, 1.0, 0.0}}},
-                                          0);
-    mainRenderContent->setVertices(cube.getVertices());
-    mainRenderContent->setIndices(cube.getIndices());
+    // Joints ----------
+    animator.initFromBVH("../../models/swing.bvh");
+    std::vector<std::shared_ptr<ikura::shapes::Shape>> shapes;
+    animator.generateBones(shapes);
+
+    if (shapes.size() + 2 > ikura::NUM_OF_MODEL_MATRIX) {
+        throw std::runtime_error("Too many Joints in loaded model.");
+    }
+
+    // Add other than Joint object ----------
+    ikura::BasicIndex baseIndex =
+        shapes.back()->getBaseIndex() + shapes.back()->getIndices().size();
+
+    auto debugObj = std::make_shared<ikura::shapes::DirectionDebugObject>(
+        40.0, ikura::NUM_OF_MODEL_MATRIX - 2);
+    debugObj->setBaseIndex(baseIndex);
+    baseIndex += debugObj->getIndices().size();
+
+    auto floor = std::make_shared<ikura::shapes::GridFloor>(
+        1000.0, 1000.0, 1, 10, 10, glm::vec3(0.2, 0.9, 0.2),
+        ikura::NUM_OF_MODEL_MATRIX - 1);
+    floor->setBaseIndex(baseIndex);
+
+    // Register all Vertices / Indices ----------
+    std::vector<ikura::BasicVertex> vertices;
+    std::vector<ikura::BasicIndex> indices;
+    for (auto &shape : shapes) {
+        vertices.insert(vertices.end(), shape->getVertices().begin(),
+                        shape->getVertices().end());
+        indices.insert(indices.end(), shape->getIndices().begin(),
+                       shape->getIndices().end());
+    }
+    mainRenderContent->setVertices(vertices);
+    mainRenderContent->setIndices(indices);
 
     mainRenderContent->uploadVertexBuffer();
     mainRenderContent->uploadIndexBuffer();
