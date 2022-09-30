@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include <ikura.hpp>
+
 #include "./animator.hpp"
 #include "./common.hpp"
 
@@ -76,8 +78,8 @@ class BVHParser {
     void parseJoints(bool isJointTokenRead);
     void parseMotion();
 
-    std::vector<std::unique_ptr<Animator::Joint>> skelton;
-    std::vector<std::vector<std::unique_ptr<Motion>>> motion;
+    std::vector<std::shared_ptr<Animator::Joint>> skelton;
+    std::vector<std::vector<std::shared_ptr<Motion>>> motion;
 
     std::unique_ptr<std::ifstream> inputStream;
     bool isRootDefined = false;
@@ -93,11 +95,11 @@ class BVHParser {
     BVHParser(std::string filePath);
 
     void parseBVH();
-    std::vector<std::unique_ptr<Animator::Joint>> getSkentonData() {
-        return std::move(skelton);
+    std::vector<std::shared_ptr<Animator::Joint>> getSkentonData() {
+        return skelton;
     }
-    std::vector<std::vector<std::unique_ptr<Motion>>> getMotionData() {
-        return std::move(motion);
+    std::vector<std::vector<std::shared_ptr<Motion>>> getMotionData() {
+        return motion;
     }
     uint32_t getNumOfFrames() { return numOfFrames; }
     float getFrameRate() { return frameRate; }

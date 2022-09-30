@@ -7,14 +7,12 @@
 
 #include "../../engine/renderEngine/renderEngine.hpp"
 #include "../window.hpp"
-#include "../windowInputContext.hpp"
 
 namespace ikura {
 class VirtualWindow;
 
 class NativeWindow : public Window {
   protected:
-    WindowInputContext inputCtx;
     vk::SurfaceKHR surface;
     vk::SwapchainKHR swapChain;
     vk::Format swapChainFormat;

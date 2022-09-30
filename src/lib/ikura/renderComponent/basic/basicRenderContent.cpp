@@ -160,12 +160,12 @@ BasicRenderContent::BasicRenderContent(
     setupDescriptorSets();
 }
 
-void BasicRenderContent::setVertices(std::vector<BasicVertex> vertices) {
+void BasicRenderContent::setVertices(const std::vector<BasicVertex> &vertices) {
     this->vertices.insert(this->vertices.end(), vertices.begin(),
                           vertices.end());
 }
 
-void BasicRenderContent::setIndices(std::vector<BasicIndex> indices) {
+void BasicRenderContent::setIndices(const std::vector<BasicIndex> &indices) {
     this->indices.insert(this->indices.end(), indices.begin(), indices.end());
 }
 
@@ -230,7 +230,7 @@ void BasicRenderContent::uploadVertexBuffer() {
     uploadViaStagingBuffer(
         BasicVertex::convertToDataVector(vertices).data(), vertexBufferResource,
         vk::BufferUsageFlagBits::eVertexBuffer,
-        sizeof(BasicVertex::Data) * BasicVertex::getDataSize(), renderEngine);
+        sizeof(BasicVertex::Data) * vertices.size(), renderEngine);
 
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "VertexBuffer has been uploaded.";
 }

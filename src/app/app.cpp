@@ -86,27 +86,32 @@ void App::initIkura() {
 
 void App::setShapes() {
     // Joints ----------
-    animator.initFromBVH("../../models/swing.bvh");
+    animator.initFromBVH("./models/swing.bvh");
     std::vector<std::shared_ptr<ikura::shapes::Shape>> shapes;
     animator.generateBones(shapes);
 
-    if (shapes.size() + 2 > ikura::NUM_OF_MODEL_MATRIX) {
+    if (shapes.size() + NUM_OF_GROUPS_OTHER_THAN_JOINTS >
+        ikura::NUM_OF_MODEL_MATRIX) {
         throw std::runtime_error("Too many Joints in loaded model.");
     }
 
     // Add other than Joint object ----------
     ikura::BasicIndex baseIndex =
-        shapes.back()->getBaseIndex() + shapes.back()->getIndices().size();
+        shapes.back()->getBaseIndex() + shapes.back()->getVertices().size();
 
+    // DebugObj
     auto debugObj = std::make_shared<ikura::shapes::DirectionDebugObject>(
-        40.0, ikura::NUM_OF_MODEL_MATRIX - 2);
+        40.0, DEBUG_OBJ_GROUP_ID);
     debugObj->setBaseIndex(baseIndex);
-    baseIndex += debugObj->getIndices().size();
+    baseIndex += debugObj->getVertices().size();
+    shapes.push_back(debugObj);
 
+    // Floor
     auto floor = std::make_shared<ikura::shapes::GridFloor>(
-        1000.0, 1000.0, 1, 10, 10, glm::vec3(0.2, 0.9, 0.2),
-        ikura::NUM_OF_MODEL_MATRIX - 1);
+        1000.0, 1000.0, 1, 10, 10, glm::vec3(0.2, 0.9, 0.2), FLOOR_GROUP_ID);
     floor->setBaseIndex(baseIndex);
+    // baseIndex += floor->getVertices().size();
+    shapes.push_back(floor);
 
     // Register all Vertices / Indices ----------
     std::vector<ikura::BasicVertex> vertices;
@@ -117,6 +122,7 @@ void App::setShapes() {
         indices.insert(indices.end(), shape->getIndices().begin(),
                        shape->getIndices().end());
     }
+
     mainRenderContent->setVertices(vertices);
     mainRenderContent->setIndices(indices);
 
@@ -134,14 +140,25 @@ void App::setGlfwWindowEvents(GLFWwindow *window) {
 }
 
 void App::updateMatrices() {
-    float angle = M_PI * appEngine->getSecondsFromStart() / 4.0;
-
     auto currentFrame = mainWindow->getCurrentFrameIndex();
     ikura::BasicModelMatUBO modelMat;
     ikura::BasicSceneMatUBO sceneMat;
 
-    modelMat.model[0] =
-        glm::rotate(glm::mat4(1.0), angle, glm::vec3(0, 0, 1.0));
+    // Joints
+    auto modelMat4s =
+        animator.generateModelMatrices(appEngine->getSecondsFromStart());
+    for (int i = 0; i < ikura::NUM_OF_MODEL_MATRIX; i++) {
+        modelMat.model[i] = modelMat4s[i];
+    }
+
+    // Other objects
+    modelMat.model[FLOOR_GROUP_ID] = glm::mat4(1.0);
+    modelMat.model[DEBUG_OBJ_GROUP_ID] = glm::mat4(1.0);
+
+    // global scaling
+    for (auto &m : modelMat.model) {
+        m = glm::scale(glm::mat4(1.0), glm::vec3(0.1)) * m;
+    }
 
     sceneMat.view = camera.generateViewMat();
     sceneMat.proj = glm::perspective(glm::radians(45.0f),
@@ -157,6 +174,77 @@ void App::updateMatrices() {
 void App::updateUI() {
     imGuiVirtualWindow->setCurrentImGuiContext();
     imGuiVirtualWindow->newFrame();
+
+    ImGuiIO &io = ImGui::GetIO();
+
+//     // ImGui windows
+//     // Indicator window
+//     if (!windowSizeInitialized) {
+//         windowSizeInitialized = true;
+// #ifndef NODEBUG
+//         ImGui::SetNextWindowSize(ImVec2(300, 600));
+// #else
+//         ImGui::SetNextWindowSize(ImVec2(300, 250));
+// #endif
+//     }
+//     ImGui::Begin("インジケーター");
+
+// #ifndef NODEBUG
+//     ImGui::Checkbox("ImGui DemoWindowを表示する", &showDemoWindow);
+//     ImGui::Text("IsWindowFocused: %d", ImGui::IsWindowFocused());
+//     PADDING(20);
+// #endif
+
+//     ImGui::Text("FPS: %.1f", io.Framerate);
+//     ImGui::Text("Joints: %d", anim->getNumOfJoints());
+
+//     auto total = anim->getNumOfFrames();
+//     auto current = anim->getCurrentFrame();
+//     ImGui::Text("Frame: %d / %d", current, total);
+
+//     ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0), "");
+//     ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
+//     ImGui::Text("%.1f%%", (float)current / total * 100);
+
+//     PADDING(30);
+
+// #ifndef NODEBUG
+//     // mouse input status
+//     ImGui::Text("Cursor Pos: (%.1f, %.1f)", mouseCtx.currentX,
+//                 mouseCtx.currentY);
+//     ImGui::Text("Scroll offset: (%.1f, %.1f)", mouseCtx.scrollOffsetX,
+//                 mouseCtx.scrollOffsetY);
+//     ImGui::Text("DragStart: (%.1f, %.1f)", mouseCtx.dragStartX,
+//                 mouseCtx.dragStartY);
+//     ImGui::Text("DragEnd: (%.1f, %.1f)", mouseCtx.dragEndX, mouseCtx.dragEndY);
+//     ImGui::Text("Delta: (%.1f, %.1f)", mouseCtx.deltaX, mouseCtx.deltaY);
+//     ImGui::Text("Button L/R/M: (%d / %d / %d)", mouseCtx.leftButton,
+//                 mouseCtx.rightButton, mouseCtx.middleButton);
+//     ImGui::Text("Camera rotation (degrees) H/V: (%.2f, %.2f)",
+//                 glm::degrees(cameraCtx.hRotation),
+//                 glm::degrees(cameraCtx.vRotation));
+//     ImGui::Text("Camera distance: %.2f", cameraCtx.distance);
+//     glm::vec3 cameraPos = cameraCtx.generatePos();
+//     ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", cameraPos.x, cameraPos.y,
+//                 cameraPos.z);
+//     PADDING(20);
+
+//     // window status
+//     ImGui::Text("Window size: (%d, %d)", windowWidth, windowHeight);
+//     PADDING(20);
+// #endif
+
+//     if (ImGui::Button("ファイルを開く...")) {
+//         std::cout << "TODO: implement!!" << std::endl;
+//     }
+//     ImGui::Text("未実装です m(_ _)m");
+
+//     ImGui::End();
+
+//     // Demo window
+//     if (showDemoWindow) {
+//         ImGui::ShowDemoWindow();
+//     }
 
     ImGui::ShowDemoWindow();
 

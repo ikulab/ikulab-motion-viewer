@@ -309,8 +309,8 @@ void BVHParser::parseBVH() {
 
         // sort by ID
         std::sort(skelton.begin(), skelton.end(),
-                  [](const std::unique_ptr<Animator::Joint> &a,
-                     const std::unique_ptr<Animator::Joint> &b) {
+                  [](const std::shared_ptr<Animator::Joint> &a,
+                     const std::shared_ptr<Animator::Joint> &b) {
                       return a->getID() < b->getID();
                   });
 
@@ -363,4 +363,9 @@ BVHParser::BVHParser(std::string filePath) {
         msg += "'.";
         throw std::runtime_error(msg);
     }
+}
+
+bool isValidChannel(std::string str) {
+    return (str == "Xposition" || str == "Yposition" || str == "Zposition" ||
+            str == "Xrotation" || str == "Yrotation" || str == "Zrotation");
 }

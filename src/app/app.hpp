@@ -11,6 +11,11 @@
 
 class App {
     // Variables ==========
+    // Constants ----------
+    const int NUM_OF_GROUPS_OTHER_THAN_JOINTS = 2;
+    const ikura::GroupID DEBUG_OBJ_GROUP_ID = ikura::NUM_OF_MODEL_MATRIX - 3;
+    const ikura::GroupID FLOOR_GROUP_ID = ikura::NUM_OF_MODEL_MATRIX - 2;
+
     // ikura objects ----------
     std::unique_ptr<ikura::AppEngine> appEngine;
     std::shared_ptr<ikura::RenderEngine> renderEngine;

@@ -17,7 +17,7 @@
 struct Motion;
 
 class Animator {
-    std::vector<std::vector<std::unique_ptr<Motion>>> motions;
+    std::vector<std::vector<std::shared_ptr<Motion>>> motions;
     uint32_t numOfFrames;
     uint32_t currentFrame;
     float frameRate;
@@ -61,5 +61,5 @@ class Animator {
     void showMotionInfo();
 
   private:
-    std::vector<std::unique_ptr<Animator::Joint>> joints;
+    std::vector<std::shared_ptr<Animator::Joint>> joints;
 };

@@ -72,8 +72,6 @@ class BasicVertex : public Vertex {
         return dataVec;
     }
 
-    static size_t getDataSize() { return sizeof(Data); }
-
     bool operator==(const BasicVertex &other) const {
         return (data.pos == other.data.pos && data.color == other.data.color &&
                 data.id == other.data.id);

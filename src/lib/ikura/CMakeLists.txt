@@ -1,7 +1,7 @@
 add_library(ikura INTERFACE)
 
 set(common_include_dir
-	"${PROJECT_SOURCE_DIR}/includes/imgui"
+	"${PROJECT_SOURCE_DIR}/includes"
 	"${PROJECT_SOURCE_DIR}/includes/easylogging++"
 	"${PROJECT_SOURCE_DIR}/includes/vk_mem_alloc"
 )

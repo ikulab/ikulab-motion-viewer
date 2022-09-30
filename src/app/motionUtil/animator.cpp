@@ -13,7 +13,7 @@
 void Animator::initFromBVH(std::string filePath) {
     BVHParser parser(filePath);
     parser.parseBVH();
-    assert(parser.getNumOfFrames() <= ikura::NUM_OF_MODEL_MATRIX);
+    assert(parser.getSkentonData().size() <= ikura::NUM_OF_MODEL_MATRIX);
 
     joints = parser.getSkentonData();
     motions = parser.getMotionData();
@@ -53,7 +53,7 @@ void Animator::Joint::showInfo() {
 void Animator::showSkeltonInfo() {
     std::for_each(
         joints.begin(), joints.end(),
-        [](const std::unique_ptr<Joint> &joint) { joint->showInfo(); });
+        [](const std::shared_ptr<Joint> &joint) { joint->showInfo(); });
     std::cout << "Number of Joints:" << joints.size() << std::endl;
 }
 
@@ -158,7 +158,7 @@ void Animator::generateBones(
     bones.clear();
     bones.resize(joints.size());
 
-    uint32_t baseIndex;
+    uint32_t baseIndex = 0;
     for (ikura::GroupID id = 0; id < joints.size(); id++) {
         if (joints[id]->getParentIDs().empty()) {
             // Root Joint
@@ -171,6 +171,6 @@ void Animator::generateBones(
                 std::make_shared<ikura::shapes::OctahedronBone>(length, id);
         }
         bones[id]->setBaseIndex(baseIndex);
-        baseIndex = bones[id]->getVertices().size();
+        baseIndex += bones[id]->getVertices().size();
     }
 }

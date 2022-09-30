@@ -54,16 +54,7 @@ target_link_libraries(app easyloggingpp)
 add_subdirectory(./src/lib/ikura)
 
 # ikura dependencies
-target_link_libraries(ikura INTERFACE vulkan glfw ${CMAKE_DL_LIBS})
+target_link_libraries(ikura INTERFACE vulkan glfw easyloggingpp vk_mem_alloc imgui ${CMAKE_DL_LIBS})
 
-target_link_libraries(renderEngine easyloggingpp vk_mem_alloc)
-
-target_link_libraries(appEngine imgui)
-
-target_link_libraries(nativeWindow easyloggingpp vk_mem_alloc)
-target_link_libraries(virtualWindow imgui)
-
-target_link_libraries(renderComponent vk_mem_alloc easyloggingpp)
-
-# link ikura to executable
 target_link_libraries(app ikura)
+target_link_libraries(motionUtil ikura)
