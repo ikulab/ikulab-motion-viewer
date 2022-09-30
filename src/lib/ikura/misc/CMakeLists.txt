@@ -1,0 +1,2 @@
+add_library(initVulkanHppDispatchLoader STATIC initVulkanHppDispatchLoader.cpp)
+target_compile_definitions(initVulkanHppDispatchLoader PUBLIC VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)

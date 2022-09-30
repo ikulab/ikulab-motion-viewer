@@ -1,1 +1,0 @@
-add_library(bvh_parser STATIC ./bvhParser.cpp)

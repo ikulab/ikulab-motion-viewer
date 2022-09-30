@@ -1,7 +1,7 @@
 # VSCode seting
 .vscode/*
 !.vscode/launch.json
-!.vscode/tasks.json
+!.vscode/tasks.json.template
 !.vscode/c_cpp_properties.json
 
 # build binary
@@ -11,7 +11,7 @@ bin
 # imgui file
 imgui.ini
 
-# log file
+# easyloggingpp
 myeasylog.log
 
 # cache

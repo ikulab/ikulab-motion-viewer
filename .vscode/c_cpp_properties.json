@@ -3,7 +3,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/includes/vk_mem_alloc"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

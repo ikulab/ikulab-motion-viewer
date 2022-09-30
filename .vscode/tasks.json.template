@@ -1,0 +1,42 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "configure_cmake",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"-S", ".", "-B", "build",
+				"-D", "BUILD_TYPE=${input:select_debug_or_release}",
+				"-G", "Ninja",
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=YES",
+			]
+		},
+		{
+			"label": "build_app",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"build",
+			],
+			// "problemMatcher": [
+			// 	"$gcc"
+			// ],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			// "dependsOn": "configure_cmake"
+		}
+	],
+	"inputs": [
+		{
+			"id": "select_debug_or_release",
+			"type": "pickString",
+			"description": "ビルドの種類を選択して下さい。",
+			"options": ["Debug", "Release"],
+			"default": "Debug",
+		}
+	]
+}
