@@ -57,4 +57,6 @@ add_subdirectory(./src/lib/ikura)
 target_link_libraries(ikura INTERFACE vulkan glfw easyloggingpp vk_mem_alloc imgui ${CMAKE_DL_LIBS})
 
 target_link_libraries(app ikura)
+
+# TODO: delete them
 target_link_libraries(motionUtil ikura)

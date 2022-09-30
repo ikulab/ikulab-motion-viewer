@@ -7,6 +7,7 @@
 #include "./context/camera.hpp"
 #include "./context/keyboard.hpp"
 #include "./context/mouse.hpp"
+#include "./context/ui.hpp"
 #include "./motionUtil/animator.hpp"
 
 class App {
@@ -33,6 +34,7 @@ class App {
     Camera camera;
     Keyboard keyboard;
     Mouse mouse;
+    UI ui;
 
     // Misc ----------
     Animator animator;
@@ -41,6 +43,7 @@ class App {
     // Init ----------
     void initIkura();
     void setShapes();
+    void initContexts();
     void setGlfwWindowEvents(GLFWwindow *window);
 
     // Update ----------

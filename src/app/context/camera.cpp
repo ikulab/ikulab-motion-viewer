@@ -1,5 +1,12 @@
 #include "./camera.hpp"
 
+void Camera::init() {
+    center = {0.0, 0.0, 5.0};
+    hRotation = 0.0;
+    vRotation = glm::radians(20.0);
+    distance = 50.0;
+}
+
 void Camera::updateCamera(Mouse mouseCtx, Keyboard keyCtx,
                           bool isWindowFocused) {
     const static double ROTATION_DIFF_RATIO = 0.01;

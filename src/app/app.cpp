@@ -130,6 +130,8 @@ void App::setShapes() {
     mainRenderContent->uploadIndexBuffer();
 }
 
+void App::initContexts() { camera.init(); }
+
 void App::setGlfwWindowEvents(GLFWwindow *window) {
     glfwSetWindowUserPointer(window, this);
 
@@ -177,76 +179,75 @@ void App::updateUI() {
 
     ImGuiIO &io = ImGui::GetIO();
 
-//     // ImGui windows
-//     // Indicator window
-//     if (!windowSizeInitialized) {
-//         windowSizeInitialized = true;
-// #ifndef NODEBUG
-//         ImGui::SetNextWindowSize(ImVec2(300, 600));
-// #else
-//         ImGui::SetNextWindowSize(ImVec2(300, 250));
-// #endif
-//     }
-//     ImGui::Begin("インジケーター");
+    // ImGui windows
+    // Indicator window
+    if (!ui.windowSizeInitialized) {
+        ui.windowSizeInitialized = true;
+#ifndef NODEBUG
+        ImGui::SetNextWindowSize(ImVec2(300, 600));
+#else
+        ImGui::SetNextWindowSize(ImVec2(300, 250));
+#endif
+    }
+    ImGui::Begin("インジケーター");
 
-// #ifndef NODEBUG
-//     ImGui::Checkbox("ImGui DemoWindowを表示する", &showDemoWindow);
-//     ImGui::Text("IsWindowFocused: %d", ImGui::IsWindowFocused());
-//     PADDING(20);
-// #endif
+#ifndef NODEBUG
+    ImGui::Checkbox("ImGui DemoWindowを表示する", &ui.showDemoWindow);
+    ImGui::Text("IsWindowFocused: %d", ImGui::IsWindowFocused());
+    UI::makePadding(20);
+#endif
 
-//     ImGui::Text("FPS: %.1f", io.Framerate);
-//     ImGui::Text("Joints: %d", anim->getNumOfJoints());
+    ImGui::Text("FPS: %.1f", io.Framerate);
+    ImGui::Text("Joints: %d", animator.getNumOfJoints());
 
-//     auto total = anim->getNumOfFrames();
-//     auto current = anim->getCurrentFrame();
-//     ImGui::Text("Frame: %d / %d", current, total);
+    auto total = animator.getNumOfFrames();
+    auto current = animator.getCurrentFrame();
+    ImGui::Text("Frame: %d / %d", current, total);
 
-//     ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0), "");
-//     ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
-//     ImGui::Text("%.1f%%", (float)current / total * 100);
+    ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0), "");
+    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
+    ImGui::Text("%.1f%%", (float)current / total * 100);
 
-//     PADDING(30);
+    UI::makePadding(30);
 
-// #ifndef NODEBUG
-//     // mouse input status
-//     ImGui::Text("Cursor Pos: (%.1f, %.1f)", mouseCtx.currentX,
-//                 mouseCtx.currentY);
-//     ImGui::Text("Scroll offset: (%.1f, %.1f)", mouseCtx.scrollOffsetX,
-//                 mouseCtx.scrollOffsetY);
-//     ImGui::Text("DragStart: (%.1f, %.1f)", mouseCtx.dragStartX,
-//                 mouseCtx.dragStartY);
-//     ImGui::Text("DragEnd: (%.1f, %.1f)", mouseCtx.dragEndX, mouseCtx.dragEndY);
-//     ImGui::Text("Delta: (%.1f, %.1f)", mouseCtx.deltaX, mouseCtx.deltaY);
-//     ImGui::Text("Button L/R/M: (%d / %d / %d)", mouseCtx.leftButton,
-//                 mouseCtx.rightButton, mouseCtx.middleButton);
-//     ImGui::Text("Camera rotation (degrees) H/V: (%.2f, %.2f)",
-//                 glm::degrees(cameraCtx.hRotation),
-//                 glm::degrees(cameraCtx.vRotation));
-//     ImGui::Text("Camera distance: %.2f", cameraCtx.distance);
-//     glm::vec3 cameraPos = cameraCtx.generatePos();
-//     ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", cameraPos.x, cameraPos.y,
-//                 cameraPos.z);
-//     PADDING(20);
+#ifndef NODEBUG
+    // mouse input status
+    ImGui::Text("Cursor Pos: (%.1f, %.1f)", mouse.currentX, mouse.currentY);
+    ImGui::Text("Scroll offset: (%.1f, %.1f)", mouse.scrollOffsetX,
+                mouse.scrollOffsetY);
+    ImGui::Text("DragStart: (%.1f, %.1f)", mouse.dragStartX, mouse.dragStartY);
+    ImGui::Text("DragEnd: (%.1f, %.1f)", mouse.dragEndX, mouse.dragEndY);
+    ImGui::Text("Delta: (%.1f, %.1f)", mouse.deltaX, mouse.deltaY);
+    ImGui::Text("Button L/R/M: (%d / %d / %d)", mouse.leftButton,
+                mouse.rightButton, mouse.middleButton);
+    // camera status
+    ImGui::Text("Camera rotation (degrees) H/V: (%.2f, %.2f)",
+                glm::degrees(camera.hRotation), glm::degrees(camera.vRotation));
+    ImGui::Text("Camera distance: %.2f", camera.distance);
+    glm::vec3 cameraPos = camera.generatePos();
+    ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", cameraPos.x, cameraPos.y,
+                cameraPos.z);
+    ImGui::Text("Camera look-at position: (%.2f, %.2f, %.2f)", camera.center.x,
+                camera.center.y, camera.center.z);
+    UI::makePadding(20);
 
-//     // window status
-//     ImGui::Text("Window size: (%d, %d)", windowWidth, windowHeight);
-//     PADDING(20);
-// #endif
+    // window status
+    ImGui::Text("Window size: (%d, %d)", mainWindow->getWidth(),
+                mainWindow->getHeight());
+    UI::makePadding(20);
+#endif
 
-//     if (ImGui::Button("ファイルを開く...")) {
-//         std::cout << "TODO: implement!!" << std::endl;
-//     }
-//     ImGui::Text("未実装です m(_ _)m");
+    if (ImGui::Button("ファイルを開く...")) {
+        std::cout << "TODO: implement!!" << std::endl;
+    }
+    ImGui::Text("未実装です m(_ _)m");
 
-//     ImGui::End();
+    ImGui::End();
 
-//     // Demo window
-//     if (showDemoWindow) {
-//         ImGui::ShowDemoWindow();
-//     }
-
-    ImGui::ShowDemoWindow();
+    // Demo window
+    if (ui.showDemoWindow) {
+        ImGui::ShowDemoWindow();
+    }
 
     ImGui::Render();
 }
@@ -254,6 +255,7 @@ void App::updateUI() {
 App::App() {
     initIkura();
     setShapes();
+    initContexts();
 }
 
 void App::run() {

@@ -12,14 +12,15 @@
 #include "./mouse.hpp"
 
 class Camera {
-    glm::vec3 center{0.0, 0.0, 0.0};
-    /// in Radians
-    float hRotation = 0.0;
-    /// in Radians
-    float vRotation = glm::radians(20.0);
-    float distance = 10.0;
-
   public:
+    glm::vec3 center;
+    /// in Radians
+    float hRotation;
+    /// in Radians
+    float vRotation;
+    float distance;
+
+    void init();
     void updateCamera(Mouse mouseCtx, Keyboard keyCtx, bool isWindowFocused);
 
     glm::vec3 generatePos();
