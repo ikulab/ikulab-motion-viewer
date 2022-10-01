@@ -171,9 +171,12 @@ void App::updateMatrices() {
     ikura::BasicSceneMatUBO sceneMat;
 
     if (modelLoaded) {
+        if (!stopAnimation) {
+            animationTime += appEngine->getDeltaTime() * animationSpeed;
+        }
+
         // Joints
-        auto modelMat4s =
-            animator.generateModelMatrices(appEngine->getSecondsFromStart());
+        auto modelMat4s = animator.generateModelMatrices(animationTime);
         for (int i = 0; i < ikura::NUM_OF_MODEL_MATRIX; i++) {
             modelMat.model[i] = modelMat4s[i];
         }
@@ -212,7 +215,7 @@ void App::updateUI() {
     if (!ui.windowSizeInitialized) {
         ui.windowSizeInitialized = true;
 #ifndef NODEBUG
-        ImGui::SetNextWindowSize(ImVec2(300, 600));
+        ImGui::SetNextWindowSize(ImVec2(300, 700));
 #else
         ImGui::SetNextWindowSize(ImVec2(300, 250));
 #endif
@@ -227,6 +230,7 @@ void App::updateUI() {
 
     ImGui::Text("FPS: %.1f", io.Framerate);
     ImGui::Text("Joints: %d", animator.getNumOfJoints());
+    ImGui::Text("Animation Time: %f", animationTime);
 
     auto total = animator.getNumOfFrames();
     auto current = animator.getCurrentFrame();
@@ -235,6 +239,12 @@ void App::updateUI() {
     ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0), "");
     ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
     ImGui::Text("%.1f%%", (float)current / total * 100);
+
+    ImGui::SliderFloat("Speed", &animationSpeed, -2.0, 2.0);
+    if (ImGui::Button("Reset")) {
+        animationSpeed = 1.0;
+    }
+    ImGui::Checkbox("Stop", &stopAnimation);
 
     UI::makePadding(30);
 

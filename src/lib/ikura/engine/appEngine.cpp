@@ -36,6 +36,9 @@ void AppEngine::vSync() {
                 uint32_t(1000.0 * 1000.0 * 1000.0 * 1.0 / fps)) -
             delta);
 
+    // update deltaTime for main-loop use
+    deltaTime = (delta + waitTime).count() / 1000.0 / 1000.0 / 1000.0;
+
     std::this_thread::sleep_for(waitTime);
 
     // update currentTime for next vSync
@@ -51,6 +54,8 @@ void AppEngine::setStartTime() {
 }
 
 float AppEngine::getSecondsFromStart() const { return secondsFromStart; }
+
+float AppEngine::getDeltaTime() const { return deltaTime; }
 
 int AppEngine::shouldTerminated() {
     return std::all_of(nativeWindows.begin(), nativeWindows.end(),

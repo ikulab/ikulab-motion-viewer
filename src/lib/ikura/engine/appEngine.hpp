@@ -20,6 +20,7 @@ class AppEngine {
     std::chrono::_V2::system_clock::time_point startTime;
     std::chrono::_V2::system_clock::time_point currentTime;
     float secondsFromStart;
+    float deltaTime;
 
   public:
     AppEngine(std::shared_ptr<RenderEngine> renderEngine);
@@ -29,6 +30,7 @@ class AppEngine {
     void vSync();
     void setStartTime();
     float getSecondsFromStart() const;
+    float getDeltaTime() const;
 
     int shouldTerminated();
     void drawAllWindows();

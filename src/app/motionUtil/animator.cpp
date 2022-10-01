@@ -75,6 +75,9 @@ void Animator::showMotionInfo() {
 std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX>
 Animator::generateModelMatrices(float time) {
     float timeInLoop = std::fmod(time, (loopDuration - frameRate));
+    if (timeInLoop < 0) {
+        timeInLoop = (loopDuration - frameRate) + timeInLoop;
+    }
     uint32_t prevFrameIdx = std::floor(timeInLoop / frameRate);
     uint32_t nextFrameIdx = prevFrameIdx + 1;
     float progressBetweenFrames = std::fmod(timeInLoop, frameRate) / frameRate;
