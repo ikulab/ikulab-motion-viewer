@@ -14,8 +14,9 @@ imgui.ini
 # easyloggingpp
 myeasylog.log
 
-# cache
+# ccls
 .ccls-cache
+compile_commands.json
 
 # template -------------
 # Prerequisites

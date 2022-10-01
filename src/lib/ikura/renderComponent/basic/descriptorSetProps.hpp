@@ -5,4 +5,4 @@ const int DESCRIPTOR_SET_INDEX_MODEL_MATRIX_UBO = 0;
 const int DESCRIPTOR_SET_INDEX_SCENE_MATRIX_UBO = 0;
 const int NUM_OF_DESCRIPTORS = 2;
 const int NUM_OF_DESCRIPTOR_SETS = 1;
-} // namespace ikura::shapes
+} // namespace ikura
