@@ -19,8 +19,8 @@ class BasicRenderContent : public RenderContent {
                        vk::DescriptorSetLayout descriptorSetLayout,
                        int numOfFrames);
 
-    void setVertices(const std::vector<BasicVertex>& vertices);
-    void setIndices(const std::vector<BasicIndex>& indices);
+    void setVertices(const std::vector<BasicVertex> &vertices);
+    void setIndices(const std::vector<BasicIndex> &indices);
 
     void updateUniformBuffer(int frameIndex, BasicModelMatUBO &modelMatUBO,
                              BasicSceneMatUBO &sceneMatUBO);

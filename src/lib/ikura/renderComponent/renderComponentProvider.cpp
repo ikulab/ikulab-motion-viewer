@@ -10,11 +10,9 @@ RenderComponentProvider::RenderComponentProvider(
 }
 
 RenderComponentProvider::~RenderComponentProvider() {
-    VLOG(VLOG_LV_3_PROCESS_TRACKING)
-        << "Desctroying DescriptorSetLayout...";
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Desctroying DescriptorSetLayout...";
     renderEngine->getDevice().destroyDescriptorSetLayout(descriptorSetLayout);
-    VLOG(VLOG_LV_3_PROCESS_TRACKING)
-        << "DescriptorSetLayout has been deleted.";
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "DescriptorSetLayout has been deleted.";
 }
 
 } // namespace ikura

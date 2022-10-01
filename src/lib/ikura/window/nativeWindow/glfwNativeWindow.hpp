@@ -21,7 +21,7 @@ class GlfwNativeWindow : public NativeWindow {
                                           int height);
     void recordCommandBuffer(uint32_t imageIndex);
     void recreateSwapChain() override;
-      
+
     void destroyGlfwWindow();
 
   public:

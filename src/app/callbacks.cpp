@@ -1,7 +1,7 @@
 #include "./app.hpp"
 
-void App::cursorPositionCallback(GLFWwindow* window, double xPos, double yPos) {
-    App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
+void App::cursorPositionCallback(GLFWwindow *window, double xPos, double yPos) {
+    App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
 
     app->mouse.deltaX = xPos - app->mouse.currentX;
     app->mouse.deltaY = yPos - app->mouse.currentY;
@@ -16,8 +16,9 @@ void App::cursorPositionCallback(GLFWwindow* window, double xPos, double yPos) {
     }
 }
 
-void App::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
+void App::mouseButtonCallback(GLFWwindow *window, int button, int action,
+                              int mods) {
+    App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
     switch (button) {
     case GLFW_MOUSE_BUTTON_LEFT:
         app->mouse.leftButton = (action == GLFW_PRESS);
@@ -41,14 +42,15 @@ void App::mouseButtonCallback(GLFWwindow* window, int button, int action, int mo
     }
 }
 
-void App::scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
-    App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
+void App::scrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
+    App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
     app->mouse.scrollOffsetX = xOffset;
     app->mouse.scrollOffsetY = yOffset;
 }
 
-void App::keyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods) {
-    App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
+void App::keyCallback(GLFWwindow *window, int key, int scanCode, int action,
+                      int mods) {
+    App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
 
     switch (key) {
     case GLFW_KEY_LEFT_CONTROL:

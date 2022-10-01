@@ -41,8 +41,9 @@ class NativeWindow : public Window {
     const vk::SwapchainKHR getSwapChain() const;
     const vk::Format getSwapChainFormat() const;
     const vk::Extent2D getSwapChainExtent() const;
-    const std::vector<vk::Image>& getSwapChainImages() const;
+    const std::vector<vk::Image> &getSwapChainImages() const;
     const uint32_t getCurrentFrameIndex() const;
-    const std::vector<std::shared_ptr<VirtualWindow>>& getVirtualWindows() const;
+    const std::vector<std::shared_ptr<VirtualWindow>> &
+    getVirtualWindows() const;
 };
 } // namespace ikura

@@ -12,8 +12,7 @@
 
 namespace ikura {
 // Provides Basic RenderComponent compatible with shapes
-class BasicRenderComponentProvider
-    : public RenderComponentProvider {
+class BasicRenderComponentProvider : public RenderComponentProvider {
 
     void createDescriptorSetlayout();
 
