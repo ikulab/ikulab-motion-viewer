@@ -36,11 +36,12 @@ void AppEngine::vSync() {
                 uint32_t(1000.0 * 1000.0 * 1000.0 * 1.0 / fps)) -
             delta);
 
-    // update deltaTime for main-loop use
-    deltaTime = (delta + waitTime).count() / 1000.0 / 1000.0 / 1000.0;
-
     std::this_thread::sleep_for(waitTime);
 
+    // update deltaTime for main-loop use
+    deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(
+                    std::chrono::high_resolution_clock::now() - currentTime)
+                    .count();
     // update currentTime for next vSync
     currentTime = std::chrono::high_resolution_clock::now();
     secondsFromStart =
