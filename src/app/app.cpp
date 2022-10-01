@@ -11,6 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <imgui/imgui.h>
+#include <tinyfiledialogs.h>
 
 void App::initIkura() {
     // Initialize RenderEngine
