@@ -85,43 +85,58 @@ void App::initIkura() {
     mainWindow->addVirtualWindow(imGuiVirtualWindow);
 }
 
-void App::setShapes() {
-    // Joints ----------
-    animator.initFromBVH("./models/swing.bvh");
-    std::vector<std::shared_ptr<ikura::shapes::Shape>> shapes;
-    animator.generateBones(shapes);
-
-    if (shapes.size() + NUM_OF_GROUPS_OTHER_THAN_JOINTS >
-        ikura::NUM_OF_MODEL_MATRIX) {
-        throw std::runtime_error("Too many Joints in loaded model.");
-    }
-
-    // Add other than Joint object ----------
-    ikura::BasicIndex baseIndex =
-        shapes.back()->getBaseIndex() + shapes.back()->getVertices().size();
-
-    // DebugObj
-    auto debugObj = std::make_shared<ikura::shapes::DirectionDebugObject>(
-        40.0, DEBUG_OBJ_GROUP_ID);
-    debugObj->setBaseIndex(baseIndex);
-    baseIndex += debugObj->getVertices().size();
-    shapes.push_back(debugObj);
-
-    // Floor
-    auto floor = std::make_shared<ikura::shapes::GridFloor>(
-        1000.0, 1000.0, 1, 10, 10, glm::vec3(0.2, 0.9, 0.2), FLOOR_GROUP_ID);
-    floor->setBaseIndex(baseIndex);
-    // baseIndex += floor->getVertices().size();
-    shapes.push_back(floor);
-
-    // Register all Vertices / Indices ----------
+void App::setShapes(const char *filePath) {
     std::vector<ikura::BasicVertex> vertices;
     std::vector<ikura::BasicIndex> indices;
-    for (auto &shape : shapes) {
-        vertices.insert(vertices.end(), shape->getVertices().begin(),
-                        shape->getVertices().end());
-        indices.insert(indices.end(), shape->getIndices().begin(),
-                       shape->getIndices().end());
+
+    if (filePath) {
+        // Joints ----------
+        animator.initFromBVH(filePath);
+        std::vector<std::shared_ptr<ikura::shapes::Shape>> shapes;
+        animator.generateBones(shapes);
+
+        if (shapes.size() + NUM_OF_GROUPS_OTHER_THAN_JOINTS >
+            ikura::NUM_OF_MODEL_MATRIX) {
+            throw std::runtime_error("Too many Joints in loaded model.");
+        }
+
+        // Add other than Joint object ----------
+        ikura::BasicIndex baseIndex =
+            shapes.back()->getBaseIndex() + shapes.back()->getVertices().size();
+
+        // DebugObj
+        auto debugObj = std::make_shared<ikura::shapes::DirectionDebugObject>(
+            40.0, DEBUG_OBJ_GROUP_ID);
+        debugObj->setBaseIndex(baseIndex);
+        baseIndex += debugObj->getVertices().size();
+        shapes.push_back(debugObj);
+
+        // Floor
+        auto floor = std::make_shared<ikura::shapes::GridFloor>(
+            1000.0, 1000.0, 1, 10, 10, glm::vec3(0.2, 0.9, 0.2),
+            FLOOR_GROUP_ID);
+        floor->setBaseIndex(baseIndex);
+        // baseIndex += floor->getVertices().size();
+        shapes.push_back(floor);
+
+        // Register all Vertices / Indices ----------
+        for (auto &shape : shapes) {
+            vertices.insert(vertices.end(), shape->getVertices().begin(),
+                            shape->getVertices().end());
+            indices.insert(indices.end(), shape->getIndices().begin(),
+                           shape->getIndices().end());
+        }
+
+        modelLoaded = true;
+    } else {
+        auto defaultShape = std::make_shared<ikura::shapes::SeparatedColorCube>(
+            100, 100, 100, glm::vec3(0, 0, 0),
+            std::array<glm::vec3, 6>{glm::vec3(0, 0, 1), glm::vec3(0, 1, 0),
+                                     glm::vec3(0, 1, 1), glm::vec3(1, 0, 0),
+                                     glm::vec3(1, 0, 1), glm::vec3(1, 1, 0)},
+            0);
+        vertices = defaultShape->getVertices();
+        indices = defaultShape->getIndices();
     }
 
     mainRenderContent->setVertices(vertices);
@@ -142,21 +157,33 @@ void App::setGlfwWindowEvents(GLFWwindow *window) {
     glfwSetKeyCallback(window, keyCallback);
 }
 
+void App::selectFileAndInitShapes() {
+    const char *filterPattern[1] = {"*.bvh"};
+
+    auto filePath = tinyfd_openFileDialog("Select Motion Data", NULL, 1,
+                                          filterPattern, "BVH file", 0);
+    setShapes(filePath);
+}
+
 void App::updateMatrices() {
     auto currentFrame = mainWindow->getCurrentFrameIndex();
     ikura::BasicModelMatUBO modelMat;
     ikura::BasicSceneMatUBO sceneMat;
 
-    // Joints
-    auto modelMat4s =
-        animator.generateModelMatrices(appEngine->getSecondsFromStart());
-    for (int i = 0; i < ikura::NUM_OF_MODEL_MATRIX; i++) {
-        modelMat.model[i] = modelMat4s[i];
-    }
+    if (modelLoaded) {
+        // Joints
+        auto modelMat4s =
+            animator.generateModelMatrices(appEngine->getSecondsFromStart());
+        for (int i = 0; i < ikura::NUM_OF_MODEL_MATRIX; i++) {
+            modelMat.model[i] = modelMat4s[i];
+        }
 
-    // Other objects
-    modelMat.model[FLOOR_GROUP_ID] = glm::mat4(1.0);
-    modelMat.model[DEBUG_OBJ_GROUP_ID] = glm::mat4(1.0);
+        // Other objects
+        modelMat.model[FLOOR_GROUP_ID] = glm::mat4(1.0);
+        modelMat.model[DEBUG_OBJ_GROUP_ID] = glm::mat4(1.0);
+    } else {
+        modelMat.model[0] = glm::mat4(1.0);
+    }
 
     // global scaling
     for (auto &m : modelMat.model) {
@@ -239,9 +266,8 @@ void App::updateUI() {
 #endif
 
     if (ImGui::Button("ファイルを開く...")) {
-        std::cout << "TODO: implement!!" << std::endl;
+        selectFileAndInitShapes();
     }
-    ImGui::Text("未実装です m(_ _)m");
 
     ImGui::End();
 
@@ -255,7 +281,7 @@ void App::updateUI() {
 
 App::App() {
     initIkura();
-    setShapes();
+    setShapes(nullptr);
     initContexts();
 }
 

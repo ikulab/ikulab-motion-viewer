@@ -160,13 +160,21 @@ BasicRenderContent::BasicRenderContent(
     setupDescriptorSets();
 }
 
-void BasicRenderContent::setVertices(const std::vector<BasicVertex> &vertices) {
+void BasicRenderContent::addVertices(const std::vector<BasicVertex> &vertices) {
     this->vertices.insert(this->vertices.end(), vertices.begin(),
                           vertices.end());
 }
 
-void BasicRenderContent::setIndices(const std::vector<BasicIndex> &indices) {
+void BasicRenderContent::addIndices(const std::vector<BasicIndex> &indices) {
     this->indices.insert(this->indices.end(), indices.begin(), indices.end());
+}
+
+void BasicRenderContent::setVertices(const std::vector<BasicVertex> &vertices) {
+    this->vertices = vertices;
+}
+
+void BasicRenderContent::setIndices(const std::vector<BasicIndex> &indices) {
+    this->indices = indices;
 }
 
 void BasicRenderContent::updateUniformBuffer(int frameIndex,

@@ -19,6 +19,8 @@ class BasicRenderContent : public RenderContent {
                        vk::DescriptorSetLayout descriptorSetLayout,
                        int numOfFrames);
 
+    void addVertices(const std::vector<BasicVertex> &vertices);
+    void addIndices(const std::vector<BasicIndex> &indices);
     void setVertices(const std::vector<BasicVertex> &vertices);
     void setIndices(const std::vector<BasicIndex> &indices);
 

@@ -38,13 +38,16 @@ class App {
 
     // Misc ----------
     Animator animator;
+    bool modelLoaded = false;
 
     // Functions ==========
     // Init ----------
     void initIkura();
-    void setShapes();
+    void setShapes(const char *filePath);
     void initContexts();
     void setGlfwWindowEvents(GLFWwindow *window);
+
+    void selectFileAndInitShapes();
 
     // Update ----------
     void updateMatrices();
