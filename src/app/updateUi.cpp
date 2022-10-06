@@ -4,47 +4,111 @@ void App::updateUI() {
     imGuiVirtualWindow->setCurrentImGuiContext();
     imGuiVirtualWindow->newFrame();
 
-    ImGuiIO &io = ImGui::GetIO();
+    updateMainMenu();
 
-    // ImGui windows
-    // Indicator window
+    if (ui.showAnimationControlWindow) {
+        updateAnimationControlWindow();
+    }
+    if (ui.showDebugWindow) {
+        updateDebugWindow();
+    }
+    if (ui.showDemoWindow) {
+        ImGui::ShowDemoWindow();
+    }
+
+    ImGui::Render();
+
     if (!ui.windowSizeInitialized) {
         ui.windowSizeInitialized = true;
-#ifndef NODEBUG
-        ImGui::SetNextWindowSize(ImVec2(300, 700));
-#else
-        ImGui::SetNextWindowSize(ImVec2(300, 250));
-#endif
     }
-    ImGui::Begin("インジケーター");
+}
 
-#ifndef NODEBUG
+void App::updateMainMenu() {
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("ファイル")) {
+            if (ImGui::MenuItem("BVHファイルを開く")) {
+                selectFileAndInitShapes();
+            }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("ウィンドウ")) {
+            if (ImGui::MenuItem("デバッグウィンドウ", NULL,
+                                ui.showDebugWindow)) {
+                ui.showDebugWindow = !ui.showDebugWindow;
+            }
+            if (ImGui::MenuItem("アニメーションコントロールウィンドウ", NULL,
+                                ui.showAnimationControlWindow)) {
+                ui.showAnimationControlWindow = !ui.showAnimationControlWindow;
+            }
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+}
+
+void App::updateAnimationControlWindow() {
+    if (!ui.windowSizeInitialized) {
+        ImGui::SetNextWindowSize(ImVec2(800, 150));
+        ImGui::SetNextWindowPos(ImVec2((mainWindow->getWidth() - 800) / 2,
+                                       mainWindow->getHeight() - 300));
+    }
+
+    ImGui::Begin("アニメーションコントロール");
+
+    auto total = animator.getNumOfFrames();
+    auto current = animator.getCurrentFrame();
+
+    // Num of Frame ----------
+    if (modelLoaded) {
+        ImGui::Text("Frame: %d / %d", current, total);
+    } else {
+        ImGui::Text("Frame: - / -");
+    }
+
+    // Percentage and progressbar ----------
+    if (modelLoaded) {
+        ImGui::Text("Position: %.1f%%", (float)current / total * 100);
+    } else {
+        ImGui::Text("Position: - %%");
+    }
+    ImGui::ProgressBar((float)current / total, ImVec2(-1.0, 0.0), "");
+
+	// Speed Control ----------
+    if (ImGui::Button("Reset")) {
+        animationSpeed = 1.0;
+    }
+
+    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
+    ImGui::PushItemWidth(200);
+    ImGui::SliderFloat("Speed", &animationSpeed, -2.0, 2.0);
+    ImGui::PopItemWidth();
+
+    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
+    ImGui::Checkbox("Stop", &stopAnimation);
+
+    ImGui::End();
+}
+
+void App::updateDebugWindow() {
+    if (!ui.windowSizeInitialized) {
+        ImGui::SetNextWindowSize(ImVec2(300, 700));
+    }
+
+    ImGui::Begin("デバッグ");
+    ImGuiIO &io = ImGui::GetIO();
+
     ImGui::Checkbox("ImGui DemoWindowを表示する", &ui.showDemoWindow);
     ImGui::Text("IsWindowFocused: %d", ImGui::IsWindowFocused());
     UI::makePadding(20);
-#endif
 
     ImGui::Text("FPS: %.1f", io.Framerate);
     ImGui::Text("Joints: %d", animator.getNumOfJoints());
     ImGui::Text("Animation Time: %f", animationTime);
 
-    auto total = animator.getNumOfFrames();
-    auto current = animator.getCurrentFrame();
-    ImGui::Text("Frame: %d / %d", current, total);
-
-    ImGui::ProgressBar((float)current / total, ImVec2(0.0, 0.0), "");
-    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
-    ImGui::Text("%.1f%%", (float)current / total * 100);
-
-    ImGui::SliderFloat("Speed", &animationSpeed, -2.0, 2.0);
-    if (ImGui::Button("Reset")) {
-        animationSpeed = 1.0;
-    }
-    ImGui::Checkbox("Stop", &stopAnimation);
-
     UI::makePadding(30);
 
-#ifndef NODEBUG
     // mouse input status
     ImGui::Text("Cursor Pos: (%.1f, %.1f)", mouse.currentX, mouse.currentY);
     ImGui::Text("Scroll offset: (%.1f, %.1f)", mouse.scrollOffsetX,
@@ -69,18 +133,6 @@ void App::updateUI() {
     ImGui::Text("Window size: (%d, %d)", mainWindow->getWidth(),
                 mainWindow->getHeight());
     UI::makePadding(20);
-#endif
-
-    if (ImGui::Button("ファイルを開く...")) {
-        selectFileAndInitShapes();
-    }
 
     ImGui::End();
-
-    // Demo window
-    if (ui.showDemoWindow) {
-        ImGui::ShowDemoWindow();
-    }
-
-    ImGui::Render();
 }

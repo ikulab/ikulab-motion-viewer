@@ -55,7 +55,12 @@ class App {
 
     // Update ----------
     void updateMatrices();
+
+    // UI ----------
     void updateUI();
+    void updateMainMenu();
+    void updateAnimationControlWindow();
+    void updateDebugWindow();
 
     // Glfw Callbacks ----------
     static void cursorPositionCallback(GLFWwindow *window, double xPos,
