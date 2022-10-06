@@ -75,7 +75,7 @@ void App::updateAnimationControlWindow() {
     }
     ImGui::ProgressBar((float)current / total, ImVec2(-1.0, 0.0), "");
 
-	// Speed Control ----------
+    // Speed Control ----------
     if (ImGui::Button("Reset")) {
         animationSpeed = 1.0;
     }
@@ -87,6 +87,10 @@ void App::updateAnimationControlWindow() {
 
     ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
     ImGui::Checkbox("Stop", &stopAnimation);
+
+    // Play button
+    // auto fontGlobalScale = ImGui::GetIO().FontGlobalScale;
+    ImGui::Button("");
 
     ImGui::End();
 }
