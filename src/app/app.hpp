@@ -36,13 +36,15 @@ class App {
     Mouse mouse;
     UI ui;
 
+    // Flags ----------
     bool modelLoaded = false;
+
+    // Animation ----------
+    Animator animator;
     float animationTime = 0.0;
     float animationSpeed = 1.0;
     bool stopAnimation = false;
-
-    // Misc ----------
-    Animator animator;
+    bool initAnimationTime = false;
 
     // Functions ==========
     // Init ----------

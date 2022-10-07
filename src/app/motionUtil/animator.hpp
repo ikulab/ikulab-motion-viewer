@@ -56,6 +56,7 @@ class Animator {
     uint32_t getNumOfJoints() const;
     uint32_t getNumOfFrames() const;
     uint32_t getCurrentFrame() const;
+    float getFrameRate() const;
 
     void showSkeltonInfo();
     void showMotionInfo();

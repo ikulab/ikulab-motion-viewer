@@ -50,7 +50,7 @@ void App::updateMainMenu() {
 
 void App::updateAnimationControlWindow() {
     if (!ui.windowSizeInitialized) {
-        ImGui::SetNextWindowSize(ImVec2(800, 150));
+        ImGui::SetNextWindowSize(ImVec2(800, 200));
         ImGui::SetNextWindowPos(ImVec2((mainWindow->getWidth() - 800) / 2,
                                        mainWindow->getHeight() - 300));
     }
@@ -60,38 +60,93 @@ void App::updateAnimationControlWindow() {
     auto total = animator.getNumOfFrames();
     auto current = animator.getCurrentFrame();
 
-    // Num of Frame ----------
-    if (modelLoaded) {
-        ImGui::Text("Frame: %d / %d", current, total);
-    } else {
-        ImGui::Text("Frame: - / -");
+    if (!modelLoaded) {
+        ImGui::BeginDisabled();
     }
 
-    // Percentage and progressbar ----------
+    // Seek bar ----------
     if (modelLoaded) {
-        ImGui::Text("Position: %.1f%%", (float)current / total * 100);
+        ImGui::Text("Frame: %d / %d", current + 1, total);
     } else {
-        ImGui::Text("Position: - %%");
+        ImGui::Text("Frame: -- / --");
     }
-    ImGui::ProgressBar((float)current / total, ImVec2(-1.0, 0.0), "");
+
+    ImGui::PushItemWidth(-1);
+    if (modelLoaded) {
+        int seekBarValue = current + 1;
+        int oldSeekBarValue = seekBarValue;
+
+        ImGui::SliderInt("##seek_bar", &seekBarValue, 1, animator.getNumOfFrames());
+        if (oldSeekBarValue != seekBarValue) {
+            animationTime = (seekBarValue - 1) * animator.getFrameRate();
+        }
+    } else {
+        int unused = 0;
+        ImGui::SliderInt("##seek_bar", &unused, 0, animator.getNumOfFrames());
+    }
+
+    // Main control ----------
+    // Align
+    float space = ImGui::GetStyle().ItemSpacing.x;
+    float width = (40 * 6) + (80 * 1) + (space * 6);
+    float avail = ImGui::GetWindowContentRegionWidth();
+    float pos = (avail - width) / 2 + ImGui::GetCursorPosX();
+    ImGui::SetCursorPosX(pos);
+
+    // Jump to begin
+    if (ImGui::Button("<<", ImVec2(40, 40))) {
+        animationTime = 0;
+    }
+    ImGui::SameLine();
+
+    // Prev frame
+    if (ImGui::Button("-5", ImVec2(40, 40))) {
+        animationTime -= animator.getFrameRate() * 5;
+    }
+    ImGui::SameLine();
+
+    if (ImGui::Button("-1", ImVec2(40, 40))) {
+        animationTime -= animator.getFrameRate();
+    }
+    ImGui::SameLine();
+
+    // Play button
+    const char *playButtonLabel = stopAnimation ? "Play" : "Stop";
+    if (ImGui::Button(playButtonLabel, ImVec2(80, 40))) {
+        stopAnimation = !stopAnimation;
+    }
+    ImGui::SameLine();
+
+    // Next frame
+    if (ImGui::Button("+1", ImVec2(40, 40))) {
+        animationTime += animator.getFrameRate();
+    }
+    ImGui::SameLine();
+
+    if (ImGui::Button("+5", ImVec2(40, 40))) {
+        animationTime += animator.getFrameRate() * 5;
+    }
+    ImGui::SameLine();
+
+    // Jump to end
+    if (ImGui::Button(">>", ImVec2(40, 40))) {
+        animationTime =
+            animator.getFrameRate() * (animator.getNumOfFrames() - 1);
+    }
 
     // Speed Control ----------
+    ImGui::Text("Speed");
+    ImGui::PushItemWidth(100);
+    ImGui::SliderFloat("##speed_slider", &animationSpeed, 0.0, 4.0);
+
+    ImGui::SameLine();
     if (ImGui::Button("Reset")) {
         animationSpeed = 1.0;
     }
 
-    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
-    ImGui::PushItemWidth(200);
-    ImGui::SliderFloat("Speed", &animationSpeed, -2.0, 2.0);
-    ImGui::PopItemWidth();
-
-    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x + 5.0);
-    ImGui::Checkbox("Stop", &stopAnimation);
-
-    // Play button
-    // auto fontGlobalScale = ImGui::GetIO().FontGlobalScale;
-    ImGui::Button("");
-
+    if (!modelLoaded) {
+        ImGui::EndDisabled();
+    }
     ImGui::End();
 }
 
