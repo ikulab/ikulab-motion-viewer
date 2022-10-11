@@ -6,9 +6,17 @@ class UI {
   public:
     static void makePadding(int pad);
 
-    bool windowSizeInitialized = false;
+    struct AnimationControlWindow {
+        bool sizeInitialized = false;
+        bool show = true;
+    } animationControlWindow;
 
-    bool showAnimationControlWindow = true;
-    bool showDebugWindow = false;
-    bool showDemoWindow = false;
+    struct DebugWindow {
+        bool sizeInitialized = false;
+        bool show = false;
+    } debugWindow;
+
+    bool showImGuiDemoWindow = false;
+    bool showFloor = true;
+    bool showAxisObject = false;
 };

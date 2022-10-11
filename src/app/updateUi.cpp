@@ -12,21 +12,17 @@ void App::updateUI() {
 
     updateMainMenu();
 
-    if (ui.showAnimationControlWindow) {
+    if (ui.animationControlWindow.show) {
         updateAnimationControlWindow();
     }
-    if (ui.showDebugWindow) {
+    if (ui.debugWindow.show) {
         updateDebugWindow();
     }
-    if (ui.showDemoWindow) {
+    if (ui.showImGuiDemoWindow) {
         ImGui::ShowDemoWindow();
     }
 
     ImGui::Render();
-
-    if (!ui.windowSizeInitialized) {
-        ui.windowSizeInitialized = true;
-    }
 }
 
 void App::updateMainMenu() {
@@ -39,14 +35,15 @@ void App::updateMainMenu() {
         }
 
         if (ImGui::BeginMenu("ウィンドウ")) {
-            if (ImGui::MenuItem("デバッグウィンドウ", NULL,
-                                ui.showDebugWindow)) {
-                ui.showDebugWindow = !ui.showDebugWindow;
-            }
-            if (ImGui::MenuItem("アニメーションコントロールウィンドウ", NULL,
-                                ui.showAnimationControlWindow)) {
-                ui.showAnimationControlWindow = !ui.showAnimationControlWindow;
-            }
+            ImGui::Checkbox("デバッグウィンドウ", &ui.debugWindow.show);
+            ImGui::Checkbox("アニメーションコントロールウィンドウ",
+                            &ui.animationControlWindow.show);
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("表示")) {
+            ImGui::Checkbox("軸オブジェクト", &ui.showAxisObject);
+            ImGui::Checkbox("床", &ui.showFloor);
             ImGui::EndMenu();
         }
 
@@ -55,10 +52,11 @@ void App::updateMainMenu() {
 }
 
 void App::updateAnimationControlWindow() {
-    if (!ui.windowSizeInitialized) {
+    if (!ui.animationControlWindow.sizeInitialized) {
         ImGui::SetNextWindowSize(ImVec2(800, 200));
         ImGui::SetNextWindowPos(ImVec2((mainWindow->getWidth() - 800) / 2,
                                        mainWindow->getHeight() - 300));
+        ui.animationControlWindow.sizeInitialized = true;
     }
 
     ImGui::Begin("アニメーションコントロール");
@@ -184,32 +182,37 @@ void App::updateAnimationControlWindow() {
 }
 
 void App::updateDebugWindow() {
-    if (!ui.windowSizeInitialized) {
-        ImGui::SetNextWindowSize(ImVec2(300, 700));
+    if (!ui.debugWindow.sizeInitialized) {
+        ImGui::SetNextWindowSize(ImVec2(300, 500));
+        ui.debugWindow.sizeInitialized = true;
     }
 
     ImGui::Begin("デバッグ");
     ImGuiIO &io = ImGui::GetIO();
 
-    ImGui::Checkbox("ImGui DemoWindowを表示する", &ui.showDemoWindow);
-    ImGui::Text("IsWindowFocused: %d", ImGui::IsWindowFocused());
+    ImGui::Checkbox("ImGui DemoWindowを表示する##show_imgui_window",
+                    &ui.showImGuiDemoWindow);
+    ImGui::Checkbox("軸オブジェクトを表示する##show_axis_object",
+                    &ui.showAxisObject);
+    ImGui::Checkbox("床を表示する##show_floor", &ui.showFloor);
+
     UI::makePadding(20);
 
     ImGui::Text("FPS: %.1f", io.Framerate);
     ImGui::Text("Joints: %d", animator.getNumOfJoints());
     ImGui::Text("Animation Time: %f", animationTime);
 
-    UI::makePadding(30);
+    UI::makePadding(10);
 
     // mouse input status
     ImGui::Text("Cursor Pos: (%.1f, %.1f)", mouse.currentX, mouse.currentY);
-    ImGui::Text("Scroll offset: (%.1f, %.1f)", mouse.scrollOffsetX,
-                mouse.scrollOffsetY);
     ImGui::Text("DragStart: (%.1f, %.1f)", mouse.dragStartX, mouse.dragStartY);
     ImGui::Text("DragEnd: (%.1f, %.1f)", mouse.dragEndX, mouse.dragEndY);
-    ImGui::Text("Delta: (%.1f, %.1f)", mouse.deltaX, mouse.deltaY);
     ImGui::Text("Button L/R/M: (%d / %d / %d)", mouse.leftButton,
                 mouse.rightButton, mouse.middleButton);
+
+    UI::makePadding(10);
+
     // camera status
     ImGui::Text("Camera rotation (degrees) H/V: (%.2f, %.2f)",
                 glm::degrees(camera.hRotation), glm::degrees(camera.vRotation));
@@ -219,12 +222,13 @@ void App::updateDebugWindow() {
                 cameraPos.z);
     ImGui::Text("Camera look-at position: (%.2f, %.2f, %.2f)", camera.center.x,
                 camera.center.y, camera.center.z);
-    UI::makePadding(20);
+
+    UI::makePadding(10);
 
     // window status
     ImGui::Text("Window size: (%d, %d)", mainWindow->getWidth(),
                 mainWindow->getHeight());
-    UI::makePadding(20);
+    ImGui::Text("IsWindowFocused: %d", ImGui::IsWindowFocused());
 
     ImGui::End();
 }

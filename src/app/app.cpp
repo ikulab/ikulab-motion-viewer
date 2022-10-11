@@ -106,7 +106,7 @@ void App::setShapes(const char *filePath) {
 
         // DebugObj
         auto debugObj = std::make_shared<ikura::shapes::DirectionDebugObject>(
-            40.0, DEBUG_OBJ_GROUP_ID);
+            40.0, AXIS_OBJ_GROUP_ID);
         debugObj->setBaseIndex(baseIndex);
         baseIndex += debugObj->getVertices().size();
         shapes.push_back(debugObj);
@@ -174,8 +174,7 @@ void App::updateMatrices() {
     if (modelLoaded) {
         if (!stopAnimation && !initAnimationTime) {
             animationTime += appEngine->getDeltaTime() * animationSpeed;
-        }
-        else if (initAnimationTime) {
+        } else if (initAnimationTime) {
             animationTime = 0;
             initAnimationTime = false;
         }
@@ -187,8 +186,17 @@ void App::updateMatrices() {
         }
 
         // Other objects
-        modelMat.model[FLOOR_GROUP_ID] = glm::mat4(1.0);
-        modelMat.model[DEBUG_OBJ_GROUP_ID] = glm::mat4(1.0);
+        if (ui.showFloor) {
+            modelMat.model[FLOOR_GROUP_ID] = glm::mat4(1.0);
+        } else {
+            modelMat.model[FLOOR_GROUP_ID] = glm::mat4(0.0);
+        }
+
+        if (ui.showAxisObject) {
+            modelMat.model[AXIS_OBJ_GROUP_ID] = glm::mat4(1.0);
+        } else {
+            modelMat.model[AXIS_OBJ_GROUP_ID] = glm::mat4(0.0);
+        }
     } else {
         modelMat.model[0] = glm::mat4(1.0);
     }
