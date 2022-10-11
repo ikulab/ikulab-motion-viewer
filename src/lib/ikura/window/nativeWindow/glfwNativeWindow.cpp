@@ -223,13 +223,18 @@ void GlfwNativeWindow::draw() {
     presentInfo.setSwapchains(swapChain);
     presentInfo.setImageIndices(nextImage.value);
 
-    result = renderEngine->getQueues().presentQueue.presentKHR(presentInfo);
-    if (result == vk::Result::eErrorOutOfDateKHR ||
-        result == vk::Result::eSuboptimalKHR || frameBufferResized) {
+    try {
+        result = renderEngine->getQueues().presentQueue.presentKHR(presentInfo);
+    } catch (vk::OutOfDateKHRError &e) {
         frameBufferResized = false;
         recreateSwapChain();
-    } else if (result != vk::Result::eSuccess) {
+    } catch (vk::Error &e) {
         throw std::runtime_error("Failed to present swapChain image.");
+    }
+
+    if (result == vk::Result::eSuboptimalKHR || frameBufferResized) {
+        frameBufferResized = false;
+        recreateSwapChain();
     }
 
     currentFrame = (currentFrame + 1) % numOfFrames;

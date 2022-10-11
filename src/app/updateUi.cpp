@@ -1,5 +1,11 @@
 #include "./app.hpp"
 
+#include <cmath>
+
+#define MAIN_CONTROL_BUTTON_SIZE_UNIT 40
+#define MAX_ANIMATION_SPEED 10.0f
+#define MIN_ANIMATION_SPEED (1.0f / 128.0f)
+
 void App::updateUI() {
     imGuiVirtualWindow->setCurrentImGuiContext();
     imGuiVirtualWindow->newFrame();
@@ -76,7 +82,8 @@ void App::updateAnimationControlWindow() {
         int seekBarValue = current + 1;
         int oldSeekBarValue = seekBarValue;
 
-        ImGui::SliderInt("##seek_bar", &seekBarValue, 1, animator.getNumOfFrames());
+        ImGui::SliderInt("##seek_bar", &seekBarValue, 1,
+                         animator.getNumOfFrames());
         if (oldSeekBarValue != seekBarValue) {
             animationTime = (seekBarValue - 1) * animator.getFrameRate();
         }
@@ -88,59 +95,85 @@ void App::updateAnimationControlWindow() {
     // Main control ----------
     // Align
     float space = ImGui::GetStyle().ItemSpacing.x;
-    float width = (40 * 6) + (80 * 1) + (space * 6);
+    float width = MAIN_CONTROL_BUTTON_SIZE_UNIT * 8 + space * 6;
     float avail = ImGui::GetWindowContentRegionWidth();
     float pos = (avail - width) / 2 + ImGui::GetCursorPosX();
     ImGui::SetCursorPosX(pos);
 
     // Jump to begin
-    if (ImGui::Button("<<", ImVec2(40, 40))) {
+    if (ImGui::Button("<<##jump_to_begin",
+                      ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
+                             MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
         animationTime = 0;
     }
     ImGui::SameLine();
 
     // Prev frame
-    if (ImGui::Button("-5", ImVec2(40, 40))) {
+    if (ImGui::Button("-5##prev_5", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
+                                           MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
         animationTime -= animator.getFrameRate() * 5;
     }
     ImGui::SameLine();
 
-    if (ImGui::Button("-1", ImVec2(40, 40))) {
+    if (ImGui::Button("-1##prev_1", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
+                                           MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
         animationTime -= animator.getFrameRate();
     }
     ImGui::SameLine();
 
     // Play button
     const char *playButtonLabel = stopAnimation ? "Play" : "Stop";
-    if (ImGui::Button(playButtonLabel, ImVec2(80, 40))) {
+    if (ImGui::Button(playButtonLabel, ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT * 2,
+                                              MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
         stopAnimation = !stopAnimation;
     }
     ImGui::SameLine();
 
     // Next frame
-    if (ImGui::Button("+1", ImVec2(40, 40))) {
+    if (ImGui::Button("+1##next_1", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
+                                           MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
         animationTime += animator.getFrameRate();
     }
     ImGui::SameLine();
 
-    if (ImGui::Button("+5", ImVec2(40, 40))) {
+    if (ImGui::Button("+5##next_5", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
+                                           MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
         animationTime += animator.getFrameRate() * 5;
     }
     ImGui::SameLine();
 
     // Jump to end
-    if (ImGui::Button(">>", ImVec2(40, 40))) {
+    if (ImGui::Button(">>##jump_to_end",
+                      ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
+                             MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
         animationTime =
             animator.getFrameRate() * (animator.getNumOfFrames() - 1);
     }
 
     // Speed Control ----------
     ImGui::Text("Speed");
-    ImGui::PushItemWidth(100);
-    ImGui::SliderFloat("##speed_slider", &animationSpeed, 0.0, 4.0);
+
+    ImGui::PushItemWidth(20);
+    if (ImGui::Button("<<##speed_down")) {
+        animationSpeed /= 2;
+        animationSpeed = std::max({animationSpeed, MIN_ANIMATION_SPEED});
+    }
 
     ImGui::SameLine();
-    if (ImGui::Button("Reset")) {
+    ImGui::PushItemWidth(100);
+    ImGui::DragFloat("##speed_drag", &animationSpeed, 0.1, MIN_ANIMATION_SPEED,
+                     MAX_ANIMATION_SPEED);
+
+    ImGui::PopItemWidth();
+
+    ImGui::SameLine();
+    if (ImGui::Button(">>##speed_up")) {
+        animationSpeed *= 2;
+        animationSpeed = std::min({animationSpeed, MAX_ANIMATION_SPEED});
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##speed_reset")) {
         animationSpeed = 1.0;
     }
 
