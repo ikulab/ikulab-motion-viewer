@@ -38,8 +38,8 @@ add_subdirectory(./includes/vk_mem_alloc)
 # shader compile ----------
 add_custom_target(
 	shaders
-	make
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tool
+	make -f compile_shaders.makefile
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
 	DEPENDS ./shaders/shader.frag ./shaders/shader.vert
 	COMMENT "compiling shaders"
 )
