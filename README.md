@@ -1,6 +1,6 @@
 # ikulab motion viwer
 
-Motion viewer written in Vulkan / C++.
+BVH Motion Viewer Using [ikura](https://github.com/ikulab/ikura)
 
 ## External Dependencies
 
