@@ -39,3 +39,7 @@ Motion viewer written in Vulkan / C++.
   - Google
   - Apache License Version 2.0 
     - https://github.com/google/shaderc/blob/main/LICENSE
+
+- tiny file dialogs
+  - zlib/libpng License
+  - https://sourceforge.net/projects/tinyfiledialogs

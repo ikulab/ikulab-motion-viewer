@@ -38,6 +38,10 @@ void AppEngine::vSync() {
 
     std::this_thread::sleep_for(waitTime);
 
+    // update deltaTime for main-loop use
+    deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(
+                    std::chrono::high_resolution_clock::now() - currentTime)
+                    .count();
     // update currentTime for next vSync
     currentTime = std::chrono::high_resolution_clock::now();
     secondsFromStart =
@@ -51,6 +55,8 @@ void AppEngine::setStartTime() {
 }
 
 float AppEngine::getSecondsFromStart() const { return secondsFromStart; }
+
+float AppEngine::getDeltaTime() const { return deltaTime; }
 
 int AppEngine::shouldTerminated() {
     return std::all_of(nativeWindows.begin(), nativeWindows.end(),

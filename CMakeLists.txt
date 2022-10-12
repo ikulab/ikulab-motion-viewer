@@ -31,6 +31,7 @@ endif()
 find_package(Vulkan REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 add_subdirectory(./includes/imgui)
+add_subdirectory(./includes/tinyfiledialogs)
 add_subdirectory(./includes/easylogging++)
 add_subdirectory(./includes/vk_mem_alloc)
 
@@ -54,7 +55,7 @@ target_link_libraries(app easyloggingpp)
 add_subdirectory(./src/lib/ikura)
 
 # ikura dependencies
-target_link_libraries(ikura INTERFACE vulkan glfw easyloggingpp vk_mem_alloc imgui ${CMAKE_DL_LIBS})
+target_link_libraries(ikura INTERFACE vulkan glfw easyloggingpp vk_mem_alloc imgui tinyfiledialogs ${CMAKE_DL_LIBS})
 
 target_link_libraries(app ikura)
 

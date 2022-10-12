@@ -14,7 +14,7 @@ class App {
     // Variables ==========
     // Constants ----------
     const int NUM_OF_GROUPS_OTHER_THAN_JOINTS = 2;
-    const ikura::GroupID DEBUG_OBJ_GROUP_ID = ikura::NUM_OF_MODEL_MATRIX - 3;
+    const ikura::GroupID AXIS_OBJ_GROUP_ID = ikura::NUM_OF_MODEL_MATRIX - 3;
     const ikura::GroupID FLOOR_GROUP_ID = ikura::NUM_OF_MODEL_MATRIX - 2;
 
     // ikura objects ----------
@@ -36,19 +36,33 @@ class App {
     Mouse mouse;
     UI ui;
 
-    // Misc ----------
+    // Flags ----------
+    bool modelLoaded = false;
+
+    // Animation ----------
     Animator animator;
+    float animationTime = 0.0;
+    float animationSpeed = 1.0;
+    bool stopAnimation = false;
+    bool initAnimationTime = false;
 
     // Functions ==========
     // Init ----------
     void initIkura();
-    void setShapes();
+    void setShapes(const char *filePath);
     void initContexts();
     void setGlfwWindowEvents(GLFWwindow *window);
 
+    void selectFileAndInitShapes();
+
     // Update ----------
     void updateMatrices();
+
+    // UI ----------
     void updateUI();
+    void updateMainMenu();
+    void updateAnimationControlWindow();
+    void updateDebugWindow();
 
     // Glfw Callbacks ----------
     static void cursorPositionCallback(GLFWwindow *window, double xPos,

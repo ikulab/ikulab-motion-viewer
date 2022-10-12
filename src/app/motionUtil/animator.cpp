@@ -38,6 +38,8 @@ uint32_t Animator::getNumOfFrames() const { return numOfFrames; }
 
 uint32_t Animator::getCurrentFrame() const { return currentFrame; }
 
+float Animator::getFrameRate() const { return frameRate; }
+
 void Animator::Joint::showInfo() {
     std::cout << id << ": " << name << std::ends;
     std::cout << (isEdge ? " (Edge)" : " ") << std::endl;
@@ -74,7 +76,11 @@ void Animator::showMotionInfo() {
 
 std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX>
 Animator::generateModelMatrices(float time) {
-    float timeInLoop = std::fmod(time, (loopDuration - frameRate));
+    // float timeInLoop = std::fmod(time, (loopDuration - frameRate));
+    float timeInLoop = std::fmod(time, loopDuration);
+    if (timeInLoop < 0) {
+        timeInLoop = loopDuration + timeInLoop;
+    }
     uint32_t prevFrameIdx = std::floor(timeInLoop / frameRate);
     uint32_t nextFrameIdx = prevFrameIdx + 1;
     float progressBetweenFrames = std::fmod(timeInLoop, frameRate) / frameRate;
