@@ -6,3 +6,6 @@ target_link_libraries(app context)
 
 add_subdirectory(./motionUtil)
 target_link_libraries(app motionUtil)
+
+target_include_directories(app PUBLIC ${CMAKE_SOURCE_DIR}/includes/)
+target_include_directories(app PUBLIC ${CMAKE_SOURCE_DIR}/includes/easylogging++)

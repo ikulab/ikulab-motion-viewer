@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include <imgui/imgui.h>
+
 #define MAIN_CONTROL_BUTTON_SIZE_UNIT 40
 #define MAX_ANIMATION_SPEED 10.0f
 #define MIN_ANIMATION_SPEED (1.0f / 128.0f)

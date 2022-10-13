@@ -9,7 +9,7 @@
 
 #include <glm/glm.hpp>
 
-#include <ikura.hpp>
+#include <ikura/ikura.hpp>
 
 #include "./common.hpp"
 

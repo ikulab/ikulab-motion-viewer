@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <ikura.hpp>
+#include <ikura/ikura.hpp>
 
 #include "./context/camera.hpp"
 #include "./context/keyboard.hpp"
