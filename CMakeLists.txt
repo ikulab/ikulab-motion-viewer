@@ -34,7 +34,7 @@ find_package(ikura)
 add_subdirectory(${CMAKE_SOURCE_DIR}/includes/tinyfiledialogs)
 
 # ikulab-motion-viewer app ----------
-add_subdirectory(./src/app)
+add_subdirectory(./src)
 
 # app dependencies
 target_link_libraries(app tinyfiledialogs)
