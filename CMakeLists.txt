@@ -28,36 +28,17 @@ if("${BUILD_TYPE}" STREQUAL "Release")
 endif()
 
 # external libraries ----------
-find_package(Vulkan REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
-add_subdirectory(./includes/imgui)
-add_subdirectory(./includes/tinyfiledialogs)
-add_subdirectory(./includes/easylogging++)
-add_subdirectory(./includes/vk_mem_alloc)
+find_package(ikura)
 
-# shader compile ----------
-add_custom_target(
-	shaders
-	make -f compile_shaders.makefile
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
-	DEPENDS ./shaders/shader.frag ./shaders/shader.vert
-	COMMENT "compiling shaders"
-)
+add_subdirectory(${CMAKE_SOURCE_DIR}/includes/tinyfiledialogs)
 
 # ikulab-motion-viewer app ----------
-add_subdirectory(./src/app)
-add_dependencies(app shaders)
+add_subdirectory(./src)
 
 # app dependencies
-target_link_libraries(app easyloggingpp)
-
-# ikura lib ----------
-add_subdirectory(./src/lib/ikura)
-
-# ikura dependencies
-target_link_libraries(ikura INTERFACE vulkan glfw easyloggingpp vk_mem_alloc imgui tinyfiledialogs ${CMAKE_DL_LIBS})
-
-target_link_libraries(app ikura)
+target_link_libraries(app tinyfiledialogs)
+target_link_libraries(app ikura glfw)
 
 # TODO: delete them
 target_link_libraries(motionUtil ikura)

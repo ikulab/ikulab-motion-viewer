@@ -1,1 +1,0 @@
-add_library(easyloggingpp STATIC ./easylogging++.cc)

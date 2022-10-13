@@ -1,1 +1,0 @@
-add_library(vk_mem_alloc INTERFACE)

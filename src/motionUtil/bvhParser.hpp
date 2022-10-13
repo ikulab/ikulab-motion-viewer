@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include <ikura.hpp>
+#include <ikura/ikura.hpp>
 
 #include "./animator.hpp"
 #include "./common.hpp"
