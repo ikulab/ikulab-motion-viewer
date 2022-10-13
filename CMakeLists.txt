@@ -31,14 +31,13 @@ endif()
 find_package(glfw3 3.3 REQUIRED)
 find_package(ikura)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/includes/easylogging++)
-add_subdirectory(${CMAKE_SOURCE_DIR}/includes/imgui)
+add_subdirectory(${CMAKE_SOURCE_DIR}/includes/tinyfiledialogs)
 
 # ikulab-motion-viewer app ----------
 add_subdirectory(./src/app)
 
 # app dependencies
-target_link_libraries(app easyloggingpp imgui)
+target_link_libraries(app tinyfiledialogs)
 target_link_libraries(app ikura glfw)
 
 # TODO: delete them
