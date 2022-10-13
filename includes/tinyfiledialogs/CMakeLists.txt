@@ -5,6 +5,5 @@ project(
 )
 
 add_library(tinyfiledialogs STATIC ./tinyfiledialogs.c)
-target_include_directories(tinyfiledialogs INTERFACE ./)
 
 set_target_properties(tinyfiledialogs PROPERTIES COMPILE_OPTIONS "")
