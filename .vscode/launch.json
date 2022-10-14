@@ -8,7 +8,7 @@
 			"name": "debug",
 			"type": "cppdbg",
 			"request": "launch",
-			"preLaunchTask": "build_app",
+			"preLaunchTask": "build_ikulab-motion-viewer",
 			"program": "${workspaceFolder}/build/bin/app",
 			"args": [],
 			"stopAtEntry": false,
