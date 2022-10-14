@@ -4,7 +4,32 @@ BVH Motion Viewer Using [ikura](https://github.com/ikulab/ikura)
 
 ![Peek 2022-10-12 15-24](https://user-images.githubusercontent.com/48763656/195266038-dc9b9f62-c2c4-45ba-8026-d746cb16a5ea.gif)
 
+## Implemented Features
+
+- Visualize BVH file
+- Move viewpoint(camera) by mouse
+  - Rotation / Shift / Zoom in / Zoom out
+- Animation control window
+  - Stop / Resume animation
+  - Go to next / prev frame
+  - Go to beggin / end frame
+  - Modifying animation speed
+- Select BVH file by file select dialog
+
+## Future Features
+
+- Load multiple BVH files
+- Select bone by mouse click
+- Modify BVH file (i.g. split)
+- etc...
+
+## License
+
+MIT License
+
 ## External Dependencies
+
+This software uses the following external libraries:
 
 - Vulkan Loader
   - Khronos Group
