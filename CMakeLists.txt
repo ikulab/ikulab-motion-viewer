@@ -42,3 +42,4 @@ target_link_libraries(app ikura glfw)
 
 # TODO: delete them
 target_link_libraries(motionUtil ikura)
+target_link_libraries(context ikura)

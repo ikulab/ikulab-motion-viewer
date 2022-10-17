@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 #include <easylogging++.h>
-INITIALIZE_EASYLOGGINGPP
+// INITIALIZE_EASYLOGGINGPP
 
 #include "app.hpp"
 
