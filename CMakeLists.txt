@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(
-	ikulab-motion-viwer
+	ikulab-motion-viewer
 	VERSION 0.1.0
 	LANGUAGES CXX
 )
@@ -33,13 +33,44 @@ find_package(ikura)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/includes/tinyfiledialogs)
 
-# ikulab-motion-viewer app ----------
+# build and link ----------
 add_subdirectory(./src)
 
 # app dependencies
-target_link_libraries(app tinyfiledialogs)
-target_link_libraries(app ikura glfw)
+target_link_libraries(ikulab-motion-viewer tinyfiledialogs)
+target_link_libraries(ikulab-motion-viewer ikura glfw)
 
 # TODO: delete them
 target_link_libraries(motionUtil ikura)
 target_link_libraries(context ikura)
+
+# install ----------
+install(TARGETS ikulab-motion-viewer)
+# shared libs
+install(CODE [[
+	file(GET_RUNTIME_DEPENDENCIES
+		RESOLVED_DEPENDENCIES_VAR resolve_files
+		UNRESOLVED_DEPENDENCIES_VAR unresolve_files
+		EXECUTABLES $<TARGET_FILE:ikulab-motion-viewer>
+	)
+
+	message(VERBOSE "resolved: ${resolve_files}")
+	message(VERBOSE "unresolved: ${unresolve_files}")
+
+	list(LENGTH unresolved unresolved_len)
+	if("${unresolved_len}" GREATER 0)
+		message(WARNING "${unresolved_len} external libraries are not resolved.")
+	endif()
+
+	foreach(res ${resolve_files})
+		message(VERBOSE "installing: ${res}")
+		file(INSTALL
+			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/ikulab-motion-viewer"
+			TYPE SHARED_LIBRARY
+			FOLLOW_SYMLINK_CHAIN
+			FILES "${res}"
+		)
+	endforeach()
+]])
+
+include(CPack)
