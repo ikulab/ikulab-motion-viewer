@@ -13,7 +13,7 @@
 #include <imgui/imgui.h>
 #include <tinyfiledialogs.h>
 
-#include "config.h"
+#include "resourceDirectory.hpp"
 
 void App::initIkura() {
     // Initialize RenderEngine
@@ -79,10 +79,11 @@ void App::initIkura() {
     // Setup ikura ImGuiWindow ----------
     ikura::ImGuiVirtualWindowInitConfig imGuiVirtualWindowInitConfig;
     imGuiVirtualWindowInitConfig.fontFilePath =
-        IMV_RESOURCE_DIR "/fonts/NotoSansJP-Medium.otf";
+        createAbsPathFromResourceDirectory("fonts/NotoSansJP-Medium.otf")
+            .c_str();
     imGuiVirtualWindowInitConfig.fontSizePixels = 18.0;
-    imGuiVirtualWindow = std::make_shared<ikura::ImGuiVirtualWindow>(renderEngine, mainWindow,
-                                                &imGuiVirtualWindowInitConfig);
+    imGuiVirtualWindow = std::make_shared<ikura::ImGuiVirtualWindow>(
+        renderEngine, mainWindow, &imGuiVirtualWindowInitConfig);
 
     // Add Window ----------
     appEngine->addWindow(mainWindow);
