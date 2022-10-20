@@ -46,31 +46,16 @@ target_link_libraries(context ikura)
 
 # install ----------
 install(TARGETS ikulab-motion-viewer)
-# shared libs
-install(CODE [[
-	file(GET_RUNTIME_DEPENDENCIES
-		RESOLVED_DEPENDENCIES_VAR resolve_files
-		UNRESOLVED_DEPENDENCIES_VAR unresolve_files
-		EXECUTABLES $<TARGET_FILE:ikulab-motion-viewer>
-	)
 
-	message(VERBOSE "resolved: ${resolve_files}")
-	message(VERBOSE "unresolved: ${unresolve_files}")
+set(CPACK_GENERATOR DEB)
+set(CPACK_PACKAGE_VENDOR "ikulab / CaffeineFree")
+set(CPACK_PACKAGE_NAME "ikulab-motion-viewer")
+set(CPACK_PACKAGE_CONTACT "caffeine0coffee@gmail.com")
+set(CPACK_PACKAGE_DESCRIPTION "The BVH Motion Viewer powerd by ikura Graphics Engine.")
 
-	list(LENGTH unresolved unresolved_len)
-	if("${unresolved_len}" GREATER 0)
-		message(WARNING "${unresolved_len} external libraries are not resolved.")
-	endif()
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
-	foreach(res ${resolve_files})
-		message(VERBOSE "installing: ${res}")
-		file(INSTALL
-			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/ikulab-motion-viewer"
-			TYPE SHARED_LIBRARY
-			FOLLOW_SYMLINK_CHAIN
-			FILES "${res}"
-		)
-	endforeach()
-]])
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libvulkan1, libglfw3")
 
 include(CPack)

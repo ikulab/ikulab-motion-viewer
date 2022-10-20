@@ -9,7 +9,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"preLaunchTask": "build_ikulab-motion-viewer",
-			"program": "${workspaceFolder}/build/bin/app",
+			"program": "${workspaceFolder}/build/bin/ikulab-motion-viewer",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
