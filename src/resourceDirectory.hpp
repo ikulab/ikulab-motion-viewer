@@ -9,7 +9,7 @@ std::string createAbsPathFromResourceDirectory(const char *relPath);
 #ifdef __linux__
 std::string getResourceDirectory() {
     std::string homeDir(getenv("HOME"));
-    std::string resourceDir = homeDir + "/.local/share/ikura";
+    std::string resourceDir = homeDir + "/.local/share/ikulab-motion-viewer";
     return resourceDir;
 }
 

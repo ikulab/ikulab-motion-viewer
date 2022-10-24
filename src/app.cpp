@@ -77,10 +77,11 @@ void App::initIkura() {
     setGlfwWindowEvents(mainWindow->getGLFWWindow());
 
     // Setup ikura ImGuiWindow ----------
+    std::string fontFilePath =
+        createAbsPathFromResourceDirectory("fonts/NotoSansJP-Medium.otf");
+
     ikura::ImGuiVirtualWindowInitConfig imGuiVirtualWindowInitConfig;
-    imGuiVirtualWindowInitConfig.fontFilePath =
-        createAbsPathFromResourceDirectory("fonts/NotoSansJP-Medium.otf")
-            .c_str();
+    imGuiVirtualWindowInitConfig.fontFilePath = fontFilePath.c_str();
     imGuiVirtualWindowInitConfig.fontSizePixels = 18.0;
     imGuiVirtualWindow = std::make_shared<ikura::ImGuiVirtualWindow>(
         renderEngine, mainWindow, &imGuiVirtualWindowInitConfig);
