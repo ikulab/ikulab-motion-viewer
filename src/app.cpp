@@ -16,6 +16,9 @@
 #include "resourceDirectory.hpp"
 
 void App::initIkura() {
+    // Initialize Ikura
+    ikura::init();
+
     // Initialize RenderEngine
     ikura::RenderEngineInitConfig renderConfig =
         ikura::RenderEngineInitConfig::defaultDebugSetting();
