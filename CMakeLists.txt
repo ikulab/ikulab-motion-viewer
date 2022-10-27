@@ -47,6 +47,11 @@ target_link_libraries(context ikura)
 # install ----------
 install(TARGETS ikulab-motion-viewer)
 
+# font
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/fonts
+	DESTINATION ${CMAKE_INSTALL_DATADIR}local/share/ikulab-motion-viewer)
+
+# CPack config
 set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VENDOR "ikulab / CaffeineFree")
 set(CPACK_PACKAGE_NAME "ikulab-motion-viewer")
@@ -56,6 +61,6 @@ set(CPACK_PACKAGE_DESCRIPTION "The BVH Motion Viewer powerd by ikura Graphics En
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libvulkan1, libglfw3")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libvulkan1, libglfw3, vulkan-validationlayers")
 
 include(CPack)

@@ -9,10 +9,14 @@
 
 #include "app.hpp"
 
-int main() {
+int main(int argc, const char **argv) {
     el::Configurations conf("./easylogging.conf");
     el::Loggers::reconfigureAllLoggers(conf);
-    el::Loggers::setVerboseLevel(4);
+
+    if (argc > 1) {
+        int vLevel = std::stoi(argv[1]);
+        el::Loggers::setVerboseLevel(vLevel);
+    }
 
     try {
         App app;

@@ -197,6 +197,7 @@ void App::updateDebugWindow() {
     ImGui::Checkbox("軸オブジェクトを表示する##show_axis_object",
                     &ui.showAxisObject);
     ImGui::Checkbox("床を表示する##show_floor", &ui.showFloor);
+    ImGui::Checkbox("垂直同期を有効化する##enable_vsinc", &ui.enableVsinc);
 
     UI::makePadding(20);
 

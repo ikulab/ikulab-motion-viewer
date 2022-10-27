@@ -19,4 +19,5 @@ class UI {
     bool showImGuiDemoWindow = false;
     bool showFloor = true;
     bool showAxisObject = false;
+    bool enableVsinc = true;
 };
