@@ -18,6 +18,7 @@ endif()
 # external libraries ----------
 find_package(glfw3 3.3 REQUIRED)
 add_subdirectory(${PROJECT_SOURCE_DIR}/ikura)
+# find_package(ikura)
 add_subdirectory(${PROJECT_SOURCE_DIR}/includes/tinyfiledialogs)
 
 # build and link ----------
