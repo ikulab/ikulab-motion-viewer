@@ -7,8 +7,6 @@
 
 #include "./animator.hpp"
 #include "./bvhParser.hpp"
-#include "./shape/bone/octahedronBone.hpp"
-#include "./shape/cube/singleColorCube.hpp"
 
 void Animator::initFromBVH(std::string filePath) {
     BVHParser parser(filePath);
