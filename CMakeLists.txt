@@ -10,33 +10,17 @@ add_compile_options(
 	-std=c++17 -fdiagnostics-color=always -g
 )
 
-option(USE_CLANG "set CXX compiler to Clang" TRUE)
-
-if(USE_CLANG)
-	set(CMAKE_CXX_COMPILER clang++)
-	set(CMAKE_C_COMPILER clang)
-	add_compile_options(
-		-Wno-nullability-completeness
-	)
-else()
-	set(CMAKE_CXX_COMPILER gcc)
-	set(CMAKE_C_COMPILER gcc)
-endif()
-
 if("${BUILD_TYPE}" STREQUAL "Release")
 	add_compile_options(-DNODEBUG)
 endif()
 
 # external libraries ----------
 find_package(glfw3 3.3 REQUIRED)
-find_package(ikura)
-
+add_subdirectory(${CMAKE_SOURCE_DIR}/ikura)
 add_subdirectory(${CMAKE_SOURCE_DIR}/includes/tinyfiledialogs)
 
 # build and link ----------
 add_subdirectory(./src)
-
-# app dependencies
 target_link_libraries(ikulab-motion-viewer tinyfiledialogs)
 target_link_libraries(ikulab-motion-viewer ikura glfw)
 
