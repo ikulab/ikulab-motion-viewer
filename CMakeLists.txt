@@ -9,6 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_compile_options(
 	-std=c++17 -fdiagnostics-color=always -g
 	-Wno-nullability-completeness
+	-pthread
 )
 
 if("${BUILD_TYPE}" STREQUAL "Release")
