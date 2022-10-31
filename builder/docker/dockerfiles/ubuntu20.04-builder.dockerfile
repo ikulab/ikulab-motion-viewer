@@ -4,9 +4,8 @@ FROM ubuntu:20.04
 RUN apt update -y && apt upgrade -y
 RUN apt install tzdata
 RUN apt install \
-	git cmake ninja-build clang libvulkan1 libvulkan-dev \
-	libglfw3-dev vulkan-validationlayers libglm-dev wget \
-	gnupg \
+	git cmake ninja-build clang gnupg wget \
+	libglfw3-dev vulkan-validationlayers libglm-dev \
 	-y
 # vulkan 1.3 sdk
 RUN wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add -
@@ -28,4 +27,4 @@ RUN cmake --build build
 WORKDIR /
 
 # build and generate installer
-CMD /src/docker/scripts/build-installer.sh Ubuntu20.04
+CMD /src/builder/docker/scripts/build-installer.sh ubuntu20.04

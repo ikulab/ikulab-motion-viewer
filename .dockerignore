@@ -1,8 +1,0 @@
-**/.vscode
-**/.ccls-cache
-**/build
-**/uml
-
-compile_commands.json
-imgui.ini
-myeasylog.log
