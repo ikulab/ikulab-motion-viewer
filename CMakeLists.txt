@@ -5,11 +5,11 @@ project(
 	LANGUAGES CXX
 )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 add_compile_options(
 	-std=c++17 -fdiagnostics-color=always -g
 	-Wno-nullability-completeness
-	-pthread
 )
 
 if("${BUILD_TYPE}" STREQUAL "Release")
@@ -19,6 +19,7 @@ endif()
 # external libraries ----------
 find_package(glfw3 3.3 REQUIRED)
 add_subdirectory(${PROJECT_SOURCE_DIR}/ikura)
+
 # find_package(ikura)
 add_subdirectory(${PROJECT_SOURCE_DIR}/includes/tinyfiledialogs)
 
@@ -37,6 +38,10 @@ install(TARGETS ikulab-motion-viewer)
 # font
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/fonts
 	DESTINATION ${CMAKE_INSTALL_DATADIR}local/share/ikulab-motion-viewer)
+
+# config
+install(FILES ${PROJECT_SOURCE_DIR}/easylogging.conf
+	DESTINATION ${CMAKE_INSTALL_DATADIR}local/share/ikulab-motion-viewer/config)
 
 # CPack config
 set(CPACK_GENERATOR DEB)

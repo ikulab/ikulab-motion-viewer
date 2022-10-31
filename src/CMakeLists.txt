@@ -1,4 +1,4 @@
-add_executable(ikulab-motion-viewer ./main.cpp ./app.cpp ./callbacks.cpp ./updateUi.cpp)
+add_executable(ikulab-motion-viewer ./main.cpp ./app.cpp ./callbacks.cpp ./updateUi.cpp ./resourceDirectory.cpp)
 target_compile_features(ikulab-motion-viewer PRIVATE cxx_std_17)
 
 add_subdirectory(./context)

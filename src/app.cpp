@@ -23,7 +23,7 @@ void App::initIkura() {
     ikura::RenderEngineInitConfig renderConfig =
         ikura::RenderEngineInitConfig::defaultDebugSetting();
     renderConfig.applicationName = "IkulabMotionViewer";
-    renderConfig.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    renderConfig.applicationVersion = VK_MAKE_VERSION(1, 2, 0);
 
     renderEngine = std::make_shared<ikura::RenderEngine>(renderConfig);
     renderEngine->createInstance();

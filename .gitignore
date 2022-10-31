@@ -7,6 +7,8 @@
 # build binary
 build
 bin
+# package
+*.deb
 
 # imgui file
 imgui.ini
@@ -17,6 +19,9 @@ myeasylog.log
 # ccls
 .ccls-cache
 compile_commands.json
+
+# docker
+docker/result
 
 # template -------------
 # Prerequisites
