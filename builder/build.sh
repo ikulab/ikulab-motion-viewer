@@ -20,7 +20,7 @@ fi
 
 echo "Building for ${1}..."
 mkdir -p ./builder/docker/result
-docker run -v `pwd`:/src -v `pwd`/docker/result:/result --name build-imv-for-${1} --rm -it ${1}-imv-builder
+docker run -v `pwd`:/src -v `pwd`/builder/docker/result:/result --name build-imv-for-${1} --rm -it ${1}-imv-builder
 
 echo "Done!"
 echo "Generated installer in ./builder/docker/result"
