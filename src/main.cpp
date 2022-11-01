@@ -4,14 +4,19 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <vulkan/vulkan.hpp>
 #include <easylogging++.h>
+#include <vulkan/vulkan.hpp>
 
 #include "./resourceDirectory.hpp"
 
 int main(int argc, const char **argv) {
     el::Configurations conf(getResourceDirectory() / "config/easylogging.conf");
     el::Loggers::reconfigureAllLoggers(conf);
+
+    if (argc > 1) {
+        int vLevel = std::stoi(argv[1]);
+        el::Loggers::setVerboseLevel(vLevel);
+    }
 
     try {
         App app;
