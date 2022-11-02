@@ -81,26 +81,26 @@ class DirectionDebugObject {
 
 ' Relations ---------------
 ' Class Inheritances ----
-Shape --|> Cube
-Cube  --|> GradationCube
-GradationCube -|> SingleColorCube
+Shape <|-- Cube
+Cube  <|-- GradationCube
+GradationCube <|- SingleColorCube
 
-Shape --|> Bone
-Bone --|> StickTetrahedronBone
-Bone -|> OctahedronBone
+Shape <|-- Bone
+Bone <|-- StickTetrahedronBone
+Bone <|- OctahedronBone
 
-Shape --|> Sphere
-Sphere --|> SingleColorSphere
+Shape <|-- Sphere
+Sphere <|-- SingleColorSphere
 
-Shape --|> Floor
-Floor --|> GridFloor
-Floor -|> FilledFloor
+Shape <|-- Floor
+Floor <|-- GridFloor
+Floor <|- FilledFloor
 
-Shape -|> DebugObject
-DebugObject -|> DirectionDebugObject
+Shape <|- DebugObject
+DebugObject <|- DirectionDebugObject
 
 ' Object Ownerships ----
-SingleColorCube -* StickTetrahedronBone : > have
-SingleColorCube -* DirectionDebugObject : > have 3
+SingleColorCube <-- StickTetrahedronBone
+SingleColorCube <-- DirectionDebugObject
 
 @enduml
