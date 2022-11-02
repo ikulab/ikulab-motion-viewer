@@ -37,11 +37,11 @@ install(TARGETS ikulab-motion-viewer)
 
 # font
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/fonts
-	DESTINATION ${CMAKE_INSTALL_DATADIR}local/share/ikulab-motion-viewer)
+	DESTINATION /usr/local/share/ikulab-motion-viewer)
 
 # config
 install(FILES ${PROJECT_SOURCE_DIR}/easylogging.conf
-	DESTINATION ${CMAKE_INSTALL_DATADIR}local/share/ikulab-motion-viewer/config)
+	DESTINATION /usr/local/share/ikulab-motion-viewer/config)
 
 # CPack config
 set(CPACK_GENERATOR DEB)
