@@ -1,4 +1,5 @@
 @startuml shapes
+title Ikura Shapes Class Structure v1.0.0
 
 abstract Shape << general >> {
 	# ShapeID id

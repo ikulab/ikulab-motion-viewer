@@ -1,0 +1,156 @@
+@startuml ikura
+title Ikura Class Structure v1.0.0
+
+' ==================================================
+'   class definitions
+' ==================================================
+
+' engine --------------------
+
+class RenderEngine {
+	Vulkan bjects
+	- vk::Device device
+	- vk::PhysicalDevice physicalDevice
+	- vk::Instance instance
+	- vk::Queue graphicsQueue, presentQueue
+	- vk::CommandPool commandPool
+	----
+	- VmaAllocator vmaAllocator
+	----
+	+ void createInstance()
+	+ void createDevice()
+	+ void setupExtensions()
+	----
+	+ vk::CommandBuffer beginSingleTimeCommands()
+	+ void endSingleTimeCommands(vk:: CommandBuffer)
+	----
+	+ vk::Device getDevice()
+	+ vk::PhysicalDevice getPhysicalDevice()
+	+ vk::Instance getInstance()
+	+ other Vulkan object getters...
+}
+
+class AppEngine {
+	+ AppEngine(RenderEngine*)
+	- RenderEngine* renderEngine
+	----
+	- vector<NativeWindow*> nativeWindows
+	- float fps
+	----
+	+ void drawAllWindows()
+	+ bool shouldTerminated()
+	----
+	+ void vSync()
+	+ float getDeltaTime()
+}
+
+' window --------------------
+
+abstract Window {
+	# RenderEngine* renderEngine
+	----
+	# int width, height
+	# RenderContent renderContent
+	# RenderTarget renderTarget
+	----
+	+ void setRenderContent(), setRenderTarget()
+	+ void getRenderContent(), getRenderTarget()
+	+ other getters...
+}
+
+abstract NativeWindow {
+	# vk::SurfaceKHR surface
+	# vk::SwapchainKHR swapChain
+	# vk::Format swapChainFormat
+	# vk::Extent2D swapChainExtent
+	----
+	+ {abstract} recreateSwapChain()
+	+ {abstract} destroySwapChain()
+	+ {abstract} void draw()
+	----
+	+ getters...
+}
+
+class GlfwNativeWindow {
+	# GLFWwindow* window
+}
+
+abstract VirtualWindow {
+	+ {abstract} void recordCommandBuffer(vk::CommandBuffer)
+}
+
+class ImGuiVirtualWindow {
+	# ImGuiContext* imGuiContext
+	----
+	+ void setCurrentImGuiContext()
+	+ void newFrame() // provides ImGui new frame
+}
+
+' render component
+
+abstract RenderContent {
+
+}
+
+class BasicRenderContent {
+
+}
+
+abstract RenderTarget {
+
+}
+
+class BasicRenderTarget {
+
+}
+
+abstract RenderComponentProvider {
+	# RenderEngine* renderEngine
+	----
+	vk::DescriptorSetLayout descriptorSetLayout
+}
+
+class BasicRenderComponentProvider {
+	+ createBasicRenderContent(NativeWindow*)
+	+ createBasicRenderTarget(NativeWindow*)
+}
+
+
+' ==================================================
+'   relations
+' ==================================================
+
+' notes --------------------
+
+note top of VirtualWindow
+	call recordCommandBuffer()
+	within NativeWindow
+	command buffer recording
+end note
+
+' inheritances --------------------
+
+Window <|-- NativeWindow
+Window <|-- VirtualWindow
+NativeWindow <|-- GlfwNativeWindow
+VirtualWindow <|-- ImGuiVirtualWindow
+
+RenderContent <|-- BasicRenderContent
+RenderTarget <|-- BasicRenderTarget
+RenderComponentProvider <|-- BasicRenderComponentProvider
+
+' dependencies --------------------
+
+AppEngine ..> RenderEngine
+AppEngine "1" --> "1..n" NativeWindow
+
+NativeWindow "1..n " -> " 0..n" VirtualWindow
+
+Window -> RenderContent
+Window -> RenderTarget
+
+NativeWindow .> BasicRenderComponentProvider
+BasicRenderComponentProvider -* BasicRenderContent : "create"
+BasicRenderComponentProvider -* BasicRenderTarget  : "create"
+
+@enduml
