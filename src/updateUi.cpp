@@ -89,7 +89,7 @@ void App::updateAnimationControlWindow() {
         }
     } else {
         int unused = 0;
-        ImGui::SliderInt("##seek_bar", &unused, 0, animator.getNumOfFrames());
+        ImGui::SliderInt("##seek_bar", &unused, 0, 0);
     }
 
     // Main control ----------
