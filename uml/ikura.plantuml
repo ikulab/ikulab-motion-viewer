@@ -89,7 +89,17 @@ class ImGuiVirtualWindow {
 ' render component
 
 abstract RenderContent {
-
+	# RenderEngine* renderEngine
+	----
+	# BufferResource vertexBufferResource
+	# BufferResource indexBufferResource
+	# BufferResource[][] uniformBufferResources
+	----
+	# vk::DescriptorPool decriptorPool
+	# vk::DescriptorSet[][] descriptorSets
+	----
+	+ {abstract} void uploadVertexBuffer()
+	+ {abstract} void uploadIndexBuffer()
 }
 
 class BasicRenderContent {
@@ -97,7 +107,20 @@ class BasicRenderContent {
 }
 
 abstract RenderTarget {
-
+	# RenderEngine* renderEngine
+	----
+	ImageResource colorImageResource
+	ImageResource depthImageResource
+	----
+	# vk::CommandBuffer[] renderCommandBuffers
+	# vk::PipelineLayout graphicsPipelineLayout
+	# vk::Pipeline graphicsPipeline
+	# vk::RenderPass renderPass
+	# vk::FrameBuffer[] frameBuffers
+	----
+	# vk::Semaphore[] imageAvailableSemaphores
+	# vk::Semaphore[] renderFinishedSemaphores
+	# vk::Fence[] renderingFence
 }
 
 class BasicRenderTarget {
@@ -113,6 +136,22 @@ abstract RenderComponentProvider {
 class BasicRenderComponentProvider {
 	+ createBasicRenderContent(NativeWindow*)
 	+ createBasicRenderTarget(NativeWindow*)
+}
+
+' resources
+
+class BufferResource {
+	+ VmaAllocation allocation
+	----
+	+ vk::Buffer buffer
+}
+
+class ImageResource {
+	+ VmaAllocation allocation
+	+ vk::Image image
+	+ vk::ImageView imageView
+	----
+	+ void release()
 }
 
 
