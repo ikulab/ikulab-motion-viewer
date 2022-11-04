@@ -130,7 +130,7 @@ class BasicRenderTarget {
 abstract RenderComponentProvider {
 	# RenderEngine* renderEngine
 	----
-	vk::DescriptorSetLayout descriptorSetLayout
+	+ vk::DescriptorSetLayout descriptorSetLayout
 }
 
 class BasicRenderComponentProvider {
