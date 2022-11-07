@@ -124,14 +124,14 @@ Animator::generateModelMatrices(float time) {
 
             // Motion rotation
             result[id] *= glm::rotate(glm::mat4(1.0),
-                                      glm::radians(currentMotion[pID].rot.z),
-                                      glm::vec3(0.0, 0.0, 1.0));
+                                      glm::radians(currentMotion[pID].rot.y),
+                                      glm::vec3(0.0, 1.0, 0.0));
             result[id] *= glm::rotate(glm::mat4(1.0),
                                       glm::radians(currentMotion[pID].rot.x),
                                       glm::vec3(1.0, 0.0, 0.0));
             result[id] *= glm::rotate(glm::mat4(1.0),
-                                      glm::radians(currentMotion[pID].rot.y),
-                                      glm::vec3(0.0, 1.0, 0.0));
+                                      glm::radians(currentMotion[pID].rot.z),
+                                      glm::vec3(0.0, 0.0, 1.0));
         }
 
         // Move to current joint's position
