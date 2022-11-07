@@ -23,7 +23,8 @@ int main(int argc, const char **argv) {
         std::cout << "Hello Ikura!!" << std::endl;
         app.run();
     } catch (const std::runtime_error &e) {
-        LOG(FATAL) << e.what();
+        std::cerr << "Caught a Runtime Error :" << std::endl;
+        std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     } catch (const std::exception &e) {
         std::cerr << "Caught an Exception :" << std::endl;
