@@ -56,9 +56,12 @@ void App::updateMainMenu() {
 void App::updateAnimationControlWindow() {
     if (!ui.animationControlWindow.sizeInitialized) {
         ImGui::SetNextWindowSize(ImVec2(800, 200));
+        ui.animationControlWindow.sizeInitialized = true;
+    }
+    if (!ui.animationControlWindow.positionInitialized) {
         ImGui::SetNextWindowPos(ImVec2((mainWindow->getWidth() - 800) / 2,
                                        mainWindow->getHeight() - 300));
-        ui.animationControlWindow.sizeInitialized = true;
+        ui.animationControlWindow.positionInitialized = true;
     }
 
     ImGui::Begin("アニメーションコントロール");
@@ -69,6 +72,9 @@ void App::updateAnimationControlWindow() {
     if (!modelLoaded) {
         ImGui::BeginDisabled();
     }
+
+    // mode switcher ----------
+    // TODO: use Combo, ref: imgui_demo.cpp line 657
 
     // Seek bar ----------
     if (modelLoaded) {

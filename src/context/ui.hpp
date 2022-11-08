@@ -6,9 +6,16 @@ class UI {
   public:
     static void makePadding(int pad);
 
+    enum AnimationControlWindowMode {
+        Basic, Editor
+    };
+
     struct AnimationControlWindow {
         bool sizeInitialized = false;
+        bool positionInitialized = false;
         bool show = true;
+
+        AnimationControlWindowMode mode = Basic;
     } animationControlWindow;
 
     struct DebugWindow {
