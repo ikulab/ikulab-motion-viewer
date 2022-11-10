@@ -39,12 +39,8 @@ class App {
     // Flags ----------
     bool modelLoaded = false;
 
-    // Animation ----------
+    // Others ----------
     Animator animator;
-    float animationTime = 0.0;
-    float animationSpeed = 1.0;
-    bool stopAnimation = false;
-    bool initAnimationTime = false;
 
     // Functions ==========
     // Init ----------

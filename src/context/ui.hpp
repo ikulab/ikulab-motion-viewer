@@ -1,21 +1,21 @@
 #pragma once
 
+#include <array>
+
 #include <imgui/imgui.h>
 
 class UI {
   public:
     static void makePadding(int pad);
 
-    enum AnimationControlWindowMode {
-        Basic, Editor
-    };
-
     struct AnimationControlWindow {
-        bool sizeInitialized = false;
-        bool positionInitialized = false;
+        bool windowInitialized = false;
         bool show = true;
 
-        AnimationControlWindowMode mode = Basic;
+        const std::array<const char *, 2> MODE_ITEMS = {"Normal", "Edit"};
+        static const int MODE_INDEX_NORMAL = 0;
+        static const int MODE_INDEX_EDIT = 1;
+        int modeIndex = 0;
     } animationControlWindow;
 
     struct DebugWindow {

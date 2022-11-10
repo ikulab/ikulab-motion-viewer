@@ -1,5 +1,6 @@
 #include "./app.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 #include <imgui/imgui.h>
@@ -7,6 +8,9 @@
 #define MAIN_CONTROL_BUTTON_SIZE_UNIT 40
 #define MAX_ANIMATION_SPEED 10.0f
 #define MIN_ANIMATION_SPEED (1.0f / 128.0f)
+
+#define ANIM_WINDOW_HEIGHT_NORMAL 250
+#define ANIM_WINDOW_HEIGHT_EDIT 300
 
 void App::updateUI() {
     imGuiVirtualWindow->setCurrentImGuiContext();
@@ -53,39 +57,144 @@ void App::updateMainMenu() {
     }
 }
 
+// ----------------------------------------
+// Animation Control Window
+// ----------------------------------------
+
+void initAnimationControlWindowSize(
+    std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
+    UI::AnimationControlWindow ctx);
+void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx);
+void updateAnimationControlWindowSeekbar(bool &modelLoaded,
+                                         float &animationTime,
+                                         Animator &animator);
+void updateAnimationControlWindowMainController(float &animationTime,
+                                                bool &stopAnimation,
+                                                Animator &animator);
+void updateAnimationControlWindowSpeedController(float &animationSpeed);
+
 void App::updateAnimationControlWindow() {
-    if (!ui.animationControlWindow.sizeInitialized) {
-        ImGui::SetNextWindowSize(ImVec2(800, 200));
-        ui.animationControlWindow.sizeInitialized = true;
-    }
-    if (!ui.animationControlWindow.positionInitialized) {
-        ImGui::SetNextWindowPos(ImVec2((mainWindow->getWidth() - 800) / 2,
-                                       mainWindow->getHeight() - 300));
-        ui.animationControlWindow.positionInitialized = true;
-    }
+    initAnimationControlWindowSize(mainWindow, ui.animationControlWindow);
 
     ImGui::Begin("アニメーションコントロール");
-
-    auto total = animator.getNumOfFrames();
-    auto current = animator.getCurrentFrame();
 
     if (!modelLoaded) {
         ImGui::BeginDisabled();
     }
 
-    // mode switcher ----------
-    // TODO: use Combo, ref: imgui_demo.cpp line 657
+    updateAnimationControlWindowModeSwitcher(ui.animationControlWindow);
+    UI::makePadding(20);
 
-    // Seek bar ----------
+    updateAnimationControlWindowSeekbar(modelLoaded, animationTime, animator);
+
+    // TODO: make it independent function
+    // updateAnimationControlWindowEditor
+    // --------------------
+    // *Num starts from 1 (user-friendly expression)
+    // *Index starts from 0
+    int newLoopStartFrameNum = animator.getLoopStartFrameIndex() + 1;
+    int newLoopEndFrameNum = animator.getLoopEndFrameIndex() + 1;
+
+    ImGui::PushItemWidth(-1);
     if (modelLoaded) {
-        ImGui::Text("Frame: %d / %d", current + 1, total);
+        ImGui::SliderInt("##editor_start", &newLoopStartFrameNum, 1,
+                         animator.getNumOfFrames());
+        newLoopStartFrameNum =
+            std::clamp(newLoopStartFrameNum, 1, newLoopEndFrameNum);
+
+        auto result = ImGui::SliderInt("##editor_end", &newLoopEndFrameNum, 1,
+                                       animator.getNumOfFrames());
+        newLoopEndFrameNum =
+            std::clamp(newLoopEndFrameNum, newLoopStartFrameNum,
+                       (int)animator.getNumOfFrames());
+        ImGui::PopItemWidth();
+
+        // update loop range
+        if ((newLoopStartFrameNum != animator.getLoopStartFrameIndex() + 1) ||
+            (newLoopEndFrameNum != animator.getLoopEndFrameIndex() + 1)) {
+            animator.updateLoopRange(newLoopStartFrameNum - 1,
+                                     newLoopEndFrameNum - 1);
+        }
+    } else {
+        int unused = 0;
+        ImGui::SliderInt("##editor_start", &unused, 0, 0);
+        ImGui::SliderInt("##editor_end", &unused, 0, 0);
+    }
+
+    // --------------------
+
+    updateAnimationControlWindowMainController(animationTime, stopAnimation,
+                                               animator);
+
+    updateAnimationControlWindowSpeedController(animationSpeed);
+
+    if (!modelLoaded) {
+        ImGui::EndDisabled();
+    }
+    ImGui::End();
+}
+
+void initAnimationControlWindowSize(
+    std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
+    UI::AnimationControlWindow ctx) {
+
+    if (!ctx.windowInitialized) {
+        ImVec2 newWindowSize;
+        ImVec2 newWindowPos;
+        auto modeIndex = ctx.modeIndex;
+
+        // Normal mode
+        if (modeIndex == ctx.MODE_INDEX_NORMAL) {
+            newWindowSize = ImVec2(800, ANIM_WINDOW_HEIGHT_NORMAL);
+            newWindowPos = ImVec2((mainWindow->getWidth() - 800) / 2,
+                                  mainWindow->getHeight() -
+                                      ANIM_WINDOW_HEIGHT_NORMAL - 10);
+        }
+        // Edit mode
+        else if (modeIndex == ctx.MODE_INDEX_EDIT) {
+            newWindowSize = ImVec2(800, ANIM_WINDOW_HEIGHT_EDIT);
+            newWindowPos =
+                ImVec2((mainWindow->getWidth() - 800) / 2,
+                       mainWindow->getHeight() - ANIM_WINDOW_HEIGHT_EDIT - 10);
+        }
+
+        ImGui::SetNextWindowSize(newWindowSize);
+        ImGui::SetNextWindowPos(newWindowPos);
+        ctx.windowInitialized = true;
+    }
+}
+
+void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx) {
+    int oldModeIndex = ctx.modeIndex;
+
+    ImGui::Text("Mode");
+    ImGui::SameLine();
+    ImGui::PushItemWidth(100);
+    ImGui::Combo("##mode_select", &ctx.modeIndex, ctx.MODE_ITEMS.data(),
+                 ctx.MODE_ITEMS.size());
+    ImGui::PopItemWidth();
+
+    // if changed, window size & position will be initialized
+    if (oldModeIndex != ctx.modeIndex) {
+        ctx.windowInitialized = false;
+    }
+}
+
+void updateAnimationControlWindowSeekbar(bool &modelLoaded,
+                                         float &animationTime,
+                                         Animator &animator) {
+    auto maxFrameNum = animator.getNumOfFrames();
+    auto currentFrameNum = animator.calcurateFrameIndex(animationTime) + 1;
+
+    if (modelLoaded) {
+        ImGui::Text("Frame: %d / %d", currentFrameNum, maxFrameNum);
     } else {
         ImGui::Text("Frame: -- / --");
     }
 
     ImGui::PushItemWidth(-1);
     if (modelLoaded) {
-        int seekBarValue = current + 1;
+        int seekBarValue = currentFrameNum;
         int oldSeekBarValue = seekBarValue;
 
         ImGui::SliderInt("##seek_bar", &seekBarValue, 1,
@@ -95,10 +204,14 @@ void App::updateAnimationControlWindow() {
         }
     } else {
         int unused = 0;
-        ImGui::SliderInt("##seek_bar", &unused, 0, animator.getNumOfFrames());
+        ImGui::SliderInt("##seek_bar", &unused, 0, 0);
     }
+    ImGui::PopItemWidth();
+}
 
-    // Main control ----------
+void updateAnimationControlWindowMainController(float &animationTime,
+                                                bool &stopAnimation,
+                                                Animator &animator) {
     // Align
     float space = ImGui::GetStyle().ItemSpacing.x;
     float width = MAIN_CONTROL_BUTTON_SIZE_UNIT * 8 + space * 6;
@@ -155,8 +268,8 @@ void App::updateAnimationControlWindow() {
         animationTime =
             animator.getFrameRate() * (animator.getNumOfFrames() - 1);
     }
-
-    // Speed Control ----------
+}
+void updateAnimationControlWindowSpeedController(float &animationSpeed) {
     ImGui::Text("Speed");
 
     ImGui::PushItemWidth(20);
@@ -182,12 +295,11 @@ void App::updateAnimationControlWindow() {
     if (ImGui::Button("Reset##speed_reset")) {
         animationSpeed = 1.0;
     }
-
-    if (!modelLoaded) {
-        ImGui::EndDisabled();
-    }
-    ImGui::End();
 }
+
+// ----------------------------------------
+// Debug window
+// ----------------------------------------
 
 void App::updateDebugWindow() {
     if (!ui.debugWindow.sizeInitialized) {

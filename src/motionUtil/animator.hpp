@@ -19,9 +19,17 @@ struct Motion;
 class Animator {
     std::vector<std::vector<std::shared_ptr<Motion>>> motions;
     uint32_t numOfFrames;
-    uint32_t currentFrame;
+    uint32_t currentFrameIndex;
+
+    // loop range is [ start : end ]
+    // e.g. start=2, end=5 -> 2 3 4 5 2 3 4 5 ....
+    uint32_t loopStartFrameIndex;
+    uint32_t loopEndFrameIndex;
+
     float frameRate;
-    float loopDuration;
+    float loopDurationTime;
+    float animationTime;
+    float animationSpeed;
 
   public:
     class Joint {
@@ -51,12 +59,16 @@ class Animator {
     void
     generateBones(std::vector<std::shared_ptr<ikura::shapes::Shape>> &bones);
     std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX>
-    generateModelMatrices(float time);
+    generateModelMatrices();
+    void updateAnimator(float deltaTime);
 
     uint32_t getNumOfJoints() const;
     uint32_t getNumOfFrames() const;
-    uint32_t getCurrentFrame() const;
     float getFrameRate() const;
+    uint32_t getLoopStartFrameIndex() const;
+    uint32_t getLoopEndFrameIndex() const;
+
+    void updateLoopRange(uint32_t _loopStartFrameIndex, uint32_t _loopEndFrameIndex);
 
     void showSkeltonInfo();
     void showMotionInfo();
