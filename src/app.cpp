@@ -173,7 +173,6 @@ void App::selectFileAndInitShapes() {
     auto filePath = tinyfd_openFileDialog("Select Motion Data", NULL, 1,
                                           filterPattern, "BVH file", 0);
     setShapes(filePath);
-    initAnimationTime = true;
 }
 
 void App::updateMatrices() {
@@ -182,15 +181,10 @@ void App::updateMatrices() {
     ikura::BasicSceneMatUBO sceneMat;
 
     if (modelLoaded) {
-        if (!stopAnimation && !initAnimationTime) {
-            animationTime += appEngine->getDeltaTime() * animationSpeed;
-        } else if (initAnimationTime) {
-            animationTime = 0;
-            initAnimationTime = false;
-        }
+        animator.updateAnimator(appEngine->getDeltaTime());
 
         // Joints
-        auto modelMat4s = animator.generateModelMatrices(animationTime);
+        auto modelMat4s = animator.generateModelMatrices();
         for (int i = 0; i < ikura::NUM_OF_MODEL_MATRIX; i++) {
             modelMat.model[i] = modelMat4s[i];
         }

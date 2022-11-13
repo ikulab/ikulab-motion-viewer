@@ -13,23 +13,27 @@
 
 #include "./common.hpp"
 
+#define MAX_ANIMATION_SPEED 10.0f
+#define MIN_ANIMATION_SPEED (1.0f / 128.0f)
+
 // forward declearation
 struct Motion;
 
 class Animator {
     std::vector<std::vector<std::shared_ptr<Motion>>> motions;
     uint32_t numOfFrames;
-    uint32_t currentFrameIndex;
 
     // loop range is [ start : end ]
     // e.g. start=2, end=5 -> 2 3 4 5 2 3 4 5 ....
     uint32_t loopStartFrameIndex;
     uint32_t loopEndFrameIndex;
+    float loopDurationTime;
 
     float frameRate;
-    float loopDurationTime;
     float animationTime;
     float animationSpeed;
+
+    bool animationStopped;
 
   public:
     class Joint {
@@ -67,8 +71,18 @@ class Animator {
     float getFrameRate() const;
     uint32_t getLoopStartFrameIndex() const;
     uint32_t getLoopEndFrameIndex() const;
+    uint32_t getCurrentFrameIndex() const;
+    float getAnimationTime() const;
+    float getAnimationSpeed() const;
+
+    bool isAnimationStopped() const;
+    void stopAnimation();
+    void resumeAnimation();
 
     void updateLoopRange(uint32_t _loopStartFrameIndex, uint32_t _loopEndFrameIndex);
+    void seekAnimation(uint32_t frameIndex);
+    void incrementFrameIndex(int inc);
+    void setAnimationSpeed(float speed);
 
     void showSkeltonInfo();
     void showMotionInfo();

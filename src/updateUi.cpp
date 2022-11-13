@@ -6,8 +6,6 @@
 #include <imgui/imgui.h>
 
 #define MAIN_CONTROL_BUTTON_SIZE_UNIT 40
-#define MAX_ANIMATION_SPEED 10.0f
-#define MIN_ANIMATION_SPEED (1.0f / 128.0f)
 
 #define ANIM_WINDOW_HEIGHT_NORMAL 250
 #define ANIM_WINDOW_HEIGHT_EDIT 300
@@ -65,13 +63,9 @@ void initAnimationControlWindowSize(
     std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
     UI::AnimationControlWindow ctx);
 void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx);
-void updateAnimationControlWindowSeekbar(bool &modelLoaded,
-                                         float &animationTime,
-                                         Animator &animator);
-void updateAnimationControlWindowMainController(float &animationTime,
-                                                bool &stopAnimation,
-                                                Animator &animator);
-void updateAnimationControlWindowSpeedController(float &animationSpeed);
+void updateAnimationControlWindowSeekbar(bool &modelLoaded, Animator &animator);
+void updateAnimationControlWindowMainController(Animator &animator);
+void updateAnimationControlWindowSpeedController(Animator &animator);
 
 void App::updateAnimationControlWindow() {
     initAnimationControlWindowSize(mainWindow, ui.animationControlWindow);
@@ -85,7 +79,7 @@ void App::updateAnimationControlWindow() {
     updateAnimationControlWindowModeSwitcher(ui.animationControlWindow);
     UI::makePadding(20);
 
-    updateAnimationControlWindowSeekbar(modelLoaded, animationTime, animator);
+    updateAnimationControlWindowSeekbar(modelLoaded, animator);
 
     // TODO: make it independent function
     // updateAnimationControlWindowEditor
@@ -123,10 +117,9 @@ void App::updateAnimationControlWindow() {
 
     // --------------------
 
-    updateAnimationControlWindowMainController(animationTime, stopAnimation,
-                                               animator);
+    updateAnimationControlWindowMainController(animator);
 
-    updateAnimationControlWindowSpeedController(animationSpeed);
+    updateAnimationControlWindowSpeedController(animator);
 
     if (!modelLoaded) {
         ImGui::EndDisabled();
@@ -181,10 +174,9 @@ void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx) {
 }
 
 void updateAnimationControlWindowSeekbar(bool &modelLoaded,
-                                         float &animationTime,
                                          Animator &animator) {
     auto maxFrameNum = animator.getNumOfFrames();
-    auto currentFrameNum = animator.calcurateFrameIndex(animationTime) + 1;
+    auto currentFrameNum = animator.getCurrentFrameIndex() + 1;
 
     if (modelLoaded) {
         ImGui::Text("Frame: %d / %d", currentFrameNum, maxFrameNum);
@@ -200,7 +192,7 @@ void updateAnimationControlWindowSeekbar(bool &modelLoaded,
         ImGui::SliderInt("##seek_bar", &seekBarValue, 1,
                          animator.getNumOfFrames());
         if (oldSeekBarValue != seekBarValue) {
-            animationTime = (seekBarValue - 1) * animator.getFrameRate();
+            animator.seekAnimation(seekBarValue - 1);
         }
     } else {
         int unused = 0;
@@ -209,9 +201,7 @@ void updateAnimationControlWindowSeekbar(bool &modelLoaded,
     ImGui::PopItemWidth();
 }
 
-void updateAnimationControlWindowMainController(float &animationTime,
-                                                bool &stopAnimation,
-                                                Animator &animator) {
+void updateAnimationControlWindowMainController(Animator &animator) {
     // Align
     float space = ImGui::GetStyle().ItemSpacing.x;
     float width = MAIN_CONTROL_BUTTON_SIZE_UNIT * 8 + space * 6;
@@ -223,41 +213,46 @@ void updateAnimationControlWindowMainController(float &animationTime,
     if (ImGui::Button("<<##jump_to_begin",
                       ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                              MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animationTime = 0;
+        animator.seekAnimation(0);
     }
     ImGui::SameLine();
 
     // Prev frame
     if (ImGui::Button("-5##prev_5", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                                            MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animationTime -= animator.getFrameRate() * 5;
+        animator.incrementFrameIndex(-5);
     }
     ImGui::SameLine();
 
     if (ImGui::Button("-1##prev_1", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                                            MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animationTime -= animator.getFrameRate();
+        animator.incrementFrameIndex(-1);
     }
     ImGui::SameLine();
 
     // Play button
-    const char *playButtonLabel = stopAnimation ? "Play" : "Stop";
+    const char *playButtonLabel =
+        animator.isAnimationStopped() ? "Play" : "Stop";
     if (ImGui::Button(playButtonLabel, ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT * 2,
                                               MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        stopAnimation = !stopAnimation;
+        if (animator.isAnimationStopped()) {
+            animator.resumeAnimation();
+        } else {
+            animator.stopAnimation();
+        }
     }
     ImGui::SameLine();
 
     // Next frame
     if (ImGui::Button("+1##next_1", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                                            MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animationTime += animator.getFrameRate();
+        animator.incrementFrameIndex(1);
     }
     ImGui::SameLine();
 
     if (ImGui::Button("+5##next_5", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                                            MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animationTime += animator.getFrameRate() * 5;
+        animator.incrementFrameIndex(5);
     }
     ImGui::SameLine();
 
@@ -265,11 +260,12 @@ void updateAnimationControlWindowMainController(float &animationTime,
     if (ImGui::Button(">>##jump_to_end",
                       ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                              MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animationTime =
-            animator.getFrameRate() * (animator.getNumOfFrames() - 1);
+        animator.seekAnimation(animator.getNumOfFrames() - 1);
     }
 }
-void updateAnimationControlWindowSpeedController(float &animationSpeed) {
+void updateAnimationControlWindowSpeedController(Animator &animator) {
+    float animationSpeed = animator.getAnimationSpeed();
+
     ImGui::Text("Speed");
 
     ImGui::PushItemWidth(20);
@@ -295,6 +291,8 @@ void updateAnimationControlWindowSpeedController(float &animationSpeed) {
     if (ImGui::Button("Reset##speed_reset")) {
         animationSpeed = 1.0;
     }
+
+    animator.setAnimationSpeed(animationSpeed);
 }
 
 // ----------------------------------------
@@ -321,7 +319,7 @@ void App::updateDebugWindow() {
 
     ImGui::Text("FPS: %.1f", io.Framerate);
     ImGui::Text("Joints: %d", animator.getNumOfJoints());
-    ImGui::Text("Animation Time: %f", animationTime);
+    ImGui::Text("Animation Time: %f", animator.getAnimationTime());
 
     UI::makePadding(10);
 

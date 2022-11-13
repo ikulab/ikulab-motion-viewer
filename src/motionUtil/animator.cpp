@@ -27,11 +27,18 @@ bool Animator::Joint::getIsEdge() const { return isEdge; }
 // ----------------------------------------
 
 void Animator::updateAnimator(float deltaTime) {
+    if (animationStopped) {
+        return;
+    }
+
     animationTime += deltaTime * animationSpeed;
+
     float loopStartTime = loopStartFrameIndex * frameRate;
     float loopEndTime = loopEndFrameIndex * frameRate;
 
-    animationTime = std::clamp(animationTime, loopStartTime, loopEndTime);
+    float excessAnimationTime =
+        fmod((animationTime - loopStartTime), loopDurationTime);
+    animationTime = loopStartTime + excessAnimationTime;
 }
 
 void Animator::initFromBVH(std::string filePath) {
@@ -47,6 +54,10 @@ void Animator::initFromBVH(std::string filePath) {
     loopStartFrameIndex = 0;
     loopEndFrameIndex = numOfFrames - 1;
     loopDurationTime = frameRate * numOfFrames;
+
+    animationTime = 0;
+    animationSpeed = 1.0;
+    animationStopped = false;
 }
 
 void Animator::generateBones(
@@ -74,12 +85,14 @@ void Animator::generateBones(
 
 std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX>
 Animator::generateModelMatrices() {
+    uint32_t frameIndex = getCurrentFrameIndex();
+
     // calculate current motion
     std::vector<Motion> currentMotion;
     for (ikura::GroupID id = 0; id < joints.size(); id++) {
         Motion m{};
-        m.pos = motions[currentFrameIndex][id]->pos;
-        m.rot = motions[currentFrameIndex][id]->rot;
+        m.pos = motions[frameIndex][id]->pos;
+        m.rot = motions[frameIndex][id]->rot;
         currentMotion.push_back(m);
     }
 
@@ -148,17 +161,6 @@ uint32_t Animator::getNumOfJoints() const { return joints.size(); }
 
 uint32_t Animator::getNumOfFrames() const { return numOfFrames; }
 
-uint32_t Animator::calcurateFrameIndex(float time) const {
-    float timeInLoop = std::fmod(time, loopDurationTime);
-    if (timeInLoop < 0) {
-        timeInLoop = loopDurationTime + timeInLoop;
-    }
-    uint32_t currentFrameIndex =
-        std::floor(timeInLoop / frameRate) + loopStartFrameIndex;
-
-    return currentFrameIndex;
-}
-
 float Animator::getFrameRate() const { return frameRate; }
 
 uint32_t Animator::getLoopStartFrameIndex() const {
@@ -167,6 +169,20 @@ uint32_t Animator::getLoopStartFrameIndex() const {
 
 uint32_t Animator::getLoopEndFrameIndex() const { return loopEndFrameIndex; }
 
+uint32_t Animator::getCurrentFrameIndex() const {
+    return std::floor(animationTime / frameRate);
+}
+
+float Animator::getAnimationTime() const { return animationTime; }
+
+float Animator::getAnimationSpeed() const { return animationSpeed; }
+
+bool Animator::isAnimationStopped() const { return animationStopped; }
+
+void Animator::stopAnimation() { animationStopped = true; }
+
+void Animator::resumeAnimation() { animationStopped = false; }
+
 void Animator::updateLoopRange(uint32_t _loopStartFrameIndex,
                                uint32_t _loopEndFrameIndex) {
     loopStartFrameIndex = _loopStartFrameIndex;
@@ -174,6 +190,20 @@ void Animator::updateLoopRange(uint32_t _loopStartFrameIndex,
 
     loopDurationTime = (loopEndFrameIndex - loopStartFrameIndex) * frameRate;
 }
+
+void Animator::seekAnimation(uint32_t frameIndex) {
+    animationTime = frameIndex * frameRate;
+}
+
+void Animator::incrementFrameIndex(int inc) {
+    uint32_t currentFrameIndex = getCurrentFrameIndex();
+    uint32_t newFrameIndex =
+        std::clamp(currentFrameIndex + inc, 0U, numOfFrames - 1);
+
+    seekAnimation(newFrameIndex);
+}
+
+void Animator::setAnimationSpeed(float speed) { animationSpeed = speed; }
 
 void Animator::Joint::showInfo() {
     std::cout << id << ": " << name << std::ends;
