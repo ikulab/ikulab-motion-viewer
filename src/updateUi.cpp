@@ -8,7 +8,7 @@
 #define MAIN_CONTROL_BUTTON_SIZE_UNIT 40
 
 #define ANIM_WINDOW_HEIGHT_NORMAL 250
-#define ANIM_WINDOW_HEIGHT_EDIT 300
+#define ANIM_WINDOW_HEIGHT_EDIT 400
 
 void App::updateUI() {
     imGuiVirtualWindow->setCurrentImGuiContext();
@@ -61,7 +61,7 @@ void App::updateMainMenu() {
 
 void initAnimationControlWindowSize(
     std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
-    UI::AnimationControlWindow ctx);
+    UI::AnimationControlWindow& ctx);
 void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx,
                                               Animator &animator);
 void updateAnimationControlWindowSeekbar(UI::AnimationControlWindow &ctx,
@@ -88,7 +88,9 @@ void App::updateAnimationControlWindow() {
 
     if (ui.animationControlWindow.modeIndex ==
         UI::AnimationControlWindow::MODE_INDEX_EDIT) {
+        UI::makePadding(20);
         updateAnimationControlWindowEditor(modelLoaded, animator);
+        UI::makePadding(20);
     }
 
     updateAnimationControlWindowMainController(animator);
@@ -102,7 +104,7 @@ void App::updateAnimationControlWindow() {
 
 void initAnimationControlWindowSize(
     std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
-    UI::AnimationControlWindow ctx) {
+    UI::AnimationControlWindow& ctx) {
 
     if (!ctx.windowInitialized) {
         ImVec2 newWindowSize;
@@ -280,30 +282,54 @@ void updateAnimationControlWindowEditor(bool &modelLoaded, Animator &animator) {
     int newLoopStartFrameNum = animator.getLoopStartFrameIndex() + 1;
     int newLoopEndFrameNum = animator.getLoopEndFrameIndex() + 1;
 
-    ImGui::PushItemWidth(-1);
     if (modelLoaded) {
+        // loop start ----------
+        ImGui::Text("loop start");
+        ImGui::SameLine();
+
+        ImGui::PushItemWidth(100);
+        ImGui::InputInt("##editor_start_input", &newLoopStartFrameNum);
+        ImGui::PopItemWidth();
+
+        ImGui::PushItemWidth(-1);
         ImGui::SliderInt("##editor_start", &newLoopStartFrameNum, 1,
                          animator.getNumOfFrames());
+        ImGui::PopItemWidth();
+
         newLoopStartFrameNum =
             std::clamp(newLoopStartFrameNum, 1, newLoopEndFrameNum);
 
-        auto result = ImGui::SliderInt("##editor_end", &newLoopEndFrameNum, 1,
-                                       animator.getNumOfFrames());
+        // loop end ----------
+        ImGui::Text("loop end  ");
+        ImGui::SameLine();
+
+        ImGui::PushItemWidth(100);
+        ImGui::InputInt("##editor_end_input", &newLoopEndFrameNum);
+        ImGui::PopItemWidth();
+
+        ImGui::PushItemWidth(-1);
+        ImGui::SliderInt("##editor_end", &newLoopEndFrameNum, 1,
+                         animator.getNumOfFrames());
+        ImGui::PopItemWidth();
+
         newLoopEndFrameNum =
             std::clamp(newLoopEndFrameNum, newLoopStartFrameNum,
                        (int)animator.getNumOfFrames());
-        ImGui::PopItemWidth();
 
-        // update loop range
+        // update loop range ----------
         if ((newLoopStartFrameNum != animator.getLoopStartFrameIndex() + 1) ||
             (newLoopEndFrameNum != animator.getLoopEndFrameIndex() + 1)) {
             animator.updateLoopRange(newLoopStartFrameNum - 1,
                                      newLoopEndFrameNum - 1);
         }
     } else {
+        ImGui::PushItemWidth(-1);
+
         int unused = 0;
         ImGui::SliderInt("##editor_start", &unused, 0, 0);
         ImGui::SliderInt("##editor_end", &unused, 0, 0);
+
+        ImGui::PopItemWidth();
     }
 }
 

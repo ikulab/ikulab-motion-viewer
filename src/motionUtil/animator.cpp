@@ -44,8 +44,7 @@ void Animator::updateAnimator(float deltaTime) {
     } else {
         loopStartTime = 0;
         loopEndTime = numOfFrames * frameRate;
-        animationTime =
-            std::clamp(animationTime, 0.0f, numOfFrames * frameRate);
+        animationTime = fmod(animationTime, numOfFrames * frameRate);
     }
 }
 
@@ -215,17 +214,25 @@ void Animator::updateLoopRange(uint32_t _loopStartFrameIndex,
 }
 
 void Animator::seekAnimation(uint32_t frameIndex) {
-    uint32_t newFrameIndex =
-        std::clamp(frameIndex, loopStartFrameIndex, loopEndFrameIndex);
-    animationTime = newFrameIndex * frameRate;
+    if (loopEnabled) {
+        frameIndex =
+            std::clamp(frameIndex, loopStartFrameIndex, loopEndFrameIndex);
+    }
+
+    animationTime = frameIndex * frameRate;
 }
 
 void Animator::incrementFrameIndex(int inc) {
     uint32_t currentFrameIndex = getCurrentFrameIndex();
-    uint32_t newFrameIndex =
-        std::clamp(currentFrameIndex + inc, 0U, numOfFrames - 1);
 
-    seekAnimation(newFrameIndex);
+    // if (currentFrameIndex + inc < 0), but considering unsigned int
+    if (inc < 0 && currentFrameIndex < -inc) {
+        seekAnimation(0);
+    } else {
+        uint32_t newFrameIndex =
+            std::clamp(currentFrameIndex + inc, 0U, numOfFrames - 1);
+        seekAnimation(newFrameIndex);
+    }
 }
 
 void Animator::setAnimationSpeed(float speed) { animationSpeed = speed; }
