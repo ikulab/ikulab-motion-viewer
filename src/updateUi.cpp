@@ -66,6 +66,7 @@ void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx);
 void updateAnimationControlWindowSeekbar(bool &modelLoaded, Animator &animator);
 void updateAnimationControlWindowMainController(Animator &animator);
 void updateAnimationControlWindowSpeedController(Animator &animator);
+void updateAnimationCOntrolWindowEditor(bool &modelLoaded, Animator &animator);
 
 void App::updateAnimationControlWindow() {
     initAnimationControlWindowSize(mainWindow, ui.animationControlWindow);
@@ -81,44 +82,12 @@ void App::updateAnimationControlWindow() {
 
     updateAnimationControlWindowSeekbar(modelLoaded, animator);
 
-    // TODO: make it independent function
-    // updateAnimationControlWindowEditor
-    // --------------------
-    // *Num starts from 1 (user-friendly expression)
-    // *Index starts from 0
-    int newLoopStartFrameNum = animator.getLoopStartFrameIndex() + 1;
-    int newLoopEndFrameNum = animator.getLoopEndFrameIndex() + 1;
-
-    ImGui::PushItemWidth(-1);
-    if (modelLoaded) {
-        ImGui::SliderInt("##editor_start", &newLoopStartFrameNum, 1,
-                         animator.getNumOfFrames());
-        newLoopStartFrameNum =
-            std::clamp(newLoopStartFrameNum, 1, newLoopEndFrameNum);
-
-        auto result = ImGui::SliderInt("##editor_end", &newLoopEndFrameNum, 1,
-                                       animator.getNumOfFrames());
-        newLoopEndFrameNum =
-            std::clamp(newLoopEndFrameNum, newLoopStartFrameNum,
-                       (int)animator.getNumOfFrames());
-        ImGui::PopItemWidth();
-
-        // update loop range
-        if ((newLoopStartFrameNum != animator.getLoopStartFrameIndex() + 1) ||
-            (newLoopEndFrameNum != animator.getLoopEndFrameIndex() + 1)) {
-            animator.updateLoopRange(newLoopStartFrameNum - 1,
-                                     newLoopEndFrameNum - 1);
-        }
-    } else {
-        int unused = 0;
-        ImGui::SliderInt("##editor_start", &unused, 0, 0);
-        ImGui::SliderInt("##editor_end", &unused, 0, 0);
+    if (ui.animationControlWindow.modeIndex ==
+        UI::AnimationControlWindow::MODE_INDEX_EDIT) {
+        updateAnimationCOntrolWindowEditor(modelLoaded, animator);
     }
 
-    // --------------------
-
     updateAnimationControlWindowMainController(animator);
-
     updateAnimationControlWindowSpeedController(animator);
 
     if (!modelLoaded) {
@@ -293,6 +262,39 @@ void updateAnimationControlWindowSpeedController(Animator &animator) {
     }
 
     animator.setAnimationSpeed(animationSpeed);
+}
+
+void updateAnimationCOntrolWindowEditor(bool &modelLoaded, Animator &animator) {
+    // *Num starts from 1 (user-friendly expression)
+    // *Index starts from 0
+    int newLoopStartFrameNum = animator.getLoopStartFrameIndex() + 1;
+    int newLoopEndFrameNum = animator.getLoopEndFrameIndex() + 1;
+
+    ImGui::PushItemWidth(-1);
+    if (modelLoaded) {
+        ImGui::SliderInt("##editor_start", &newLoopStartFrameNum, 1,
+                         animator.getNumOfFrames());
+        newLoopStartFrameNum =
+            std::clamp(newLoopStartFrameNum, 1, newLoopEndFrameNum);
+
+        auto result = ImGui::SliderInt("##editor_end", &newLoopEndFrameNum, 1,
+                                       animator.getNumOfFrames());
+        newLoopEndFrameNum =
+            std::clamp(newLoopEndFrameNum, newLoopStartFrameNum,
+                       (int)animator.getNumOfFrames());
+        ImGui::PopItemWidth();
+
+        // update loop range
+        if ((newLoopStartFrameNum != animator.getLoopStartFrameIndex() + 1) ||
+            (newLoopEndFrameNum != animator.getLoopEndFrameIndex() + 1)) {
+            animator.updateLoopRange(newLoopStartFrameNum - 1,
+                                     newLoopEndFrameNum - 1);
+        }
+    } else {
+        int unused = 0;
+        ImGui::SliderInt("##editor_start", &unused, 0, 0);
+        ImGui::SliderInt("##editor_end", &unused, 0, 0);
+    }
 }
 
 // ----------------------------------------
