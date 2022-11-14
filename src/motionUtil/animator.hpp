@@ -22,6 +22,7 @@ struct Motion;
 class Animator {
     std::vector<std::vector<std::shared_ptr<Motion>>> motions;
     uint32_t numOfFrames;
+    std::string originalFilePath;
 
     // loop range is [ start : end ]
     // e.g. start=2, end=5 -> 2 3 4 5 2 3 4 5 ....
@@ -61,6 +62,8 @@ class Animator {
     };
 
     void initFromBVH(std::string filePath);
+    void exportLoopRange(std::string exportFilePath);
+
     void
     generateBones(std::vector<std::shared_ptr<ikura::shapes::Shape>> &bones);
     std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX>

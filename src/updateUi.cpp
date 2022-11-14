@@ -35,6 +35,9 @@ void App::updateMainMenu() {
             if (ImGui::MenuItem("BVHファイルを開く")) {
                 selectFileAndInitShapes();
             }
+            if (ImGui::MenuItem("ループ範囲をエクスポート")) {
+                animator.exportLoopRange("export_test.bvh");
+            }
             ImGui::EndMenu();
         }
 

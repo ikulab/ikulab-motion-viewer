@@ -65,6 +65,40 @@ void Animator::initFromBVH(std::string filePath) {
     animationTime = 0;
     animationSpeed = 1.0;
     animationStopped = false;
+
+    originalFilePath = filePath;
+}
+
+void Animator::exportLoopRange(std::string exportFilePath) {
+    std::ifstream origFile(originalFilePath);
+    std::ofstream exportFile(exportFilePath);
+
+    char buf[10000];
+    while (!origFile.eof()) {
+        origFile.getline(buf, 10000);
+        exportFile << buf << "\n";
+
+        if (!std::strcmp(buf, "MOTION")) {
+            break;
+        }
+    }
+
+    // Frames: <num of frames>
+    origFile.getline(buf, 10000);
+    exportFile << TOKEN_FRAMES;
+    exportFile << " " << loopEndFrameIndex - loopStartFrameIndex + 1;
+    // Frame Time: <frame time>
+    origFile.getline(buf, 10000);
+    exportFile << buf << "\n";
+
+    int index = 0;
+    while (!origFile.eof()) {
+        origFile.getline(buf, 10000);
+        if (loopStartFrameIndex <= index && index <= loopEndFrameIndex) {
+            exportFile << buf << "\n";
+        }
+        index++;
+    }
 }
 
 void Animator::generateBones(
