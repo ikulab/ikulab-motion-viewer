@@ -192,7 +192,9 @@ void Animator::updateLoopRange(uint32_t _loopStartFrameIndex,
 }
 
 void Animator::seekAnimation(uint32_t frameIndex) {
-    animationTime = frameIndex * frameRate;
+    uint32_t newFrameIndex =
+        std::clamp(frameIndex, loopStartFrameIndex, loopEndFrameIndex);
+    animationTime = newFrameIndex * frameRate;
 }
 
 void Animator::incrementFrameIndex(int inc) {
