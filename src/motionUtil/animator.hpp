@@ -34,6 +34,7 @@ class Animator {
     float animationSpeed;
 
     bool animationStopped;
+    bool loopEnabled;
 
   public:
     class Joint {
@@ -78,6 +79,10 @@ class Animator {
     bool isAnimationStopped() const;
     void stopAnimation();
     void resumeAnimation();
+
+    void setLoopEnabled(bool enabled);
+    void enableLoop();
+    void disableLoop();
 
     void updateLoopRange(uint32_t _loopStartFrameIndex, uint32_t _loopEndFrameIndex);
     void seekAnimation(uint32_t frameIndex);

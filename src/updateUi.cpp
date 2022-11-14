@@ -62,11 +62,13 @@ void App::updateMainMenu() {
 void initAnimationControlWindowSize(
     std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
     UI::AnimationControlWindow ctx);
-void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx);
-void updateAnimationControlWindowSeekbar(bool &modelLoaded, Animator &animator);
+void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx,
+                                              Animator &animator);
+void updateAnimationControlWindowSeekbar(UI::AnimationControlWindow &ctx,
+                                         bool &modelLoaded, Animator &animator);
 void updateAnimationControlWindowMainController(Animator &animator);
 void updateAnimationControlWindowSpeedController(Animator &animator);
-void updateAnimationCOntrolWindowEditor(bool &modelLoaded, Animator &animator);
+void updateAnimationControlWindowEditor(bool &modelLoaded, Animator &animator);
 
 void App::updateAnimationControlWindow() {
     initAnimationControlWindowSize(mainWindow, ui.animationControlWindow);
@@ -77,14 +79,16 @@ void App::updateAnimationControlWindow() {
         ImGui::BeginDisabled();
     }
 
-    updateAnimationControlWindowModeSwitcher(ui.animationControlWindow);
+    updateAnimationControlWindowModeSwitcher(ui.animationControlWindow,
+                                             animator);
     UI::makePadding(20);
 
-    updateAnimationControlWindowSeekbar(modelLoaded, animator);
+    updateAnimationControlWindowSeekbar(ui.animationControlWindow, modelLoaded,
+                                        animator);
 
     if (ui.animationControlWindow.modeIndex ==
         UI::AnimationControlWindow::MODE_INDEX_EDIT) {
-        updateAnimationCOntrolWindowEditor(modelLoaded, animator);
+        updateAnimationControlWindowEditor(modelLoaded, animator);
     }
 
     updateAnimationControlWindowMainController(animator);
@@ -126,7 +130,8 @@ void initAnimationControlWindowSize(
     }
 }
 
-void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx) {
+void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx,
+                                              Animator &animator) {
     int oldModeIndex = ctx.modeIndex;
 
     ImGui::Text("Mode");
@@ -139,10 +144,13 @@ void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx) {
     // if changed, window size & position will be initialized
     if (oldModeIndex != ctx.modeIndex) {
         ctx.windowInitialized = false;
+        animator.setLoopEnabled(ctx.modeIndex ==
+                                UI::AnimationControlWindow::MODE_INDEX_EDIT);
     }
 }
 
-void updateAnimationControlWindowSeekbar(bool &modelLoaded,
+void updateAnimationControlWindowSeekbar(UI::AnimationControlWindow &ctx,
+                                         bool &modelLoaded,
                                          Animator &animator) {
     auto maxFrameNum = animator.getNumOfFrames();
     auto currentFrameNum = animator.getCurrentFrameIndex() + 1;
@@ -160,6 +168,8 @@ void updateAnimationControlWindowSeekbar(bool &modelLoaded,
 
         ImGui::SliderInt("##seek_bar", &seekBarValue, 1,
                          animator.getNumOfFrames());
+        ctx.isSeekBarDragging = ImGui::IsItemActive();
+
         if (oldSeekBarValue != seekBarValue) {
             animator.seekAnimation(seekBarValue - 1);
         }
@@ -264,7 +274,7 @@ void updateAnimationControlWindowSpeedController(Animator &animator) {
     animator.setAnimationSpeed(animationSpeed);
 }
 
-void updateAnimationCOntrolWindowEditor(bool &modelLoaded, Animator &animator) {
+void updateAnimationControlWindowEditor(bool &modelLoaded, Animator &animator) {
     // *Num starts from 1 (user-friendly expression)
     // *Index starts from 0
     int newLoopStartFrameNum = animator.getLoopStartFrameIndex() + 1;

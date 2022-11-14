@@ -181,7 +181,9 @@ void App::updateMatrices() {
     ikura::BasicSceneMatUBO sceneMat;
 
     if (modelLoaded) {
-        animator.updateAnimator(appEngine->getDeltaTime());
+        if (!ui.animationControlWindow.isSeekBarDragging) {
+            animator.updateAnimator(appEngine->getDeltaTime());
+        }
 
         // Joints
         auto modelMat4s = animator.generateModelMatrices();

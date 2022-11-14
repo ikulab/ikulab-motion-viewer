@@ -16,6 +16,8 @@ class UI {
         static const int MODE_INDEX_NORMAL = 0;
         static const int MODE_INDEX_EDIT = 1;
         int modeIndex = 0;
+
+        bool isSeekBarDragging;
     } animationControlWindow;
 
     struct DebugWindow {

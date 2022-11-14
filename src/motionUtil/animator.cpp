@@ -33,12 +33,20 @@ void Animator::updateAnimator(float deltaTime) {
 
     animationTime += deltaTime * animationSpeed;
 
-    float loopStartTime = loopStartFrameIndex * frameRate;
-    float loopEndTime = loopEndFrameIndex * frameRate;
-
-    float excessAnimationTime =
-        fmod((animationTime - loopStartTime), loopDurationTime);
-    animationTime = loopStartTime + excessAnimationTime;
+    float loopStartTime;
+    float loopEndTime;
+    if (loopEnabled) {
+        loopStartTime = loopStartFrameIndex * frameRate;
+        loopEndTime = loopEndFrameIndex * frameRate;
+        animationTime =
+            fmod((animationTime - loopStartTime), loopDurationTime) +
+            loopStartTime;
+    } else {
+        loopStartTime = 0;
+        loopEndTime = numOfFrames * frameRate;
+        animationTime =
+            std::clamp(animationTime, 0.0f, numOfFrames * frameRate);
+    }
 }
 
 void Animator::initFromBVH(std::string filePath) {
@@ -183,12 +191,27 @@ void Animator::stopAnimation() { animationStopped = true; }
 
 void Animator::resumeAnimation() { animationStopped = false; }
 
+void Animator::setLoopEnabled(bool enabled) { loopEnabled = enabled; }
+
+void Animator::enableLoop() { loopEnabled = true; }
+
+void Animator::disableLoop() { loopEnabled = false; }
+
 void Animator::updateLoopRange(uint32_t _loopStartFrameIndex,
                                uint32_t _loopEndFrameIndex) {
-    loopStartFrameIndex = _loopStartFrameIndex;
-    loopEndFrameIndex = _loopEndFrameIndex;
+
+    loopStartFrameIndex = std::clamp(_loopStartFrameIndex, 0U, numOfFrames - 1);
+    loopEndFrameIndex = std::clamp(_loopEndFrameIndex, 0U, numOfFrames - 1);
 
     loopDurationTime = (loopEndFrameIndex - loopStartFrameIndex) * frameRate;
+
+    if (loopEnabled) {
+        uint32_t clampedFrameIndex = std::clamp(
+            getCurrentFrameIndex(), loopStartFrameIndex, loopEndFrameIndex);
+        if (clampedFrameIndex != getCurrentFrameIndex()) {
+            animationTime = clampedFrameIndex * frameRate;
+        }
+    }
 }
 
 void Animator::seekAnimation(uint32_t frameIndex) {
