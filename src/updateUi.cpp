@@ -5,6 +5,8 @@
 
 #include <imgui/imgui.h>
 
+#include "./motionUtil/bvhExporter.hpp"
+
 #define MAIN_CONTROL_BUTTON_SIZE_UNIT 40
 
 #define ANIM_WINDOW_HEIGHT_NORMAL 250
@@ -36,7 +38,7 @@ void App::updateMainMenu() {
                 selectFileAndInitShapes();
             }
             if (ImGui::MenuItem("ループ範囲をエクスポート")) {
-                animator.exportLoopRange("export_test.bvh");
+                selectFileAndExportLoopRange();
             }
             ImGui::EndMenu();
         }
@@ -64,7 +66,7 @@ void App::updateMainMenu() {
 
 void initAnimationControlWindowSize(
     std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
-    UI::AnimationControlWindow& ctx);
+    UI::AnimationControlWindow &ctx);
 void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx,
                                               Animator &animator);
 void updateAnimationControlWindowSeekbar(UI::AnimationControlWindow &ctx,
@@ -107,7 +109,7 @@ void App::updateAnimationControlWindow() {
 
 void initAnimationControlWindowSize(
     std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
-    UI::AnimationControlWindow& ctx) {
+    UI::AnimationControlWindow &ctx) {
 
     if (!ctx.windowInitialized) {
         ImVec2 newWindowSize;

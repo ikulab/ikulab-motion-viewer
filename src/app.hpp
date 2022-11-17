@@ -49,7 +49,9 @@ class App {
     void initContexts();
     void setGlfwWindowEvents(GLFWwindow *window);
 
+	// select file ----------
     void selectFileAndInitShapes();
+    void selectFileAndExportLoopRange();
 
     // Update ----------
     void updateMatrices();
