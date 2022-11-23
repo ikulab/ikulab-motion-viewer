@@ -7,6 +7,20 @@ title Ikura Class Structure v1.0.0
 
 ' engine --------------------
 
+class AppEngine {
+	+ AppEngine(RenderEngine*)
+	- RenderEngine* renderEngine
+	----
+	- vector<NativeWindow*> nativeWindows
+	- float fps
+	----
+	+ void drawAllWindows()
+	+ bool shouldTerminated()
+	----
+	+ void vSync()
+	+ float getDeltaTime()
+}
+
 class RenderEngine {
 	Vulkan bjects
 	- vk::Device device
@@ -28,20 +42,6 @@ class RenderEngine {
 	+ vk::PhysicalDevice getPhysicalDevice()
 	+ vk::Instance getInstance()
 	+ other Vulkan object getters...
-}
-
-class AppEngine {
-	+ AppEngine(RenderEngine*)
-	- RenderEngine* renderEngine
-	----
-	- vector<NativeWindow*> nativeWindows
-	- float fps
-	----
-	+ void drawAllWindows()
-	+ bool shouldTerminated()
-	----
-	+ void vSync()
-	+ float getDeltaTime()
 }
 
 ' window --------------------
@@ -140,12 +140,6 @@ class BasicRenderComponentProvider {
 
 ' resources
 
-class BufferResource {
-	+ VmaAllocation allocation
-	----
-	+ vk::Buffer buffer
-}
-
 class ImageResource {
 	+ VmaAllocation allocation
 	+ vk::Image image
@@ -154,18 +148,16 @@ class ImageResource {
 	+ void release()
 }
 
+class BufferResource {
+	+ VmaAllocation allocation
+	----
+	+ vk::Buffer buffer
+}
+
 
 ' ==================================================
 '   relations
 ' ==================================================
-
-' notes --------------------
-
-note top of VirtualWindow
-	call recordCommandBuffer()
-	within NativeWindow
-	command buffer recording
-end note
 
 ' inheritances --------------------
 
@@ -176,20 +168,22 @@ VirtualWindow <|-- ImGuiVirtualWindow
 
 RenderContent <|-- BasicRenderContent
 RenderTarget <|-- BasicRenderTarget
-RenderComponentProvider <|-- BasicRenderComponentProvider
+RenderComponentProvider <|-- BasicRenderComponentProvider 
 
 ' dependencies --------------------
 
 AppEngine ..> RenderEngine
 AppEngine "1" --> "1..n" NativeWindow
 
-NativeWindow "1..n " -> " 0..n" VirtualWindow
+NativeWindow "1..n   " --> "0..n" VirtualWindow
 
-Window -> RenderContent
-Window -> RenderTarget
+Window --> RenderContent
+Window --> RenderTarget
 
-NativeWindow .> BasicRenderComponentProvider
-BasicRenderComponentProvider -* BasicRenderContent : "create"
-BasicRenderComponentProvider -* BasicRenderTarget  : "create"
+ImageResource <-- RenderTarget
+BufferResource <-- RenderContent
+
+BasicRenderComponentProvider --* BasicRenderContent : "create"
+BasicRenderComponentProvider --* BasicRenderTarget  : "create"
 
 @enduml
