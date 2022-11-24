@@ -175,7 +175,7 @@ class BufferResource {
 
 ' notes --------------------
 
-note "BasicIndex is alias of uint32_t" as BasicIndex
+note "BasicIndex is alias for uint32_t" as BasicIndex
 
 ' ==================================================
 '   relations
