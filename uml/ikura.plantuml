@@ -103,7 +103,15 @@ abstract RenderContent {
 }
 
 class BasicRenderContent {
-
+	# BasicVertex[] vertices
+	# BasicIndex[] indices
+	# void setupUniformBuffers()
+	# void setupDescriptorSets()
+	----
+	+ void setVertices(BasicVertex[])
+	+ void setIndices(BasicIndex[])
+	+ void updateUniformBufer(int frameIndex,
+	.	BasicModelMatUBO, BasicSceneMatUBO)
 }
 
 abstract RenderTarget {
@@ -124,7 +132,12 @@ abstract RenderTarget {
 }
 
 class BasicRenderTarget {
-
+	# void setupRenderPass()
+	# void setupImageResources()
+	# void setupFrameBuffers()
+	# void setupGraphicsPipeline()
+	----
+	+ recreateResourcesForSwapChainRecreation(...)
 }
 
 abstract RenderComponentProvider {
@@ -136,6 +149,12 @@ abstract RenderComponentProvider {
 class BasicRenderComponentProvider {
 	+ createBasicRenderContent(NativeWindow*)
 	+ createBasicRenderTarget(NativeWindow*)
+}
+
+struct BasicVertex::Data {
+	+ glm::vec3 pos
+	+ glm::vec3 color
+	+ uint32_t id
 }
 
 ' resources
@@ -154,6 +173,9 @@ class BufferResource {
 	+ vk::Buffer buffer
 }
 
+' notes --------------------
+
+note "BasicIndex is alias of uint32_t" as BasicIndex
 
 ' ==================================================
 '   relations
@@ -175,7 +197,7 @@ RenderComponentProvider <|-- BasicRenderComponentProvider
 AppEngine ..> RenderEngine
 AppEngine "1" --> "1..n" NativeWindow
 
-NativeWindow "1..n   " --> "0..n" VirtualWindow
+NativeWindow "1..n" --> "0..n" VirtualWindow
 
 Window --> RenderContent
 Window --> RenderTarget
@@ -185,5 +207,8 @@ BufferResource <-- RenderContent
 
 BasicRenderComponentProvider --* BasicRenderContent : "create"
 BasicRenderComponentProvider --* BasicRenderTarget  : "create"
+
+BasicRenderContent --> BasicVertex::Data
+BasicRenderTarget .. BasicIndex
 
 @enduml
