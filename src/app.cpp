@@ -139,12 +139,48 @@ void App::setShapes(const char *filePath) {
 
         modelLoaded = true;
     } else {
-        auto defaultShape = std::make_shared<ikura::shapes::SeparatedColorCube>(
-            100, 100, 100, glm::vec3(0, 0, 0),
-            std::array<glm::vec3, 6>{glm::vec3(0, 0, 1), glm::vec3(0, 1, 0),
-                                     glm::vec3(0, 1, 1), glm::vec3(1, 0, 0),
-                                     glm::vec3(1, 0, 1), glm::vec3(1, 1, 0)},
-            0);
+        // auto defaultShape =
+        // std::make_shared<ikura::shapes::SeparatedColorCube>(
+        //     100, 100, 100, glm::vec3(0, 0, 0),
+        //     std::array<glm::vec3, 6>{glm::vec3(0, 0, 1), glm::vec3(0, 1, 0),
+        //                              glm::vec3(0, 1, 1), glm::vec3(1, 0, 0),
+        //                              glm::vec3(1, 0, 1), glm::vec3(1, 1, 0)},
+        //     0);
+
+        // auto defaultShape =
+        //     std::make_shared<ikura::shapes::DirectionDebugObject>(100, 0);
+
+        auto defaultShape =
+        std::make_shared<ikura::shapes::SingleColorSphere>(
+            100, 5, 3, glm::vec3(0, 0, 0), glm::vec3(0.5, 0.5, 0.5), 0);
+
+        // auto defaultShape = std::make_shared<ikura::shapes::OctahedronBone>(
+        //     100, 0
+        // );
+
+        // auto defaultShape =
+        // std::make_shared<ikura::shapes::StickTetrahedronBone>(
+        //     100, 0
+        // );
+
+        // auto defaultShape =
+        // std::make_shared<ikura::shapes::GradationColorCube>(
+        //     100, 100, 100, glm::vec3(0, 0, 0),
+        //     std::array<glm::vec3, 8>{glm::vec3(0, 0, 0), glm::vec3(0, 0, 1),
+        //                              glm::vec3(0, 1, 0), glm::vec3(0, 1, 1),
+        //                              glm::vec3(1, 0, 0), glm::vec3(1, 0, 1),
+        //                              glm::vec3(1, 1, 0), glm::vec3(1, 1, 1)},
+        //     0);
+
+        // auto defaultShape = std::make_shared<ikura::shapes::SingleColorCube>(
+        //     100, 100, 100, glm::vec3(0, 0, 0), glm::vec3(0.5, 0.5, 0.5), 0);
+
+        // auto defaultShape = std::make_shared<ikura::shapes::FilledFloor>(
+        //     100, 100, glm::vec3(0.5, 0.5, 0.5), true, 0);
+
+        // auto defaultShape = std::make_shared<ikura::shapes::GridFloor>(
+        //     100, 100, 2, 10, 10, glm::vec3(0.5, 0.5, 0.5), 0);
+
         vertices = defaultShape->getVertices();
         indices = defaultShape->getIndices();
     }
