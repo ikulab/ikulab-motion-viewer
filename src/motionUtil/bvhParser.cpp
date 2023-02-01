@@ -271,14 +271,18 @@ void BVHParser::parseMotion() {
             id = channels[i].first;
             switch (channels[i].second) {
             case Channel::Xposition:
-                motion[frame][id]->pos.x = value;
+                if (id == 0)
+                    motion[frame][id]->pos.x = value;
                 break;
             case Channel::Yposition:
-                motion[frame][id]->pos.y = value;
+                if (id == 0)
+                    motion[frame][id]->pos.y = value;
                 break;
             case Channel::Zposition:
-                motion[frame][id]->pos.z = value;
+                if (id == 0)
+                    motion[frame][id]->pos.z = value;
                 break;
+
             case Channel::Xrotation:
                 motion[frame][id]->rot.x = value;
                 break;
