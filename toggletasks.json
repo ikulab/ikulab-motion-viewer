@@ -1,0 +1,16 @@
+{
+    "tasks": [
+        {
+            "name": "0_build",
+            "tag": "build",
+            "cmd": "${config_dir}/script/build.sh",
+            "close_on_exit": false
+        },
+        {
+            "name": "1_config",
+            "tag": "build",
+            "cmd": "${config_dir}/script/config_cmake.sh",
+            "close_on_exit": false
+        }
+    ]
+}
