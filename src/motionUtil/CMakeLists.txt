@@ -1,1 +1,0 @@
-add_library(motionUtil STATIC ./bvhParser.cpp ./animator.cpp)
