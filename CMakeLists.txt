@@ -26,7 +26,10 @@ find_library(Vulkan_LIB
 
 if(LINUX)
 	find_package(glfw3 3.3 REQUIRED)
-#else()
+elseif(WIN32)
+	find_library(Glfw_LIB REQUIRED
+		NAMES glfw3 glfw
+		PATHS ${CMAKE_SOURCE_DIR}/libs/glfw/win64-mingw)
 endif()
 # }}}
 
@@ -55,7 +58,12 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/core/ikura)
 target_link_libraries(ikura
 	PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/libshaderc_combined.a)
 # link other dependencies
-target_link_libraries(ikura INTERFACE ${Vulkan_LIB} glfw ${CMAKE_DL_LIBS})
+if(${Glfw_LIB})
+	target_link_libraries(ikura INTERFACE ${Glfw_LIB})
+else()
+	target_link_libraries(ikura INTERFACE glfw)
+endif()
+target_link_libraries(ikura INTERFACE ${Vulkan_LIB} ${CMAKE_DL_LIBS})
 target_link_libraries(ikura INTERFACE ikura-ext-lib)
 # }}}
 
