@@ -13,15 +13,21 @@ add_compile_options(
 	-Wno-nullability-completeness
 )
 
-if("${BUILD_TYPE}" STREQUAL "Release")
-	add_compile_options(-DNODEBUG)
+if("${BUILD_TYPE}" STREQUAL "Debug")
+	add_compile_options(-DDEBUG)
 endif()
 # }}}
 
 
 # Common External Libraries Settings -------------------- {{{
-find_package(Vulkan)
-find_package(glfw3 3.3 REQUIRED)
+find_library(Vulkan_LIB
+	NAMES vulakn-1 vulkan
+	PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan)
+
+if(LINUX)
+	find_package(glfw3 3.3 REQUIRED)
+#else()
+endif()
 # }}}
 
 
@@ -36,6 +42,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/external/libshaderc_util)
 
 # combine external libs into a static lib
 add_library(ikura-ext-lib STATIC ${ikura-ext-src})
+target_include_directories(ikura-ext-lib PUBLIC ${CMAKE_SOURCE_DIR}/external)
 target_compile_definitions(ikura-ext-lib PUBLIC AUTO_INITIALIZE_EASYLOGGINGPP)
 if(APPLE)
 	target_include_directories(ikura-ext-lib PUBLIC "/usr/local/include")
@@ -48,7 +55,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/core/ikura)
 target_link_libraries(ikura
 	PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/libshaderc_combined.a)
 # link other dependencies
-target_link_libraries(ikura INTERFACE vulkan glfw ${CMAKE_DL_LIBS})
+target_link_libraries(ikura INTERFACE ${Vulkan_LIB} glfw ${CMAKE_DL_LIBS})
 target_link_libraries(ikura INTERFACE ikura-ext-lib)
 # }}}
 

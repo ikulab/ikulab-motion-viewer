@@ -1,0 +1,11 @@
+{
+  "configurations": [
+    {
+      "name": "debug",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/app/ikulab-motion-viewer",
+      // "preLaunchTask": "build_ikulab-motion-viewer"
+    }
+  ]
+}

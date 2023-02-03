@@ -1,6 +1,9 @@
 set(common_include_dir
 	${PROJECT_SOURCE_DIR}/external
 	${PROJECT_SOURCE_DIR}/external/easylogging++
+	${PROJECT_SOURCE_DIR}/external/vk_mem_alloc
+	${PROJECT_SOURCE_DIR}/external/shaderc
+	${PROJECT_SOURCE_DIR}/external/libshaderc_util
 	${PROJECT_SOURCE_DIR}/external/tinyfiledialogs
 )
 

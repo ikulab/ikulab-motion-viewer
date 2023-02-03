@@ -157,10 +157,14 @@ void RenderEngine::waitForDeviceIdle() { device.waitIdle(); }
 RenderEngineInitConfig RenderEngineInitConfig::defaultDebugSetting() {
     RenderEngineInitConfig initConfig = defaultCommonSetting();
 
+#if defined(DEBUG)
     initConfig.layerNames.push_back(VALIDATION_LAYER_NAME);
+#endif
 
+#if defined(DEBUG)
     initConfig.instanceExtensionNames.push_back(
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
     initConfig.instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 #if defined(__APPLE__) && defined(VK_KHR_portability_enumeration)
     initConfig.instanceExtensionNames.push_back("VK_KHR_portability_enumeration");
