@@ -1,0 +1,22 @@
+2023-02-03 23:29:02,585 INFO [default] All givin Layers are supported.
+2023-02-03 23:29:02,585 INFO [default] Set ValidationLayer 'VK_LAYER_KHRONOS_validation' enabled.
+2023-02-03 23:29:02,614 INFO [default] All givin InstanceExtensions are supported.
+2023-02-03 23:29:02,614 INFO [default] Glfw is supported.
+2023-02-03 23:29:02,615 WARNING [default] ValidationLayer message: loader_scanned_icd_add: Driver /usr/lib/x86_64-linux-gnu/libvulkan_intel.so supports Vulkan 1.2, but only supports loader interface version 4. Interface version 5 or newer required to support this version of Vulkan (Policy #LDP_DRIVER_7)
+2023-02-03 23:29:02,615 WARNING [default] ValidationLayer message: loader_scanned_icd_add: Driver /usr/lib/x86_64-linux-gnu/libvulkan_lvp.so supports Vulkan 1.1, but only supports loader interface version 4. Interface version 5 or newer required to support this version of Vulkan (Policy #LDP_DRIVER_7)
+2023-02-03 23:29:02,615 WARNING [default] ValidationLayer message: loader_scanned_icd_add: Driver /usr/lib/x86_64-linux-gnu/libvulkan_radeon.so supports Vulkan 1.2, but only supports loader interface version 4. Interface version 5 or newer required to support this version of Vulkan (Policy #LDP_DRIVER_7)
+2023-02-03 23:29:29,590 WARNING [default] ValidationLayer message: Validation Error: [ VUID-vkDestroyBuffer-buffer-00922 ] Object 0: handle = 0x55ed7e425148, type = VK_OBJECT_TYPE_DEVICE; | MessageID = 0xe4549c11 | Cannot call vkDestroyBuffer on VkBuffer 0x59ffe0000000003d[] that is currently in use by a command buffer. The Vulkan spec states: All submitted commands that refer to buffer, either directly or via a VkBufferView, must have completed execution (https://vulkan.lunarg.com/doc/view/1.3.224.0/linux/1.3-extensions/vkspec.html#VUID-vkDestroyBuffer-buffer-00922)
+2023-02-03 23:57:45,401 INFO [default] All givin Layers are supported.
+2023-02-03 23:57:45,401 INFO [default] Set ValidationLayer 'VK_LAYER_KHRONOS_validation' enabled.
+2023-02-03 23:57:45,415 INFO [default] All givin InstanceExtensions are supported.
+2023-02-03 23:57:45,415 INFO [default] Glfw is supported.
+2023-02-03 23:57:45,415 WARNING [default] ValidationLayer message: loader_scanned_icd_add: Driver /usr/lib/x86_64-linux-gnu/libvulkan_intel.so supports Vulkan 1.2, but only supports loader interface version 4. Interface version 5 or newer required to support this version of Vulkan (Policy #LDP_DRIVER_7)
+2023-02-03 23:57:45,416 WARNING [default] ValidationLayer message: loader_scanned_icd_add: Driver /usr/lib/x86_64-linux-gnu/libvulkan_lvp.so supports Vulkan 1.1, but only supports loader interface version 4. Interface version 5 or newer required to support this version of Vulkan (Policy #LDP_DRIVER_7)
+2023-02-03 23:57:45,416 WARNING [default] ValidationLayer message: loader_scanned_icd_add: Driver /usr/lib/x86_64-linux-gnu/libvulkan_radeon.so supports Vulkan 1.2, but only supports loader interface version 4. Interface version 5 or newer required to support this version of Vulkan (Policy #LDP_DRIVER_7)
+2023-02-04 00:11:40,758 INFO [default] All givin Layers are supported.
+2023-02-04 00:11:40,758 INFO [default] Set ValidationLayer 'VK_LAYER_KHRONOS_validation' enabled.
+2023-02-04 00:11:40,768 INFO [default] All givin InstanceExtensions are supported.
+2023-02-04 00:11:40,768 INFO [default] Glfw is supported.
+2023-02-04 00:11:40,769 WARNING [default] ValidationLayer message: loader_scanned_icd_add: Driver /usr/lib/x86_64-linux-gnu/libvulkan_intel.so supports Vulkan 1.2, but only supports loader interface version 4. Interface version 5 or newer required to support this version of Vulkan (Policy #LDP_DRIVER_7)
+2023-02-04 00:11:40,769 WARNING [default] ValidationLayer message: loader_scanned_icd_add: Driver /usr/lib/x86_64-linux-gnu/libvulkan_lvp.so supports Vulkan 1.1, but only supports loader interface version 4. Interface version 5 or newer required to support this version of Vulkan (Policy #LDP_DRIVER_7)
+2023-02-04 00:11:40,769 WARNING [default] ValidationLayer message: loader_scanned_icd_add: Driver /usr/lib/x86_64-linux-gnu/libvulkan_radeon.so supports Vulkan 1.2, but only supports loader interface version 4. Interface version 5 or newer required to support this version of Vulkan (Policy #LDP_DRIVER_7)

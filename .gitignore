@@ -1,0 +1,29 @@
+build
+.ccls-cache
+
+libshaderc_combined.a
+
+# template -------------
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+# for models
+!models/*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Fortran module files
+*.mod
+*.smod
+
+# Executables
+*.exe
+*.out
+*.app

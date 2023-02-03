@@ -1,0 +1,9 @@
+#define VLOG_LV_1 1
+#define VLOG_LV_2 2
+#define VLOG_LV_3_PROCESS_TRACKING 3
+#define VLOG_LV_4_PROCESS_TRACKING_SECONDARY 4
+#define VLOG_LV_5 5
+#define VLOG_LV_6_ITEM_ENUMERATION 6
+#define VLOG_LV_7 7
+#define VLOG_LV_8 8
+#define VLOG_LV_9 9
