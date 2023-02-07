@@ -51,8 +51,17 @@ set(CPACK_PACKAGE_CONTACT "caffeine0coffee@gmail.com")
 set(CPACK_PACKAGE_DESCRIPTION "The BVH Motion Viewer powerd by ikura Graphics Engine.")
 
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
-set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/README.txt")
 
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libvulkan1, libglfw3, vulkan-validationlayers")
+
+# deb
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libvulkan1, libglfw3, vulkan-validationlayers")
+
+# mac
+set(CPACK_BUNDLE_NAME "ikulab-motion-viewer")
+set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Info.plist")
+set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/logo.png")
+set(CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/run.sh")
 
 include(CPack)
