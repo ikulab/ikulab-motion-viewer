@@ -6,12 +6,22 @@ project(
 )
 
 # Build Settings -------------------- {{{
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-
-add_compile_options(
-	-std=c++17 -fdiagnostics-color=always -g
-	-Wno-nullability-completeness
-)
+if(WIN32)
+	# set(CMAKE_CXX_COMPILER "clang++")
+	add_compile_options(
+		/std:c++17
+		/D_USE_MATH_DEFINES
+		/DIS_WINDOWS
+		/D_ITERATOR_DEBUG_LEVEL=0
+		/MD
+	)
+else()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	add_compile_options(
+		-std=c++17 -fdiagnostics-color=always -g
+		-Wno-nullability-completeness
+	)
+endif()
 
 if("${BUILD_TYPE}" STREQUAL "Debug")
 	add_compile_options(-DDEBUG)
@@ -20,16 +30,15 @@ endif()
 
 
 # Common External Libraries Settings -------------------- {{{
-find_library(Vulkan_LIB
-	NAMES vulakn-1 vulkan
-	PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan)
-
 if(LINUX)
 	find_package(glfw3 3.3 REQUIRED)
 elseif(WIN32)
-	find_library(Glfw_LIB REQUIRED
-		NAMES glfw3 glfw
-		PATHS ${CMAKE_SOURCE_DIR}/libs/glfw/win64-mingw)
+	find_file(Glfw_LIB REQUIRED
+		NAMES glfw3.lib
+		PATHS ${CMAKE_SOURCE_DIR}/libs/glfw/win64-vc2022)
+	find_library(Vulkan_LIB
+		NAMES vulkan-1 vulkan
+		PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan)
 endif()
 # }}}
 
@@ -55,15 +64,21 @@ endif()
 add_subdirectory(${CMAKE_SOURCE_DIR}/core/ikura)
 
 # link libshaderc static lib
-target_link_libraries(ikura
-	PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/libshaderc_combined.a)
-# link other dependencies
-if(${Glfw_LIB})
+if(LINUX)
+	target_link_libraries(ikura
+		PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/libshaderc_combined.a)
+elseif(WIN32)
+	target_link_libraries(ikura
+		PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/libshaderc_combined.lib)
+endif()
+	# link other dependencies
+if(NOT "${Glfw_LIB}" STREQUAL "")
 	target_link_libraries(ikura INTERFACE ${Glfw_LIB})
 else()
 	target_link_libraries(ikura INTERFACE glfw)
 endif()
-target_link_libraries(ikura INTERFACE ${Vulkan_LIB} ${CMAKE_DL_LIBS})
+target_link_libraries(ikura INTERFACE ${Vulkan_LIB})
+target_link_libraries(ikura INTERFACE ${CMAKE_DL_LIBS})
 target_link_libraries(ikura INTERFACE ikura-ext-lib)
 # }}}
 

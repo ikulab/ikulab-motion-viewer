@@ -35,20 +35,20 @@ void ImGuiVirtualWindow::initImGuiResources(
     ImGui_ImplGlfw_InitForVulkan(nativeWindow->getGLFWWindow(), true);
 
     ImGui_ImplVulkan_InitInfo initInfo{};
-    initInfo.Instance = renderEngine->getInstance();
-    initInfo.PhysicalDevice = renderEngine->getPhysicalDevice();
-    initInfo.Device = renderEngine->getDevice();
+    initInfo.Instance = (VkInstance)renderEngine->getInstance();
+    initInfo.PhysicalDevice = (VkPhysicalDevice)renderEngine->getPhysicalDevice();
+    initInfo.Device = (VkDevice)renderEngine->getDevice();
     initInfo.QueueFamily = renderEngine->getQueueFamilyIndices().get(
         ikura::QueueFamilyIndices::GRAPHICS);
-    initInfo.Queue = renderEngine->getQueues().graphicsQueue;
-    initInfo.DescriptorPool = imGuiDescriptorPool;
+    initInfo.Queue = (VkQueue)renderEngine->getQueues().graphicsQueue;
+    initInfo.DescriptorPool = (VkDescriptorPool)imGuiDescriptorPool;
     initInfo.MinImageCount = 3;
     initInfo.ImageCount = 3;
     initInfo.MSAASamples = (VkSampleCountFlagBits)renderEngine->getEngineInfo()
                                .limit.maxMsaaSamples;
 
     ImGui_ImplVulkan_Init(&initInfo,
-                          nativeWindow->getRenderTarget()->getRenderPass());
+                          (VkRenderPass)nativeWindow->getRenderTarget()->getRenderPass());
 
     // Upload default font
     ImGuiIO &io = ImGui::GetIO();
@@ -60,7 +60,7 @@ void ImGuiVirtualWindow::initImGuiResources(
     }
 
     auto cmd = renderEngine->beginSingleTimeCommands();
-    ImGui_ImplVulkan_CreateFontsTexture(cmd);
+    ImGui_ImplVulkan_CreateFontsTexture((VkCommandBuffer)cmd);
     renderEngine->endSingleTimeCommands(cmd);
 
     ImGui_ImplVulkan_DestroyFontUploadObjects();
@@ -96,7 +96,7 @@ void ImGuiVirtualWindow::recordCommandBuffer(vk::CommandBuffer cmdBuffer) {
     setCurrentImGuiContext();
 
     ImDrawData *drawData = ImGui::GetDrawData();
-    ImGui_ImplVulkan_RenderDrawData(drawData, cmdBuffer);
+    ImGui_ImplVulkan_RenderDrawData(drawData, (VkCommandBuffer)cmdBuffer);
 }
 
 bool ImGuiVirtualWindow::isFocused() const {

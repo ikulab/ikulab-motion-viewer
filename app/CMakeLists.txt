@@ -5,6 +5,7 @@ set(common_include_dir
 	${PROJECT_SOURCE_DIR}/external/shaderc
 	${PROJECT_SOURCE_DIR}/external/libshaderc_util
 	${PROJECT_SOURCE_DIR}/external/tinyfiledialogs
+	${PROJECT_SOURCE_DIR}/core
 )
 
 add_executable(ikulab-motion-viewer

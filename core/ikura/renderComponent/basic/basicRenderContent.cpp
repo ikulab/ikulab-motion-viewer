@@ -42,13 +42,14 @@ void BasicRenderContent::setupUniformBuffers() {
                 VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
             auto vkBufferCI = (VkBufferCreateInfo)bufferCI;
-            VkBuffer buffer;
+            VkBuffer vkBuffer;
 
             vmaCreateBuffer(*renderEngine->getVmaAllocator(), &vkBufferCI,
-                            &allocCI, &buffer,
+                            &allocCI, &vkBuffer,
                             &uniformBufferResources[frame][descSetIndex].alloc,
                             nullptr);
 
+            vk::Buffer buffer(vkBuffer);
             uniformBufferResources[frame][descSetIndex].buffer = buffer;
         }
     }

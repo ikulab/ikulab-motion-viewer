@@ -10,7 +10,7 @@
 #include "./resourceDirectory.hpp"
  
 int main(int argc, const char **argv) {
-    el::Configurations conf(getResourceDirectory() / "config/easylogging.conf");
+    el::Configurations conf((getResourceDirectory() / "config" / "easylogging.conf").string());
     el::Loggers::reconfigureAllLoggers(conf);
 
     if (argc > 1) {

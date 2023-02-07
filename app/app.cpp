@@ -34,6 +34,12 @@ void App::initIkura() {
     int xpos, ypos, monitorW, monitorH;
     glfwGetMonitorWorkarea(primaryMonitor, &xpos, &ypos, &monitorW, &monitorH);
 
+    std::cout << xpos << ","
+        << ypos << ","
+        << monitorW << ","
+        << monitorH << ","
+        << std::endl;
+
     int windowW, windowH;
     if (monitorW < 1920 || monitorH < 1080) {
         windowW = monitorW;
@@ -43,6 +49,10 @@ void App::initIkura() {
         windowH = 1080;
     }
 
+#ifdef IS_WINDOWS
+    ypos += 60;
+#endif
+
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow *glfwWindow =
         glfwCreateWindow(windowW, windowH, "Ikura Window", nullptr, nullptr);
@@ -50,12 +60,12 @@ void App::initIkura() {
 
     // Create Surface
     VkSurfaceKHR vkSurface;
-    if ((glfwCreateWindowSurface(renderEngine->getInstance(), glfwWindow,
+    if ((glfwCreateWindowSurface((VkInstance)renderEngine->getInstance(), glfwWindow,
                                  nullptr, &vkSurface)) != VK_SUCCESS) {
         throw std::runtime_error(
             "Failed to create VkSurfaceKHR from glfwCreateWindowSurface().");
     }
-    vk::SurfaceKHR surface = vkSurface;
+    vk::SurfaceKHR surface = (vk::SurfaceKHR)vkSurface;
 
     // Create Device in RenderEngine (requires sample Surface)
     renderEngine->setSampleSurface(surface);
@@ -84,8 +94,9 @@ void App::initIkura() {
         getResourceDirectory() / "fonts" / "NotoSansJP-Medium.otf";
 
     ikura::ImGuiVirtualWindowInitConfig imGuiVirtualWindowInitConfig;
-    imGuiVirtualWindowInitConfig.fontFilePath = fontFilePath.c_str();
+    imGuiVirtualWindowInitConfig.fontFilePath = fontFilePath.string().c_str();
     imGuiVirtualWindowInitConfig.fontSizePixels = 18.0;
+
     imGuiVirtualWindow = std::make_shared<ikura::ImGuiVirtualWindow>(
         renderEngine, mainWindow, &imGuiVirtualWindowInitConfig);
 

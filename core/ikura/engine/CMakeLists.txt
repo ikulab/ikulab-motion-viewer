@@ -1,6 +1,3 @@
-# External package
-find_package(glfw3 3.3 REQUIRED)
-
 # add libraries
 add_library(ikura-appEngine STATIC appEngine.cpp)
 

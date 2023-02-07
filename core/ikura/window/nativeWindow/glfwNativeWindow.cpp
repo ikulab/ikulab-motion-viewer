@@ -4,6 +4,10 @@
 
 #include "../virtualWindow/virtualWindow.hpp"
 
+#if defined(IS_WINDOWS)
+    #include <climits>
+#endif
+
 // Forward declearation of helper functions ----------
 vk::SurfaceFormatKHR
 chooseSwapChainFormat(const std::vector<vk::SurfaceFormatKHR> &formats);
@@ -49,7 +53,7 @@ GlfwNativeWindow::GlfwNativeWindow(
         this->surface = surface;
     } else {
         VkSurfaceKHR vkSurface;
-        if ((glfwCreateWindowSurface(renderEngine->getInstance(), this->window,
+        if ((glfwCreateWindowSurface((VkInstance)renderEngine->getInstance(), this->window,
                                      nullptr, &vkSurface)) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create VkSurfaceKHR from "
                                      "glfwCreateWindowSurface().");
@@ -355,8 +359,12 @@ vk::PresentModeKHR chooseSwapChainPresentMode(
 vk::Extent2D
 chooseSwapChainExtent(const vk::SurfaceCapabilitiesKHR &capabilities,
                       GLFWwindow *window) {
+#if defined(IS_WINDOWS)
+    if (capabilities.currentExtent.width != INT_MAX) {
+#else
     if (capabilities.currentExtent.width !=
         std::numeric_limits<uint32_t>::max()) {
+#endif
         return capabilities.currentExtent;
     } else {
         int width, height;

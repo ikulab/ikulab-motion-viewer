@@ -41,7 +41,7 @@ void compileGlslCodeAndOutput(shaderc::Compiler &compiler,
     // prepare stream
     std::ofstream potentialOutputStream;
     auto outputStream = shaderc_util::GetOutputStream(
-        outputPath.c_str(), &potentialOutputStream, &std::cerr);
+        outputPath.string(), &potentialOutputStream, &std::cerr);
 
     // error check
     if (!outputStream || outputStream->fail()) {

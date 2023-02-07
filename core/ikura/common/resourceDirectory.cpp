@@ -24,4 +24,16 @@ createResourceDirectoryPath(std::filesystem::path subPath) {
 }
 #endif
 
+#ifdef IS_WINDOWS
+std::filesystem::path
+createResourceDirectoryPath(std::filesystem::path subPath) {
+    std::filesystem::path homeDrive = getenv("HOMEDRIVE");
+    std::filesystem::path homePath = getenv("HOMEPATH");
+    std::filesystem::path resourceDir = homeDrive / homePath / ".ikura";
+    std::filesystem::path destinationPath = resourceDir / subPath;
+
+    return destinationPath;
+}
+#endif
+
 } // namespace ikura

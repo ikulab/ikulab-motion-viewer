@@ -9,7 +9,7 @@
 namespace ikura {
 void BufferResource::release(VmaAllocator allocator) {
     if (buffer) {
-        vmaDestroyBuffer(allocator, buffer, alloc);
+        vmaDestroyBuffer(allocator, (VkBuffer)buffer, alloc);
     }
 }
 
@@ -86,7 +86,7 @@ void RenderContent::uploadViaStagingBuffer(
     vmaCreateBuffer(*renderEngine->getVmaAllocator(), &vkBufferCI, &allocCI,
                     &vkBuffer, &stagingBufferResource.alloc,
                     &stagingBufferAllocInfo);
-    stagingBufferResource.buffer = vkBuffer;
+    stagingBufferResource.buffer = (vk::Buffer)vkBuffer;
 
     // Destination buffer allocation ----------
     vk::BufferCreateInfo dstBufferCI{};
@@ -100,7 +100,7 @@ void RenderContent::uploadViaStagingBuffer(
     vkBufferCI = (VkBufferCreateInfo)dstBufferCI;
     vmaCreateBuffer(*renderEngine->getVmaAllocator(), &vkBufferCI, &allocCI,
                     &vkBuffer, &dstBufferResource.alloc, nullptr);
-    dstBufferResource.buffer = vkBuffer;
+    dstBufferResource.buffer = (vk::Buffer)vkBuffer;
 
     // Copy ----------
     // srcData to staging buffer

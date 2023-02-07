@@ -14,7 +14,7 @@ void ImageResource::release(vk::Device device, VmaAllocator allocator) {
     }
     if (releaseImage) {
         if (allocation.has_value()) {
-            vmaDestroyImage(allocator, image, allocation.value());
+            vmaDestroyImage(allocator, (VkImage)image, allocation.value());
         } else {
             device.destroyImage(image, nullptr);
         }
@@ -229,7 +229,7 @@ void RenderTarget::createImage(
     vmaCreateImage(allocator, &vkImageCI, &allocCI, &vkImage, &allocation,
                    nullptr);
 
-    imageResource.image = vkImage;
+    imageResource.image = (vk::Image)vkImage;
     imageResource.allocation = allocation;
 }
 
@@ -260,7 +260,7 @@ RenderTarget::createShaderModuleFromFile(const std::filesystem::path fileName,
     if (!file.is_open()) {
         std::string msg = "";
         msg += "failed to open file '";
-        msg += fileName;
+        msg += fileName.string();
         msg += "'.";
         throw std::runtime_error(msg);
     }

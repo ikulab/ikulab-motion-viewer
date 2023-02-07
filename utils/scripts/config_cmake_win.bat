@@ -1,0 +1,5 @@
+cmake -H.^
+	-S .^
+	-B build^
+	-D BUILD_TYPE=Debug^
+	-DCMAKE_EXPORT_COMPILE_COMMANDS=YES

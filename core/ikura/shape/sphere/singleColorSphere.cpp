@@ -1,5 +1,7 @@
 #include "./singleColorSphere.hpp"
 
+#include <cmath>
+
 namespace ikura {
 namespace shapes {
 

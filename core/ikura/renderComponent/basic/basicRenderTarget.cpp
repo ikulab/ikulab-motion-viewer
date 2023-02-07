@@ -163,10 +163,10 @@ void BasicRenderTarget::setupGraphicsPipeline() {
 
     // ShaderModules ----------
     auto vertShaderModule = createShaderModuleFromFile(
-        createResourceDirectoryPath("shaders/vert.spv"),
+        createResourceDirectoryPath(std::filesystem::path("shaders") / "vert.spv"),
         renderEngine->getDevice());
     auto fragShaderModule = createShaderModuleFromFile(
-        createResourceDirectoryPath("shaders/frag.spv"),
+        createResourceDirectoryPath(std::filesystem::path("shaders") / "frag.spv"),
         renderEngine->getDevice());
 
     vk::PipelineShaderStageCreateInfo vertShaderStageCI{};

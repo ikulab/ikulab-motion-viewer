@@ -109,9 +109,9 @@ void RenderEngine::createDevice() {
 
     // Initialize Vulkan Memory Allocator
     VmaAllocatorCreateInfo allocatorCI{};
-    allocatorCI.instance = instance;
-    allocatorCI.physicalDevice = physicalDevice;
-    allocatorCI.device = device;
+    allocatorCI.instance = (VkInstance)instance;
+    allocatorCI.physicalDevice = (VkPhysicalDevice)physicalDevice;
+    allocatorCI.device = (VkDevice)device;
     allocatorCI.vulkanApiVersion = VK_API_VERSION_1_2;
 
     vmaCreateAllocator(&allocatorCI, vmaAllocator.get());
@@ -265,7 +265,8 @@ void EvaluateDeviceExtensionSupport(std::vector<const char *> extensionNames,
     auto layerProps = device.enumerateDeviceLayerProperties();
 
     for (const auto &prop : layerProps) {
-        checkSupport(std::string(prop.layerName));
+        std::string arg = prop.layerName;
+        checkSupport(arg);
     }
 
     eval.isAllExtensionsSupported = (requiredEndIter == required.begin());
