@@ -34,12 +34,6 @@ void App::initIkura() {
     int xpos, ypos, monitorW, monitorH;
     glfwGetMonitorWorkarea(primaryMonitor, &xpos, &ypos, &monitorW, &monitorH);
 
-    std::cout << xpos << ","
-        << ypos << ","
-        << monitorW << ","
-        << monitorH << ","
-        << std::endl;
-
     int windowW, windowH;
     if (monitorW < 1920 || monitorH < 1080) {
         windowW = monitorW;
@@ -93,9 +87,6 @@ void App::initIkura() {
     std::filesystem::path fontFilePath =
         getResourceDirectory() / "fonts" / "NotoSansJP-Medium.otf";
     std::string fontFilePathStr = fontFilePath.string();
-
-    std::wstring testB = fontFilePath.wstring();
-    std::wcout << testB << std::endl;
 
     ikura::ImGuiVirtualWindowInitConfig imGuiVirtualWindowInitConfig;
     imGuiVirtualWindowInitConfig.fontFilePath = fontFilePathStr.c_str();
