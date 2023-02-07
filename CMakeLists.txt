@@ -16,7 +16,13 @@ if(WIN32)
 		/DIMGUI_DISABLE_WIN32_FUNCTIONS
 		/MD
 	)
-else()
+elseif(LINUX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	add_compile_options(
+		-std=c++17 -fdiagnostics-color=always -g
+		-Wno-nullability-completeness
+	)
+elseif(APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 	add_compile_options(
 		-std=c++17 -fdiagnostics-color=always -g
@@ -39,7 +45,10 @@ elseif(WIN32)
 		PATHS ${CMAKE_SOURCE_DIR}/libs/glfw/win64-vc2022)
 	find_library(Vulkan_LIB
 		NAMES vulkan-1 vulkan
-		PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan)
+		PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan/win64)
+elseif(APPLE)
+	find_package(glfw3 3.3 REQUIRED)
+	find_library(Vulkan_LIB NAMES libvulkan.dylib)
 endif()
 # }}}
 
@@ -65,20 +74,27 @@ endif()
 add_subdirectory(${CMAKE_SOURCE_DIR}/core/ikura)
 
 # link libshaderc static lib
-if(LINUX)
+if(LINUX OR APPLE)
 	target_link_libraries(ikura
 		PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/shaderc_combined.a)
 elseif(WIN32)
 	target_link_libraries(ikura
 		PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/shaderc_combined.lib)
 endif()
-	# link other dependencies
+
+# link other dependencies
 if(NOT "${Glfw_LIB}" STREQUAL "")
 	target_link_libraries(ikura INTERFACE ${Glfw_LIB})
 else()
 	target_link_libraries(ikura INTERFACE glfw)
 endif()
-target_link_libraries(ikura INTERFACE ${Vulkan_LIB})
+
+if(NOT "${Vulkan_LIB}" STREQUAL "")
+	target_link_libraries(ikura INTERFACE ${Vulkan_LIB})
+else()
+	target_link_libraries(ikura INTERFACE vulkan)
+endif()
+
 target_link_libraries(ikura INTERFACE ${CMAKE_DL_LIBS})
 target_link_libraries(ikura INTERFACE ikura-ext-lib)
 # }}}

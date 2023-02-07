@@ -2,9 +2,14 @@ build
 .ccls-cache
 imgui.ini
 myeasylog.log
+.vscode
 
 shaderc_combined.a
 shaderc_combined.lib
+
+.DS_Store
+
+compile_commands.json
 
 # template -------------
 # Prerequisites

@@ -91,13 +91,14 @@ void App::initIkura() {
 
     // Setup ikura ImGuiWindow ----------
     std::filesystem::path fontFilePath =
-        getResourceDirectory() / "fonts" / "NotoSansJP-Medium.otf";
+        getResourceDirectory() / "テスト" / "fonts" / "NotoSansJP-Medium.otf";
+    std::string fontFilePathStr = fontFilePath.string();
 
     std::wstring testB = fontFilePath.wstring();
     std::wcout << testB << std::endl;
 
     ikura::ImGuiVirtualWindowInitConfig imGuiVirtualWindowInitConfig;
-    imGuiVirtualWindowInitConfig.fontFilePath = fontFilePath.string().c_str();
+    imGuiVirtualWindowInitConfig.fontFilePath = fontFilePathStr.c_str();
     imGuiVirtualWindowInitConfig.fontSizePixels = 18.0;
 
     imGuiVirtualWindow = std::make_shared<ikura::ImGuiVirtualWindow>(
