@@ -1,4 +1,4 @@
-﻿#include "./app.hpp"
+#include "./app.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -13,7 +13,8 @@
 #include <imgui/imgui.h>
 #include <tinyfiledialogs.h>
 
-#include "resourceDirectory.hpp"
+#include "./motionUtil/bvhExporter.hpp"
+#include "./resourceDirectory.hpp"
 
 void App::initIkura() {
     // Initialize Ikura
@@ -91,7 +92,6 @@ void App::initIkura() {
     ikura::ImGuiVirtualWindowInitConfig imGuiVirtualWindowInitConfig;
     imGuiVirtualWindowInitConfig.fontFilePath = fontFilePathStr.c_str();
     imGuiVirtualWindowInitConfig.fontSizePixels = 18.0;
-
     imGuiVirtualWindow = std::make_shared<ikura::ImGuiVirtualWindow>(
         renderEngine, mainWindow, &imGuiVirtualWindowInitConfig);
 
@@ -179,7 +179,17 @@ void App::selectFileAndInitShapes() {
     auto filePath = tinyfd_openFileDialog("Select Motion Data", NULL, 1,
                                           filterPattern, "BVH file", 0);
     setShapes(filePath);
-    initAnimationTime = true;
+}
+
+void App::selectFileAndExportLoopRange() {
+    const char *filterPattern[1] = {"*.bvh"};
+
+    auto filePath = tinyfd_saveFileDialog("Select Export File", NULL, 1,
+                                          filterPattern, "BVH file");
+
+    exportLoopRangeToBvhFile(animator.getSourceFilePath(), filePath,
+                             animator.getLoopStartFrameIndex(),
+                             animator.getLoopEndFrameIndex());
 }
 
 void App::updateMatrices() {
@@ -188,15 +198,12 @@ void App::updateMatrices() {
     ikura::BasicSceneMatUBO sceneMat;
 
     if (modelLoaded) {
-        if (!stopAnimation && !initAnimationTime) {
-            animationTime += appEngine->getDeltaTime() * animationSpeed;
-        } else if (initAnimationTime) {
-            animationTime = 0;
-            initAnimationTime = false;
+        if (!ui.animationControlWindow.isSeekBarDragging) {
+            animator.updateAnimator(appEngine->getDeltaTime());
         }
 
         // Joints
-        auto modelMat4s = animator.generateModelMatrices(animationTime);
+        auto modelMat4s = animator.generateModelMatrices();
         for (int i = 0; i < ikura::NUM_OF_MODEL_MATRIX; i++) {
             modelMat.model[i] = modelMat4s[i];
         }

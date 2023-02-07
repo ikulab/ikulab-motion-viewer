@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include <imgui/imgui.h>
 
 class UI {
@@ -7,8 +9,15 @@ class UI {
     static void makePadding(int pad);
 
     struct AnimationControlWindow {
-        bool sizeInitialized = false;
+        bool windowInitialized = false;
         bool show = true;
+
+        const std::array<const char *, 2> MODE_ITEMS = {"Normal", "Edit"};
+        static const int MODE_INDEX_NORMAL = 0;
+        static const int MODE_INDEX_EDIT = 1;
+        int modeIndex = 0;
+
+        bool isSeekBarDragging;
     } animationControlWindow;
 
     struct DebugWindow {

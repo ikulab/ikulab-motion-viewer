@@ -13,15 +13,29 @@
 
 #include "./common.hpp"
 
+#define MAX_ANIMATION_SPEED 10.0f
+#define MIN_ANIMATION_SPEED (1.0f / 128.0f)
+
 // forward declearation
 struct Motion;
 
 class Animator {
     std::vector<std::vector<std::shared_ptr<Motion>>> motions;
     uint32_t numOfFrames;
-    uint32_t currentFrame;
+    std::string sourceFilePath;
+
+    // loop range is [ start : end ]
+    // e.g. start=2, end=5 -> 2 3 4 5 2 3 4 5 ....
+    uint32_t loopStartFrameIndex;
+    uint32_t loopEndFrameIndex;
+    float loopDurationTime;
+
     float frameRate;
-    float loopDuration;
+    float animationTime;
+    float animationSpeed;
+
+    bool animationStopped;
+    bool loopEnabled;
 
   public:
     class Joint {
@@ -50,13 +64,32 @@ class Animator {
     void initFromBVH(std::string filePath);
     void
     generateBones(std::vector<std::shared_ptr<ikura::shapes::Shape>> &bones);
-    std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX>
-    generateModelMatrices(float time);
+    std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX> generateModelMatrices();
+    void updateAnimator(float deltaTime);
 
     uint32_t getNumOfJoints() const;
     uint32_t getNumOfFrames() const;
-    uint32_t getCurrentFrame() const;
     float getFrameRate() const;
+    uint32_t getLoopStartFrameIndex() const;
+    uint32_t getLoopEndFrameIndex() const;
+    uint32_t getCurrentFrameIndex() const;
+    float getAnimationTime() const;
+    float getAnimationSpeed() const;
+    std::string getSourceFilePath();
+
+    bool isAnimationStopped() const;
+    void stopAnimation();
+    void resumeAnimation();
+
+    void setLoopEnabled(bool enabled);
+    void enableLoop();
+    void disableLoop();
+
+    void updateLoopRange(uint32_t _loopStartFrameIndex,
+                         uint32_t _loopEndFrameIndex);
+    void seekAnimation(uint32_t frameIndex);
+    void incrementFrameIndex(int inc);
+    void setAnimationSpeed(float speed);
 
     void showSkeltonInfo();
     void showMotionInfo();

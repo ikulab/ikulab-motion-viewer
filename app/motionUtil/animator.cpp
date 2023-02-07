@@ -8,17 +8,9 @@
 #include "./animator.hpp"
 #include "./bvhParser.hpp"
 
-void Animator::initFromBVH(std::string filePath) {
-    BVHParser parser(filePath);
-    parser.parseBVH();
-    assert(parser.getSkentonData().size() <= ikura::NUM_OF_MODEL_MATRIX);
-
-    joints = parser.getSkentonData();
-    motions = parser.getMotionData();
-    numOfFrames = parser.getNumOfFrames();
-    frameRate = parser.getFrameRate();
-    loopDuration = frameRate * numOfFrames;
-}
+// ----------------------------------------
+// Animator::Joint
+// ----------------------------------------
 
 ikura::GroupID Animator::Joint::getID() const { return id; }
 
@@ -30,68 +22,86 @@ std::vector<ikura::GroupID> Animator::Joint::getParentIDs() const {
 
 bool Animator::Joint::getIsEdge() const { return isEdge; }
 
-uint32_t Animator::getNumOfJoints() const { return joints.size(); }
+// ----------------------------------------
+// Animator
+// ----------------------------------------
 
-uint32_t Animator::getNumOfFrames() const { return numOfFrames; }
+void Animator::updateAnimator(float deltaTime) {
+    if (animationStopped) {
+        return;
+    }
 
-uint32_t Animator::getCurrentFrame() const { return currentFrame; }
+    animationTime += deltaTime * animationSpeed;
 
-float Animator::getFrameRate() const { return frameRate; }
-
-void Animator::Joint::showInfo() {
-    std::cout << id << ": " << name << std::ends;
-    std::cout << (isEdge ? " (Edge)" : " ") << std::endl;
-    std::cout << "\tPosition: ( " << pos.x << ", " << pos.y << ", " << pos.z
-              << " )" << std::endl;
-    std::cout << "\tParents: ( " << std::ends;
-    std::for_each(parentIDs.begin(), parentIDs.end(), [](ikura::GroupID id) {
-        std::cout << id << ", " << std::ends;
-    });
-    std::cout << ")" << std::endl;
+    float loopStartTime;
+    float loopEndTime;
+    if (loopEnabled) {
+        loopStartTime = loopStartFrameIndex * frameRate;
+        loopEndTime = loopEndFrameIndex * frameRate;
+        animationTime =
+            fmod((animationTime - loopStartTime), loopDurationTime) +
+            loopStartTime;
+    } else {
+        loopStartTime = 0;
+        loopEndTime = numOfFrames * frameRate;
+        animationTime = fmod(animationTime, numOfFrames * frameRate);
+    }
 }
 
-void Animator::showSkeltonInfo() {
-    std::for_each(
-        joints.begin(), joints.end(),
-        [](const std::shared_ptr<Joint> &joint) { joint->showInfo(); });
-    std::cout << "Number of Joints:" << joints.size() << std::endl;
+void Animator::initFromBVH(std::string filePath) {
+    BVHParser parser(filePath);
+    parser.parseBVH();
+    assert(parser.getSkentonData().size() <= ikura::NUM_OF_MODEL_MATRIX);
+
+    joints = parser.getSkentonData();
+    motions = parser.getMotionData();
+    numOfFrames = parser.getNumOfFrames();
+    frameRate = parser.getFrameRate();
+
+    loopStartFrameIndex = 0;
+    loopEndFrameIndex = numOfFrames - 1;
+    loopDurationTime = frameRate * numOfFrames;
+
+    animationTime = 0;
+    animationSpeed = 1.0;
+    animationStopped = false;
+
+    sourceFilePath = filePath;
 }
 
-void Animator::showMotionInfo() {
-    for (uint32_t frame = 0; frame < numOfFrames; frame++) {
-        std::cout << "frame:" << frame << std::endl;
-        for (uint32_t joint = 0; joint < joints.size(); joint++) {
-            std::cout << "((" << motions[frame][joint]->pos.x << ","
-                      << motions[frame][joint]->pos.y << ","
-                      << motions[frame][joint]->pos.z << "), ("
-                      << motions[frame][joint]->rot.x << ","
-                      << motions[frame][joint]->rot.y << ","
-                      << motions[frame][joint]->rot.z << ")), " << std::ends;
+void Animator::generateBones(
+    std::vector<std::shared_ptr<ikura::shapes::Shape>> &bones) {
+    assert(joints.size() <= ikura::NUM_OF_MODEL_MATRIX);
+    bones.clear();
+    bones.resize(joints.size());
+
+    uint32_t baseIndex = 0;
+    for (ikura::GroupID id = 0; id < joints.size(); id++) {
+        if (joints[id]->getParentIDs().empty()) {
+            // Root Joint
+            bones[id] = std::make_shared<ikura::shapes::SingleColorCube>(
+                2.0, 2.0, 2.0, glm::vec3(0.0, 0.0, 0.0),
+                glm::vec3(1.0, 0.0, 0.0), id);
+        } else {
+            float length = glm::length(joints[id]->getPos());
+            bones[id] =
+                std::make_shared<ikura::shapes::OctahedronBone>(length, id);
         }
-        std::cout << std::endl;
+        bones[id]->setBaseIndex(baseIndex);
+        baseIndex += bones[id]->getVertices().size();
     }
 }
 
 std::array<glm::mat4, ikura::NUM_OF_MODEL_MATRIX>
-Animator::generateModelMatrices(float time) {
-    // float timeInLoop = std::fmod(time, (loopDuration - frameRate));
-    float timeInLoop = std::fmod(time, loopDuration);
-    if (timeInLoop < 0) {
-        timeInLoop = loopDuration + timeInLoop;
-    }
-    uint32_t prevFrameIdx = std::floor(timeInLoop / frameRate);
-    uint32_t nextFrameIdx = prevFrameIdx + 1;
-    float progressBetweenFrames = std::fmod(timeInLoop, frameRate) / frameRate;
-
-    // TODO: define updateFrame() and call it every frame in main loop
-    currentFrame = prevFrameIdx;
+Animator::generateModelMatrices() {
+    uint32_t frameIndex = getCurrentFrameIndex();
 
     // calculate current motion
     std::vector<Motion> currentMotion;
     for (ikura::GroupID id = 0; id < joints.size(); id++) {
         Motion m{};
-        m.pos = motions[prevFrameIdx][id]->pos;
-        m.rot = motions[prevFrameIdx][id]->rot;
+        m.pos = motions[frameIndex][id]->pos;
+        m.rot = motions[frameIndex][id]->rot;
         currentMotion.push_back(m);
     }
 
@@ -156,25 +166,111 @@ Animator::generateModelMatrices(float time) {
     return result;
 }
 
-void Animator::generateBones(
-    std::vector<std::shared_ptr<ikura::shapes::Shape>> &bones) {
-    assert(joints.size() <= ikura::NUM_OF_MODEL_MATRIX);
-    bones.clear();
-    bones.resize(joints.size());
+uint32_t Animator::getNumOfJoints() const { return joints.size(); }
 
-    uint32_t baseIndex = 0;
-    for (ikura::GroupID id = 0; id < joints.size(); id++) {
-        if (joints[id]->getParentIDs().empty()) {
-            // Root Joint
-            bones[id] = std::make_shared<ikura::shapes::SingleColorCube>(
-                2.0, 2.0, 2.0, glm::vec3(0.0, 0.0, 0.0),
-                glm::vec3(1.0, 0.0, 0.0), id);
-        } else {
-            float length = glm::length(joints[id]->getPos());
-            bones[id] =
-                std::make_shared<ikura::shapes::OctahedronBone>(length, id);
+uint32_t Animator::getNumOfFrames() const { return numOfFrames; }
+
+float Animator::getFrameRate() const { return frameRate; }
+
+uint32_t Animator::getLoopStartFrameIndex() const {
+    return loopStartFrameIndex;
+}
+
+uint32_t Animator::getLoopEndFrameIndex() const { return loopEndFrameIndex; }
+
+uint32_t Animator::getCurrentFrameIndex() const {
+    return std::floor(animationTime / frameRate);
+}
+
+float Animator::getAnimationTime() const { return animationTime; }
+
+float Animator::getAnimationSpeed() const { return animationSpeed; }
+
+std::string Animator::getSourceFilePath() { return sourceFilePath; }
+
+bool Animator::isAnimationStopped() const { return animationStopped; }
+
+void Animator::stopAnimation() { animationStopped = true; }
+
+void Animator::resumeAnimation() { animationStopped = false; }
+
+void Animator::setLoopEnabled(bool enabled) { loopEnabled = enabled; }
+
+void Animator::enableLoop() { loopEnabled = true; }
+
+void Animator::disableLoop() { loopEnabled = false; }
+
+void Animator::updateLoopRange(uint32_t _loopStartFrameIndex,
+                               uint32_t _loopEndFrameIndex) {
+
+    loopStartFrameIndex = std::clamp(_loopStartFrameIndex, 0U, numOfFrames - 1);
+    loopEndFrameIndex = std::clamp(_loopEndFrameIndex, 0U, numOfFrames - 1);
+
+    loopDurationTime = (loopEndFrameIndex - loopStartFrameIndex) * frameRate;
+
+    if (loopEnabled) {
+        uint32_t clampedFrameIndex = std::clamp(
+            getCurrentFrameIndex(), loopStartFrameIndex, loopEndFrameIndex);
+        if (clampedFrameIndex != getCurrentFrameIndex()) {
+            animationTime = clampedFrameIndex * frameRate;
         }
-        bones[id]->setBaseIndex(baseIndex);
-        baseIndex += bones[id]->getVertices().size();
+    }
+}
+
+void Animator::seekAnimation(uint32_t frameIndex) {
+    if (loopEnabled) {
+        frameIndex =
+            std::clamp(frameIndex, loopStartFrameIndex, loopEndFrameIndex);
+    }
+
+    animationTime = frameIndex * frameRate;
+}
+
+void Animator::incrementFrameIndex(int inc) {
+    uint32_t currentFrameIndex = getCurrentFrameIndex();
+
+    // if (currentFrameIndex + inc < 0), but considering unsigned int
+    if (inc < 0 && currentFrameIndex < -inc) {
+        seekAnimation(0);
+    } else {
+        uint32_t newFrameIndex =
+            std::clamp(currentFrameIndex + inc, 0U, numOfFrames - 1);
+        seekAnimation(newFrameIndex);
+    }
+}
+
+void Animator::setAnimationSpeed(float speed) { animationSpeed = speed; }
+
+void Animator::Joint::showInfo() {
+    std::cout << id << ": " << name << std::ends;
+    std::cout << (isEdge ? " (Edge)" : " ") << std::endl;
+    std::cout << "\tPosition: ( " << pos.x << ", " << pos.y << ", " << pos.z
+              << " )" << std::endl;
+    std::cout << "\tParents: ( " << std::ends;
+    std::for_each(parentIDs.begin(), parentIDs.end(), [](ikura::GroupID id) {
+        std::cout << id << ", " << std::ends;
+    });
+    std::cout << ")" << std::endl;
+}
+
+void Animator::showSkeltonInfo() {
+    std::for_each(
+        joints.begin(), joints.end(),
+        [](const std::shared_ptr<Joint> &joint) { joint->showInfo(); });
+    std::cout << "Number of Joints:" << joints.size() << std::endl;
+}
+
+void Animator::showMotionInfo() {
+    for (uint32_t frame = 0; frame < numOfFrames; frame++) {
+        std::cout << "frame:" << frame << std::endl;
+        for (uint32_t joint = 0; joint < joints.size(); joint++) {
+            std::cout << "((" << motions[frame][joint]->pos.x << ","
+                      << motions[frame][joint]->pos.y << ","
+                      << motions[frame][joint]->pos.z << "), ("
+                      << motions[frame][joint]->rot.x << ","
+                      << motions[frame][joint]->rot.y << ","
+                      << motions[frame][joint]->rot.z << ")), " << std::ends;
+        }
+        std::cout << std::endl;
     }
 }
