@@ -91,7 +91,7 @@ void App::initIkura() {
 
     // Setup ikura ImGuiWindow ----------
     std::filesystem::path fontFilePath =
-        getResourceDirectory() / "テスト" / "fonts" / "NotoSansJP-Medium.otf";
+        getResourceDirectory() / "fonts" / "NotoSansJP-Medium.otf";
     std::string fontFilePathStr = fontFilePath.string();
 
     std::wstring testB = fontFilePath.wstring();
