@@ -1,4 +1,4 @@
-#include "./app.hpp"
+﻿#include "./app.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -92,6 +92,9 @@ void App::initIkura() {
     // Setup ikura ImGuiWindow ----------
     std::filesystem::path fontFilePath =
         getResourceDirectory() / "fonts" / "NotoSansJP-Medium.otf";
+
+    std::wstring testB = fontFilePath.wstring();
+    std::wcout << testB << std::endl;
 
     ikura::ImGuiVirtualWindowInitConfig imGuiVirtualWindowInitConfig;
     imGuiVirtualWindowInitConfig.fontFilePath = fontFilePath.string().c_str();

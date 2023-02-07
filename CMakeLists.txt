@@ -13,6 +13,7 @@ if(WIN32)
 		/D_USE_MATH_DEFINES
 		/DIS_WINDOWS
 		/D_ITERATOR_DEBUG_LEVEL=0
+		/DIMGUI_DISABLE_WIN32_FUNCTIONS
 		/MD
 	)
 else()
@@ -66,10 +67,10 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/core/ikura)
 # link libshaderc static lib
 if(LINUX)
 	target_link_libraries(ikura
-		PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/libshaderc_combined.a)
+		PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/shaderc_combined.a)
 elseif(WIN32)
 	target_link_libraries(ikura
-		PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/libshaderc_combined.lib)
+		PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/shaderc_combined.lib)
 endif()
 	# link other dependencies
 if(NOT "${Glfw_LIB}" STREQUAL "")

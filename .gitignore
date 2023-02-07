@@ -1,7 +1,10 @@
 build
 .ccls-cache
+imgui.ini
+myeasylog.log
 
-libshaderc_combined.a
+shaderc_combined.a
+shaderc_combined.lib
 
 # template -------------
 # Prerequisites
