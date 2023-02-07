@@ -5,6 +5,10 @@ project(
 	LANGUAGES CXX
 )
 
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
+
 # Build Settings -------------------- {{{
 if(WIN32)
 	# set(CMAKE_CXX_COMPILER "clang++")
