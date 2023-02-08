@@ -22,7 +22,7 @@ Note: 近日中にmainブランチにマージします
 
 ### ビルドツールのインストール
 
-- homebrewで以下のライブラリをインストール
+- homebrewで以下のパッケージをインストール
   - `brew install clang cmake ninja`
 
 ### 依存ライブラリのインストール
