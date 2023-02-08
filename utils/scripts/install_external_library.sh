@@ -17,6 +17,8 @@ cmake --build build
 
 # place compiled library
 cd $IKURA_DIR
-cp ./downloads/shaderc-2022.3/build/libshaderc/libshaderc_combined.a ./libs/shaderc/
+
+mkdir -p ./libs/shaderc
+cp ./downloads/shaderc-2022.3/build/libshaderc/libshaderc_combined.a ./libs/shaderc/shaderc_combined.a
 
 echo "Done"
