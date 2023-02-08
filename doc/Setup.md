@@ -33,8 +33,8 @@ Note: 近日中にmainブランチにマージします
   -  [ダウンロードサイト](https://vulkan.lunarg.com/sdk/home#mac) からmac版の`1.2.198.1`をインストールする
 - shaderc_combinedのインストール (方法1, 方法2の**どちらか**を実行してください)
   - 方法1: shadercのビルド (時間は掛かるが確実な方法)
-    - シェルから`install_external_lib.sh`を実行
-    - `$ ./utils/scripts/install_external_lib.sh`
+    - シェルから`install_external_library.sh`を実行
+    - `$ ./utils/scripts/install_external_library.sh`
     - ↑「$」はプロンプト文字列なので入力しなくてOK
   - 方法2: プリビルドバイナリのダウンロード
     - [Dropboxの共有フォルダ](https://www.dropbox.com/scl/fo/n7vfm3n3js8bdi7bh0er8/h?dl=0&rlkey=vshzi0r4gntzyn8f4i1ixt3a7) から.aファイルをダウンロード
