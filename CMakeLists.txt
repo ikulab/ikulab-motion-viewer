@@ -11,14 +11,11 @@ endif()
 
 # Build Settings -------------------- {{{
 if(WIN32)
-	# set(CMAKE_CXX_COMPILER "clang++")
 	add_compile_options(
-		/std:c++17
-		/D_USE_MATH_DEFINES
-		/DIS_WINDOWS
-		/D_ITERATOR_DEBUG_LEVEL=0
-		/DIMGUI_DISABLE_WIN32_FUNCTIONS
-		/MD
+		-std=c++17 -fdiagnostics-color=always -g
+		-Wno-nullability-completeness
+		-D_USE_MATH_DEFINES
+		-DIS_WINDOWS
 	)
 elseif(LINUX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -35,7 +32,7 @@ elseif(APPLE)
 endif()
 
 if("${BUILD_TYPE}" STREQUAL "Debug")
-	add_compile_options(-DDEBUG)
+	add_compile_options(-DIMV_IS_DEBUG)
 endif()
 # }}}
 
