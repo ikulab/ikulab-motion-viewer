@@ -19,10 +19,8 @@ class GlfwNativeWindow : public NativeWindow {
     // ---
 
     void createSwapChain();
-    static void framebufferResizeCallback(GLFWwindow *window, int width,
-                                          int height);
     void recordCommandBuffer(uint32_t imageIndex);
-    void recreateSwapChain() override;
+    void recreateSwapChain(bool destroyExistingResources = true) override;
 
     void destroyGlfwWindow();
 

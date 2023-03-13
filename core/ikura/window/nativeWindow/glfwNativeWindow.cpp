@@ -5,7 +5,7 @@
 #include "../virtualWindow/virtualWindow.hpp"
 
 #if defined(IS_WINDOWS)
-    #include <climits>
+#include <climits>
 #endif
 
 // Forward declearation of helper functions ----------
@@ -18,13 +18,6 @@ chooseSwapChainExtent(const vk::SurfaceCapabilitiesKHR &capabilities,
                       GLFWwindow *window);
 
 namespace ikura {
-void GlfwNativeWindow::framebufferResizeCallback(GLFWwindow *window, int width,
-                                                 int height) {
-    auto nativeWindow =
-        reinterpret_cast<GlfwNativeWindow *>(glfwGetWindowUserPointer(window));
-    nativeWindow->frameBufferResized = true;
-}
-
 /**
  * @brief Constructs ikura::GlfwNativeWindow.
  * If surface is nullptr, this function creates new vk::SurfaceKHR object.
@@ -45,16 +38,15 @@ GlfwNativeWindow::GlfwNativeWindow(
     // Set GLFW Basic Properties
     this->window = window;
     glfwGetFramebufferSize(this->window, &width, &height);
-    glfwSetWindowUserPointer(window, this);
-    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
     // Create Surface
     if (surface) {
         this->surface = surface;
     } else {
         VkSurfaceKHR vkSurface;
-        if ((glfwCreateWindowSurface((VkInstance)renderEngine->getInstance(), this->window,
-                                     nullptr, &vkSurface)) != VK_SUCCESS) {
+        if ((glfwCreateWindowSurface((VkInstance)renderEngine->getInstance(),
+                                     this->window, nullptr, &vkSurface)) !=
+            VK_SUCCESS) {
             throw std::runtime_error("Failed to create VkSurfaceKHR from "
                                      "glfwCreateWindowSurface().");
         }
@@ -175,6 +167,19 @@ void GlfwNativeWindow::destroyResources() {
 bool GlfwNativeWindow::closed() { return glfwWindowShouldClose(window) != 0; }
 
 void GlfwNativeWindow::draw() {
+    // If window size is zero, prevent drawing.
+    // If window is restored from minimized, recreate swapchain and reset
+    // states. `isWindowSizeRestoredFromMinimized` can be true by only GLFW
+    // callback function.
+    if (isWindowSizeZero) {
+        if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+            recreateSwapChain(false);
+            isWindowSizeZero = false;
+        } else {
+            return;
+        }
+    }
+
     // Wait for previous frame to complete
     auto result = renderEngine->getDevice().waitForFences(
         renderTarget->getRenderingFence(currentFrame), VK_TRUE, UINT64_MAX);
@@ -297,30 +302,43 @@ void GlfwNativeWindow::recordCommandBuffer(uint32_t imageIndex) {
     renderTarget->getRenderCommandBuffer(currentFrame).end();
 }
 
-void GlfwNativeWindow::recreateSwapChain() {
+void GlfwNativeWindow::recreateSwapChain(bool destroyExistingResources) {
     renderEngine->getDevice().waitIdle();
 
-    // Clean up SwapChain
-    renderTarget->destroyResourcesForSwapChainRecreation();
-    renderEngine->getDevice().destroySwapchainKHR(swapChain);
+    if (destroyExistingResources) {
+        // Clean up SwapChain
+        renderTarget->destroyResourcesForSwapChainRecreation();
+        renderEngine->getDevice().destroySwapchainKHR(swapChain);
+    }
 
     // Recreate SwapChain ----------
     auto extent = chooseSwapChainExtent(
         renderEngine->getPhysicalDevice().getSurfaceCapabilitiesKHR(surface),
         window);
 
-    vk::SwapchainCreateInfoKHR swapChainCI = swapChainCICache;
-    swapChainCI.imageExtent = extent;
-    swapChain = renderEngine->getDevice().createSwapchainKHR(swapChainCI);
+    // If window size is zero, prevent new resources creation because Vulkan
+    //  cannot create zero-size images.
+    // On Windows10, window size will be (0, 0) when window is minimized.
+    // On Linux (X11), when window is minimized, window is just hidden
+    //  and keep rendering on background.
+    // (TODO: investigate on macOS, wayland, (maybe also Windows11 is needed))
+    if (extent.width == 0 | extent.height == 0) {
+        isWindowSizeZero = true;
+    } else {
+        isWindowSizeZero = false;
+        vk::SwapchainCreateInfoKHR swapChainCI = swapChainCICache;
+        swapChainCI.imageExtent = extent;
+        swapChain = renderEngine->getDevice().createSwapchainKHR(swapChainCI);
 
-    swapChainExtent = extent;
-    swapChainImages =
-        renderEngine->getDevice().getSwapchainImagesKHR(swapChain);
-    width = extent.width;
-    height = extent.height;
+        swapChainExtent = extent;
+        swapChainImages =
+            renderEngine->getDevice().getSwapchainImagesKHR(swapChain);
+        width = extent.width;
+        height = extent.height;
 
-    renderTarget->recreateResourcesForSwapChainRecreation(swapChainExtent,
-                                                          swapChainImages);
+        renderTarget->recreateResourcesForSwapChainRecreation(swapChainExtent,
+                                                              swapChainImages);
+    }
 }
 
 void GlfwNativeWindow::destroyGlfwWindow() {

@@ -21,12 +21,13 @@ class NativeWindow : public Window {
     std::vector<vk::Image> swapChainImages;
     uint32_t currentFrame = 0;
     bool swapChainResized = false;
+    bool isWindowSizeZero = false;
 
     std::vector<std::shared_ptr<VirtualWindow>> virtualWindows;
 
     NativeWindow() {}
 
-    virtual void recreateSwapChain();
+    virtual void recreateSwapChain(bool destroyExistingResources = true);
 
     virtual void destroySwapChain();
     virtual void destroySurface();
@@ -45,5 +46,6 @@ class NativeWindow : public Window {
     const uint32_t getCurrentFrameIndex() const;
     const std::vector<std::shared_ptr<VirtualWindow>> &
     getVirtualWindows() const;
+    const bool getIsWindowSizeZero() const;
 };
 } // namespace ikura

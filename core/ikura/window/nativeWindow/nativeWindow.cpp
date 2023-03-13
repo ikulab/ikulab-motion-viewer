@@ -6,7 +6,7 @@
 #include "../virtualWindow/virtualWindow.hpp"
 
 namespace ikura {
-void NativeWindow::recreateSwapChain() {}
+void NativeWindow::recreateSwapChain(bool destroyExistingResources) {}
 
 void NativeWindow::destroySwapChain() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
@@ -58,5 +58,9 @@ const uint32_t NativeWindow::getCurrentFrameIndex() const {
 const std::vector<std::shared_ptr<VirtualWindow>> &
 NativeWindow::getVirtualWindows() const {
     return virtualWindows;
+}
+
+const bool NativeWindow::getIsWindowSizeZero() const {
+    return isWindowSizeZero;
 }
 } // namespace ikura
