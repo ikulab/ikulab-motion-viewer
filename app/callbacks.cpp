@@ -55,17 +55,19 @@ void App::keyCallback(GLFWwindow *window, int key, int scanCode, int action,
     switch (key) {
     case GLFW_KEY_LEFT_CONTROL:
     case GLFW_KEY_RIGHT_CONTROL:
-        app->keyboard.ctrl = (action == GLFW_PRESS);
+        app->keyboard.ctrl = (action != GLFW_RELEASE);
         break;
     case GLFW_KEY_LEFT_ALT:
     case GLFW_KEY_RIGHT_ALT:
-        app->keyboard.alt = (action == GLFW_PRESS);
+        app->keyboard.alt = (action != GLFW_RELEASE);
         break;
     case GLFW_KEY_LEFT_SHIFT:
     case GLFW_KEY_RIGHT_SHIFT:
-        app->keyboard.shift = (action == GLFW_PRESS);
+        app->keyboard.shift = (action != GLFW_RELEASE);
         break;
     default:
         break;
     }
+
+    std::cout << key << ": " << action << ", " << scanCode << std::endl;
 }
