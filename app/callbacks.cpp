@@ -68,6 +68,4 @@ void App::keyCallback(GLFWwindow *window, int key, int scanCode, int action,
     default:
         break;
     }
-
-    std::cout << key << ": " << action << ", " << scanCode << std::endl;
 }

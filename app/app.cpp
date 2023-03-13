@@ -55,8 +55,9 @@ void App::initIkura() {
 
     // Create Surface
     VkSurfaceKHR vkSurface;
-    if ((glfwCreateWindowSurface((VkInstance)renderEngine->getInstance(), glfwWindow,
-                                 nullptr, &vkSurface)) != VK_SUCCESS) {
+    if ((glfwCreateWindowSurface((VkInstance)renderEngine->getInstance(),
+                                 glfwWindow, nullptr, &vkSurface)) !=
+        VK_SUCCESS) {
         throw std::runtime_error(
             "Failed to create VkSurfaceKHR from glfwCreateWindowSurface().");
     }
@@ -178,6 +179,10 @@ void App::selectFileAndInitShapes() {
 
     auto filePath = tinyfd_openFileDialog("Select Motion Data", NULL, 1,
                                           filterPattern, "BVH file", 0);
+    if (filePath == NULL) {
+        return;
+    }
+
     setShapes(filePath);
 }
 
@@ -186,6 +191,9 @@ void App::selectFileAndExportLoopRange() {
 
     auto filePath = tinyfd_saveFileDialog("Select Export File", NULL, 1,
                                           filterPattern, "BVH file");
+    if (filePath == NULL) {
+        return;
+    }
 
     exportLoopRangeToBvhFile(animator.getSourceFilePath(), filePath,
                              animator.getLoopStartFrameIndex(),
