@@ -1,5 +1,6 @@
 build
 downloads
+libs/shaderc
 .ccls-cache
 imgui.ini
 myeasylog.log
