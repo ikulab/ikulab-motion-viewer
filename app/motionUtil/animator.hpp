@@ -76,6 +76,7 @@ class Animator {
     float getAnimationTime() const;
     float getAnimationSpeed() const;
     std::string getSourceFilePath();
+    const std::vector<std::vector<std::shared_ptr<Motion>>> &getMotions() const;
 
     bool isAnimationStopped() const;
     void stopAnimation();

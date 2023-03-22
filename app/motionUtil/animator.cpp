@@ -188,6 +188,11 @@ float Animator::getAnimationSpeed() const { return animationSpeed; }
 
 std::string Animator::getSourceFilePath() { return sourceFilePath; }
 
+const std::vector<std::vector<std::shared_ptr<Motion>>> &
+Animator::getMotions() const {
+    return motions;
+}
+
 bool Animator::isAnimationStopped() const { return animationStopped; }
 
 void Animator::stopAnimation() { animationStopped = true; }
