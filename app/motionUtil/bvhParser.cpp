@@ -15,7 +15,8 @@
 bool isValidChannel(std::string str);
 Channel convertStr2Channel(std::string str);
 
-void BVHParser::parseJoints(bool isJointTokenRead) {
+void BVHParser::parseJoints(bool isJointTokenRead,
+                            ClosestChildMap &closestChildMap) {
     std::string input, jointName;
     uint32_t numOfChannels;
     glm::vec3 pos;
@@ -151,7 +152,7 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
         if (currentID > ikura::NUM_OF_MODEL_MATRIX) {
             throwTooManyJointsError();
         }
-        parseJoints(false);
+        parseJoints(false, closestChildMap);
     }
 
     // End bracket / Joint token
@@ -162,7 +163,7 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
             if (currentID > ikura::NUM_OF_MODEL_MATRIX) {
                 throwTooManyJointsError();
             }
-            parseJoints(true);
+            parseJoints(true, closestChildMap);
         } else if (input == TOKEN_END_BRACKET && !inputStream->eof()) {
             break;
         } else {
@@ -174,11 +175,19 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
         }
     }
 
-    // create Joint
+    // pop Joint ID stack
     ikura::GroupID id = jointIDStack.back();
     jointIDStack.pop_back();
+
+    // Create Joint Object
     skelton.push_back(std::move(std::make_unique<Animator::Joint>(
         jointName, id, pos, jointIDStack, isEndSite)));
+
+    // Register Closest Parent ID
+    if (!jointIDStack.empty()) {
+        ikura::GroupID closestParentID = jointIDStack.back();
+        closestChildMap[closestParentID].push_back(id);
+    }
 }
 
 void BVHParser::parseMotion() {
@@ -298,6 +307,8 @@ void BVHParser::parseMotion() {
 }
 
 void BVHParser::parseBVH() {
+    ClosestChildMap closestChildMap;
+
     try {
         // Hierarchy section definition
         std::string input;
@@ -309,7 +320,7 @@ void BVHParser::parseBVH() {
             msg += "'.";
             throw parse_failed_error(msg, inputStream);
         }
-        parseJoints(false);
+        parseJoints(false, closestChildMap);
 
         // sort by ID
         std::sort(skelton.begin(), skelton.end(),
@@ -317,6 +328,15 @@ void BVHParser::parseBVH() {
                      const std::shared_ptr<Animator::Joint> &b) {
                       return a->getID() < b->getID();
                   });
+
+        // show closest child map
+        for (const auto &childMap : closestChildMap) {
+            std::cout << childMap.first << ": " << std::ends;
+            for (const auto &child : childMap.second) {
+                std::cout << child << ", " << std::ends;
+            }
+            std::cout << std::endl;
+        }
 
         // Motion section definition
         *inputStream >> input;

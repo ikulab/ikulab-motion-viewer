@@ -42,7 +42,10 @@ class Animator {
         ikura::GroupID id;
         std::string name;
         glm::vec3 pos;
+        // [parent, grand parent, ..., root]
         std::vector<ikura::GroupID> parentIDs;
+        // [childA, childB, ...]
+        std::vector<ikura::GroupID> closestChildIDs;
         bool isEdge;
 
         static ikura::GroupID currentID;

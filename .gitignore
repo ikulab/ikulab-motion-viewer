@@ -5,6 +5,8 @@ libs/shaderc
 imgui.ini
 myeasylog.log
 .vscode
+.nvim
+*.vim
 
 shaderc_combined.a
 shaderc_combined.lib

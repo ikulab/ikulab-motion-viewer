@@ -75,7 +75,9 @@ class parse_failed_error : public std::runtime_error {
 };
 
 class BVHParser {
-    void parseJoints(bool isJointTokenRead);
+    typedef std::map<ikura::GroupID, std::vector<ikura::GroupID>> ClosestChildMap;
+
+    void parseJoints(bool isJointTokenRead, ClosestChildMap &closestChildMap);
     void parseMotion();
 
     std::vector<std::shared_ptr<Animator::Joint>> skelton;
