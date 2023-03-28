@@ -28,8 +28,56 @@ void exportLoopRangeToBvhFile(const Animator &animator,
 
     auto joints = animator.getJoints();
 
+    // Header Section
     targetFile << TOKEN_TOP << std::endl;
     writeJointsRecursive(joints, 0, motion, targetFile, 0);
+
+    // Data Section
+    auto loopStart = animator.getLoopStartFrameIndex();
+    auto loopEnd = animator.getLoopEndFrameIndex();
+    auto loopLength = loopEnd - loopStart + 1;
+
+    targetFile << TOKEN_MOTION << std::endl;
+    targetFile << TOKEN_FRAMES << " " << loopLength << std::endl;
+    targetFile << TOKEN_FRAME_TIME << " " << motion->frameRate << std::endl;
+
+    for (size_t frameIdx = loopStart; frameIdx <= loopEnd; frameIdx++) {
+        for (size_t i = 0; i < motion->channelDescriptionOrder.size(); i++) {
+            if (i > 0) {
+                targetFile << " ";
+            }
+
+            auto id = motion->channelDescriptionOrder[i].joindId;
+            switch (motion->channelDescriptionOrder[i].channel) {
+            case ChannelEnum::Xposition:
+                targetFile
+                    << motion->jointMotions[id]->jointStates[frameIdx]->pos.x;
+                break;
+            case ChannelEnum::Yposition:
+                targetFile
+                    << motion->jointMotions[id]->jointStates[frameIdx]->pos.y;
+                break;
+            case ChannelEnum::Zposition:
+                targetFile
+                    << motion->jointMotions[id]->jointStates[frameIdx]->pos.z;
+                break;
+            case ChannelEnum::Xrotation:
+                targetFile
+                    << motion->jointMotions[id]->jointStates[frameIdx]->rot.x;
+                break;
+            case ChannelEnum::Yrotation:
+                targetFile
+                    << motion->jointMotions[id]->jointStates[frameIdx]->rot.y;
+                break;
+            case ChannelEnum::Zrotation:
+                targetFile
+                    << motion->jointMotions[id]->jointStates[frameIdx]->rot.z;
+                break;
+            }
+        }
+
+        targetFile << std::endl;
+    }
 }
 
 void writeJointsRecursive(std::vector<std::shared_ptr<Animator::Joint>> joints,
@@ -66,29 +114,34 @@ void writeJointsRecursive(std::vector<std::shared_ptr<Animator::Joint>> joints,
     targetFile << pos.x << " " << pos.y << " " << pos.z << std::endl;
 
     // Channels (non-EndSize only)
-    writeIndents(targetFile, currentLevel);
-    targetFile << TOKEN_CHANNELS << " ";
-    targetFile << jointMotion->ownedChannels.size();
-    // write "?position" if current joint owns these channels
-    writeChannelStrIfOwned(targetFile, jointMotion, ChannelEnum::Xposition);
-    writeChannelStrIfOwned(targetFile, jointMotion, ChannelEnum::Yposition);
-    writeChannelStrIfOwned(targetFile, jointMotion, ChannelEnum::Zposition);
-    // write "?rotation" in rotation order
-    for (const auto &r : motion->rotationOrder) {
-        writeChannelStrIfOwned(targetFile, jointMotion,
-                               convertRotationAxisEnumToChannelEnum(r));
+    if (!currentJoint->getIsEdge()) {
+        writeIndents(targetFile, currentLevel);
+        targetFile << TOKEN_CHANNELS << " ";
+        targetFile << jointMotion->ownedChannels.size();
+        // write "?position" if current joint owns these channels
+        writeChannelStrIfOwned(targetFile, jointMotion, ChannelEnum::Xposition);
+        writeChannelStrIfOwned(targetFile, jointMotion, ChannelEnum::Yposition);
+        writeChannelStrIfOwned(targetFile, jointMotion, ChannelEnum::Zposition);
+        // write "?rotation" in rotation order
+        for (const auto &r : motion->rotationOrder) {
+            writeChannelStrIfOwned(targetFile, jointMotion,
+                                   convertRotationAxisEnumToChannelEnum(r));
+        }
+        targetFile << std::endl;
     }
-    targetFile << std::endl;
 
     // Child Joint (non-EndSite only)
-    auto closestChildIDs = currentJoint->getClosestChildIDs();
-    for (const auto &id : closestChildIDs) {
-        auto childID = joints[id]->getID();
-        writeJointsRecursive(joints, childID, motion, targetFile, currentLevel);
+    if (!currentJoint->getIsEdge()) {
+        auto closestChildIDs = currentJoint->getClosestChildIDs();
+        for (const auto &id : closestChildIDs) {
+            auto childID = joints[id]->getID();
+            writeJointsRecursive(joints, childID, motion, targetFile,
+                                 currentLevel);
+        }
     }
 
-    writeIndents(targetFile, currentLevel - 1);
     // End '}'
+    writeIndents(targetFile, currentLevel - 1);
     targetFile << TOKEN_END_BRACKET << std::endl;
 }
 

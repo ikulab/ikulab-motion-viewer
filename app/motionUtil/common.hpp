@@ -9,6 +9,8 @@
 
 #include <glm/glm.hpp>
 
+#include <ikura/ikura.hpp>
+
 enum ChannelEnum {
     Xposition,
     Yposition,
@@ -30,9 +32,17 @@ struct JointMotion {
     std::set<ChannelEnum> ownedChannels;
 };
 
+struct ChannelJointCorrespondance {
+    ikura::GroupID joindId;
+    ChannelEnum channel;
+};
+
 struct Motion {
     std::vector<std::shared_ptr<JointMotion>> jointMotions;
     std::array<RotationAxisEnum, 3> rotationOrder;
+    std::vector<ChannelJointCorrespondance> channelDescriptionOrder;
+    size_t numOfFrames;
+    float frameRate;
 };
 
 ChannelEnum convertStrToChannelEnum(std::string str);

@@ -74,3 +74,5 @@ std::string convertRotationAxisEnumToChannelStr(RotationAxisEnum rotation) {
     msg += "Unknown RotationAxisEnum value detected.";
     throw std::runtime_error(msg);
 }
+
+

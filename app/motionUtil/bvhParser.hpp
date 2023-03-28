@@ -78,11 +78,8 @@ class BVHParser {
     std::unique_ptr<std::ifstream> inputStream;
     bool isRootDefined = false;
     ikura::GroupID currentID = 0;
-    std::vector<std::pair<ikura::GroupID, ChannelEnum>> channels;
     std::vector<ikura::GroupID> jointIDStack;
 
-    uint32_t numOfFrames;
-    float frameRate;
     std::string filePath;
 
   public:
@@ -93,6 +90,4 @@ class BVHParser {
         return skelton;
     }
     std::shared_ptr<Motion> getMotion() { return motion; }
-    uint32_t getNumOfFrames() { return numOfFrames; }
-    float getFrameRate() { return frameRate; }
 };

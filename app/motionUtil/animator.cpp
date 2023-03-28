@@ -61,8 +61,8 @@ void Animator::initFromBVH(std::string filePath) {
 
     joints = parser.getSkentonData();
     motion = parser.getMotion();
-    numOfFrames = parser.getNumOfFrames();
-    frameRate = parser.getFrameRate();
+    numOfFrames = motion->numOfFrames;
+    frameRate = motion->frameRate;
 
     loopStartFrameIndex = 0;
     loopEndFrameIndex = numOfFrames - 1;

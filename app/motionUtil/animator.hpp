@@ -16,9 +16,6 @@
 #define MAX_ANIMATION_SPEED 10.0f
 #define MIN_ANIMATION_SPEED (1.0f / 128.0f)
 
-// forward declearation
-struct Motion;
-
 class Animator {
     std::shared_ptr<Motion> motion;
     uint32_t numOfFrames;
