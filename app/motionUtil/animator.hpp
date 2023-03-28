@@ -20,7 +20,7 @@
 struct Motion;
 
 class Animator {
-    std::vector<std::vector<std::shared_ptr<Motion>>> motions;
+    std::shared_ptr<Motion> motion;
     uint32_t numOfFrames;
     std::string sourceFilePath;
 
@@ -59,7 +59,11 @@ class Animator {
         ikura::GroupID getID() const;
         glm::vec3 getPos() const;
         std::vector<ikura::GroupID> getParentIDs() const;
+        std::string getName() const;
         bool getIsEdge() const;
+        const std::vector<ikura::GroupID> &getClosestChildIDs() const;
+
+        void setClosestChildIDs(std::vector<ikura::GroupID> childIDs);
 
         void showInfo();
     };
@@ -79,7 +83,8 @@ class Animator {
     float getAnimationTime() const;
     float getAnimationSpeed() const;
     std::string getSourceFilePath();
-    const std::vector<std::vector<std::shared_ptr<Motion>>> &getMotions() const;
+    const std::shared_ptr<Motion> &getMotion() const;
+    const std::vector<std::shared_ptr<Animator::Joint>> &getJoints() const;
 
     bool isAnimationStopped() const;
     void stopAnimation();

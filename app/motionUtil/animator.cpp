@@ -20,7 +20,13 @@ std::vector<ikura::GroupID> Animator::Joint::getParentIDs() const {
     return parentIDs;
 }
 
+std::string Animator::Joint::getName() const { return name; }
+
 bool Animator::Joint::getIsEdge() const { return isEdge; }
+
+void Animator::Joint::setClosestChildIDs(std::vector<ikura::GroupID> childIDs) {
+    closestChildIDs = childIDs;
+}
 
 // ----------------------------------------
 // Animator
@@ -54,7 +60,7 @@ void Animator::initFromBVH(std::string filePath) {
     assert(parser.getSkentonData().size() <= ikura::NUM_OF_MODEL_MATRIX);
 
     joints = parser.getSkentonData();
-    motions = parser.getMotionData();
+    motion = parser.getMotion();
     numOfFrames = parser.getNumOfFrames();
     frameRate = parser.getFrameRate();
 
@@ -97,12 +103,12 @@ Animator::generateModelMatrices() {
     uint32_t frameIndex = getCurrentFrameIndex();
 
     // calculate current motion
-    std::vector<Motion> currentMotion;
+    std::vector<JointState> currentJointStates;
     for (ikura::GroupID id = 0; id < joints.size(); id++) {
-        Motion m{};
-        m.pos = motions[frameIndex][id]->pos;
-        m.rot = motions[frameIndex][id]->rot;
-        currentMotion.push_back(m);
+        JointState js{};
+        js.pos = motion->jointMotions[id]->jointStates[frameIndex]->pos;
+        js.rot = motion->jointMotions[id]->jointStates[frameIndex]->rot;
+        currentJointStates.push_back(js);
     }
 
     // generate result matrices
@@ -123,7 +129,7 @@ Animator::generateModelMatrices() {
             if (pID == 0) {
                 // Motion position
                 result[id] *=
-                    glm::translate(glm::mat4(1.0), currentMotion[pID].pos
+                    glm::translate(glm::mat4(1.0), currentJointStates[pID].pos
                                    // glm::vec3(0.0)
                     );
             } else {
@@ -133,21 +139,21 @@ Animator::generateModelMatrices() {
             }
 
             // Motion rotation
-            result[id] *= glm::rotate(glm::mat4(1.0),
-                                      glm::radians(currentMotion[pID].rot.y),
-                                      glm::vec3(0.0, 1.0, 0.0));
-            result[id] *= glm::rotate(glm::mat4(1.0),
-                                      glm::radians(currentMotion[pID].rot.x),
-                                      glm::vec3(1.0, 0.0, 0.0));
-            result[id] *= glm::rotate(glm::mat4(1.0),
-                                      glm::radians(currentMotion[pID].rot.z),
-                                      glm::vec3(0.0, 0.0, 1.0));
+            result[id] *= glm::rotate(
+                glm::mat4(1.0), glm::radians(currentJointStates[pID].rot.y),
+                glm::vec3(0.0, 1.0, 0.0));
+            result[id] *= glm::rotate(
+                glm::mat4(1.0), glm::radians(currentJointStates[pID].rot.x),
+                glm::vec3(1.0, 0.0, 0.0));
+            result[id] *= glm::rotate(
+                glm::mat4(1.0), glm::radians(currentJointStates[pID].rot.z),
+                glm::vec3(0.0, 0.0, 1.0));
         }
 
         // Move to current joint's position
-        result[id] *=
-            glm::translate(glm::mat4(1.0), id != 0 ? joints[id]->getPos()
-                                                   : currentMotion[id].pos);
+        result[id] *= glm::translate(glm::mat4(1.0),
+                                     id != 0 ? joints[id]->getPos()
+                                             : currentJointStates[id].pos);
 
         // rotate current joint object to turn to parent
         glm::vec3 pos = glm::normalize(joints[id]->getPos());
@@ -188,9 +194,13 @@ float Animator::getAnimationSpeed() const { return animationSpeed; }
 
 std::string Animator::getSourceFilePath() { return sourceFilePath; }
 
-const std::vector<std::vector<std::shared_ptr<Motion>>> &
-Animator::getMotions() const {
-    return motions;
+const std::shared_ptr<Motion> &Animator::getMotion() const { return motion; }
+const std::vector<std::shared_ptr<Animator::Joint>> &
+Animator::getJoints() const {
+    return joints;
+}
+const std::vector<ikura::GroupID> &Animator::Joint::getClosestChildIDs() const {
+    return closestChildIDs;
 }
 
 bool Animator::isAnimationStopped() const { return animationStopped; }
@@ -269,12 +279,19 @@ void Animator::showMotionInfo() {
     for (uint32_t frame = 0; frame < numOfFrames; frame++) {
         std::cout << "frame:" << frame << std::endl;
         for (uint32_t joint = 0; joint < joints.size(); joint++) {
-            std::cout << "((" << motions[frame][joint]->pos.x << ","
-                      << motions[frame][joint]->pos.y << ","
-                      << motions[frame][joint]->pos.z << "), ("
-                      << motions[frame][joint]->rot.x << ","
-                      << motions[frame][joint]->rot.y << ","
-                      << motions[frame][joint]->rot.z << ")), " << std::ends;
+            std::cout << "(("
+                      << motion->jointMotions[joint]->jointStates[frame]->pos.x
+                      << ","
+                      << motion->jointMotions[joint]->jointStates[frame]->pos.y
+                      << ","
+                      << motion->jointMotions[joint]->jointStates[frame]->pos.z
+                      << "), ("
+                      << motion->jointMotions[joint]->jointStates[frame]->rot.x
+                      << ","
+                      << motion->jointMotions[joint]->jointStates[frame]->rot.y
+                      << ","
+                      << motion->jointMotions[joint]->jointStates[frame]->rot.z
+                      << ")), " << std::ends;
         }
         std::cout << std::endl;
     }

@@ -13,7 +13,6 @@
 
 // Forward declearation of helper functions ----------
 bool isValidChannel(std::string str);
-Channel convertStr2Channel(std::string str);
 
 void BVHParser::parseJoints(bool isJointTokenRead,
                             ClosestChildMap &closestChildMap) {
@@ -145,7 +144,7 @@ void BVHParser::parseJoints(bool isJointTokenRead,
                 throw parse_failed_error(msg, inputStream);
             }
 
-            channels.push_back({currentID, convertStr2Channel(input)});
+            channels.push_back({currentID, convertStrToChannelEnum(input)});
         }
 
         currentID++;
@@ -211,14 +210,18 @@ void BVHParser::parseMotion() {
                                  inputStream);
     }
 
-    // allocate motion data
-    motion.resize(numOfFrames);
-    for (size_t frame = 0; frame < numOfFrames; frame++) {
-        motion[frame].resize(skelton.size());
-        for (size_t joint = 0; joint < skelton.size(); joint++) {
-            motion[frame][joint] = std::move(std::make_unique<Motion>());
-        }
+    // allocate Motion
+    motion = std::make_shared<Motion>();
+    // allocate JointMotions
+    for (size_t jointIdx = 0; jointIdx < skelton.size(); jointIdx++) {
+        // auto jm = std::make_shared<JointMotion>();
+        motion->jointMotions.push_back(std::make_shared<JointMotion>());
     }
+
+    // TODO: setup Motion rotationOrder
+    // set Z-X-Y for now
+    motion->rotationOrder = {RotationAxisEnum::Z, RotationAxisEnum::X,
+                             RotationAxisEnum::Y};
 
     // Frame Time: token
     *inputStream >> input;
@@ -266,6 +269,12 @@ void BVHParser::parseMotion() {
 
         strStream << input;
 
+        // allocate JointState for current frame
+        for (size_t jointIdx = 0; jointIdx < skelton.size(); jointIdx++) {
+            motion->jointMotions[jointIdx]->jointStates.push_back(
+                std::make_shared<JointState>());
+        }
+
         for (uint32_t i = 0; i < numOfChannels; i++) {
             strStream >> value;
             if (i < numOfChannels - 1 && strStream.eof()) {
@@ -279,29 +288,28 @@ void BVHParser::parseMotion() {
 
             id = channels[i].first;
             switch (channels[i].second) {
-            case Channel::Xposition:
-                if (id == 0)
-                    motion[frame][id]->pos.x = value;
+            case ChannelEnum::Xposition:
+                motion->jointMotions[id]->jointStates[frame]->pos.x = value;
                 break;
-            case Channel::Yposition:
-                if (id == 0)
-                    motion[frame][id]->pos.y = value;
+            case ChannelEnum::Yposition:
+                motion->jointMotions[id]->jointStates[frame]->pos.y = value;
                 break;
-            case Channel::Zposition:
-                if (id == 0)
-                    motion[frame][id]->pos.z = value;
+            case ChannelEnum::Zposition:
+                motion->jointMotions[id]->jointStates[frame]->pos.z = value;
                 break;
 
-            case Channel::Xrotation:
-                motion[frame][id]->rot.x = value;
+            case ChannelEnum::Xrotation:
+                motion->jointMotions[id]->jointStates[frame]->rot.x = value;
                 break;
-            case Channel::Yrotation:
-                motion[frame][id]->rot.y = value;
+            case ChannelEnum::Yrotation:
+                motion->jointMotions[id]->jointStates[frame]->rot.y = value;
                 break;
-            case Channel::Zrotation:
-                motion[frame][id]->rot.z = value;
+            case ChannelEnum::Zrotation:
+                motion->jointMotions[id]->jointStates[frame]->rot.z = value;
                 break;
             }
+
+            motion->jointMotions[id]->ownedChannels.insert(channels[i].second);
         }
     }
 }
@@ -329,13 +337,9 @@ void BVHParser::parseBVH() {
                       return a->getID() < b->getID();
                   });
 
-        // show closest child map
-        for (const auto &childMap : closestChildMap) {
-            std::cout << childMap.first << ": " << std::ends;
-            for (const auto &child : childMap.second) {
-                std::cout << child << ", " << std::ends;
-            }
-            std::cout << std::endl;
+        // register closest child id
+        for (auto &joint : skelton) {
+            joint->setClosestChildIDs(closestChildMap[joint->getID()]);
         }
 
         // Motion section definition
@@ -353,27 +357,6 @@ void BVHParser::parseBVH() {
         std::cerr << e.where() << std::endl;
         exit(1);
     }
-}
-
-Channel convertStr2Channel(std::string str) {
-    if (str == "Xposition")
-        return Xposition;
-    else if (str == "Yposition")
-        return Yposition;
-    else if (str == "Zposition")
-        return Zposition;
-    else if (str == "Xrotation")
-        return Xrotation;
-    else if (str == "Yrotation")
-        return Yrotation;
-    else if (str == "Zrotation")
-        return Zrotation;
-
-    std::string msg;
-    msg += "Invalid channel '";
-    msg += str;
-    msg += "'.";
-    throw std::runtime_error(msg);
 }
 
 BVHParser::BVHParser(std::string filePath) {
