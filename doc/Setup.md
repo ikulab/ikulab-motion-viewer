@@ -14,12 +14,6 @@ $ git clone https://github.com/ikulab/ikulab-motion-viewer.git
 $ cd ikulab-motion-viewer
 ```
 
-### ブランチの変更
-
-Note: 近日中にmainブランチにマージします
-
-`git checkout refactor/deps-structure`
-
 ### ビルドツールのインストール
 
 - homebrewで以下のパッケージをインストール
