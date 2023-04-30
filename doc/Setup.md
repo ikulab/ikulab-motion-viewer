@@ -109,14 +109,6 @@ Note: インストーラーが完成したら自動化される作業です
   - `assets\fonts\NotoSansJP-Medium.otf`を`C:\Users\${UserName}\.ikulab-motion-viewer\fonts`にコピー
   - 共有フォルダからダウンロードする場合も`NotoSansJP-Medium.otf`を`C:\Users\${UserName}\.ikulab-motion-viewer\fonts`にコピーする
 
-- ikulab-motion-viewerのリソースディレクトリを作成する
-  - `$ sudo mkdir -p /usr/local/share/ikulab-motion-viewer`
-- リソースディレクトリにフォントをコピーする
-  - `fonts`ディレクトリを作成
-    - `$ sudo mkdir -p /usr/local/share/ikulab-motion-viewer/fonts`
-  - フォントのコピー
-    - `$ sudo cp assets/fonts/NotoSansJP-Medium.otf /usr/local/share/ikulab-motion-viewer/fonts`
-
 ### 実行
 
 `build/app/Debug/ikulab-motion-viewer.exe`を実行
