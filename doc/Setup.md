@@ -82,7 +82,8 @@ https://visualstudio.microsoft.com/ja/
 ### 依存ライブラリのインストール
 
 - shaderc_combined.lib
-  - [ここ](https://storage.googleapis.com/shaderc/badges/build_link_windows_vs2017_release.html) からプリビルドバイナリをダウンロード
+  - ~~[ここ](https://storage.googleapis.com/shaderc/badges/build_link_windows_vs2017_release.html)~~ からプリビルドバイナリをダウンロード
+    - [2023 5/1修正 正しくはこっち](https://storage.googleapis.com/shaderc/badges/build_link_windows_vs2019_debug.html)
   - install.zipを解凍し、`install\lib\shaderc_combined.lib`をikulab-motion-viewerの`libs/shaderc/shaderc_combined.lib`にコピー
     - `shaderc`ディレクトリは無いので作成すること
 
