@@ -24,15 +24,6 @@
 #define TOKEN_BEGGIN_BRACKET "{"
 #define TOKEN_END_BRACKET "}"
 
-enum Channel {
-    Xposition,
-    Yposition,
-    Zposition,
-    Xrotation,
-    Yrotation,
-    Zrotation
-};
-
 class parse_failed_error : public std::runtime_error {
     std::string errorLine;
     uint32_t errorLineNum;
@@ -75,20 +66,20 @@ class parse_failed_error : public std::runtime_error {
 };
 
 class BVHParser {
-    void parseJoints(bool isJointTokenRead);
+    typedef std::map<ikura::GroupID, std::vector<ikura::GroupID>>
+        ClosestChildMap;
+
+    void parseJoints(bool isJointTokenRead, ClosestChildMap &closestChildMap);
     void parseMotion();
 
     std::vector<std::shared_ptr<Animator::Joint>> skelton;
-    std::vector<std::vector<std::shared_ptr<Motion>>> motion;
+    std::shared_ptr<Motion> motion;
 
     std::unique_ptr<std::ifstream> inputStream;
     bool isRootDefined = false;
     ikura::GroupID currentID = 0;
-    std::vector<std::pair<ikura::GroupID, Channel>> channels;
     std::vector<ikura::GroupID> jointIDStack;
 
-    uint32_t numOfFrames;
-    float frameRate;
     std::string filePath;
 
   public:
@@ -98,9 +89,5 @@ class BVHParser {
     std::vector<std::shared_ptr<Animator::Joint>> getSkentonData() {
         return skelton;
     }
-    std::vector<std::vector<std::shared_ptr<Motion>>> getMotionData() {
-        return motion;
-    }
-    uint32_t getNumOfFrames() { return numOfFrames; }
-    float getFrameRate() { return frameRate; }
+    std::shared_ptr<Motion> getMotion() { return motion; }
 };

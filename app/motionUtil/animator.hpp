@@ -16,11 +16,8 @@
 #define MAX_ANIMATION_SPEED 10.0f
 #define MIN_ANIMATION_SPEED (1.0f / 128.0f)
 
-// forward declearation
-struct Motion;
-
 class Animator {
-    std::vector<std::vector<std::shared_ptr<Motion>>> motions;
+    std::shared_ptr<Motion> motion;
     uint32_t numOfFrames;
     std::string sourceFilePath;
 
@@ -42,7 +39,10 @@ class Animator {
         ikura::GroupID id;
         std::string name;
         glm::vec3 pos;
+        // [parent, grand parent, ..., root]
         std::vector<ikura::GroupID> parentIDs;
+        // [childA, childB, ...]
+        std::vector<ikura::GroupID> closestChildIDs;
         bool isEdge;
 
         static ikura::GroupID currentID;
@@ -56,7 +56,11 @@ class Animator {
         ikura::GroupID getID() const;
         glm::vec3 getPos() const;
         std::vector<ikura::GroupID> getParentIDs() const;
+        std::string getName() const;
         bool getIsEdge() const;
+        const std::vector<ikura::GroupID> &getClosestChildIDs() const;
+
+        void setClosestChildIDs(std::vector<ikura::GroupID> childIDs);
 
         void showInfo();
     };
@@ -76,6 +80,8 @@ class Animator {
     float getAnimationTime() const;
     float getAnimationSpeed() const;
     std::string getSourceFilePath();
+    const std::shared_ptr<Motion> &getMotion() const;
+    const std::vector<std::shared_ptr<Animator::Joint>> &getJoints() const;
 
     bool isAnimationStopped() const;
     void stopAnimation();

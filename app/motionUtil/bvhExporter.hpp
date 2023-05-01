@@ -2,6 +2,7 @@
 
 #include <filesystem>
 
-void exportLoopRangeToBvhFile(std::filesystem::path sourceFile,
-                              std::filesystem::path destFile,
-                              uint32_t loopStartIndex, uint32_t loopEndIndex);
+#include "./animator.hpp"
+
+void exportLoopRangeToBvhFile(const Animator &animator,
+                              std::filesystem::path destFile);

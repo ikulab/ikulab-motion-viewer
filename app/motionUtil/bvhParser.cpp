@@ -13,9 +13,9 @@
 
 // Forward declearation of helper functions ----------
 bool isValidChannel(std::string str);
-Channel convertStr2Channel(std::string str);
 
-void BVHParser::parseJoints(bool isJointTokenRead) {
+void BVHParser::parseJoints(bool isJointTokenRead,
+                            ClosestChildMap &closestChildMap) {
     std::string input, jointName;
     uint32_t numOfChannels;
     glm::vec3 pos;
@@ -44,16 +44,14 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
             if (input == TOKEN_ROOT) {
                 throw parse_failed_error("Multiple Root definition detected.",
                                          inputStream);
-            } else if (input == TOKEN_JOINT) {
             } else if (input == TOKEN_END_SITE_END) {
                 *inputStream >> input;
                 if (input == TOKEN_END_SITE_SITE) {
                     isEndSite = true;
-                    jointName = "<Edge Joint>";
                 } else {
                     isInvalidToken = true;
                 }
-            } else {
+            } else if (input != TOKEN_JOINT) {
                 isInvalidToken = true;
             }
         } else {
@@ -83,9 +81,6 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
     // joint name
     if (!isEndSite) {
         *inputStream >> jointName;
-        if (isRoot) {
-            jointName += " (Root)";
-        }
     }
 
     // Beggin bracket
@@ -144,14 +139,17 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
                 throw parse_failed_error(msg, inputStream);
             }
 
-            channels.push_back({currentID, convertStr2Channel(input)});
+            ChannelJointCorrespondance correspondance{};
+            correspondance.joindId = currentID;
+            correspondance.channel = convertStrToChannelEnum(input);
+            motion->channelDescriptionOrder.push_back(correspondance);
         }
 
         currentID++;
         if (currentID > ikura::NUM_OF_MODEL_MATRIX) {
             throwTooManyJointsError();
         }
-        parseJoints(false);
+        parseJoints(false, closestChildMap);
     }
 
     // End bracket / Joint token
@@ -162,7 +160,7 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
             if (currentID > ikura::NUM_OF_MODEL_MATRIX) {
                 throwTooManyJointsError();
             }
-            parseJoints(true);
+            parseJoints(true, closestChildMap);
         } else if (input == TOKEN_END_BRACKET && !inputStream->eof()) {
             break;
         } else {
@@ -174,11 +172,19 @@ void BVHParser::parseJoints(bool isJointTokenRead) {
         }
     }
 
-    // create Joint
+    // pop Joint ID stack
     ikura::GroupID id = jointIDStack.back();
     jointIDStack.pop_back();
+
+    // Create Joint Object
     skelton.push_back(std::move(std::make_unique<Animator::Joint>(
         jointName, id, pos, jointIDStack, isEndSite)));
+
+    // Register Closest Parent ID
+    if (!jointIDStack.empty()) {
+        ikura::GroupID closestParentID = jointIDStack.back();
+        closestChildMap[closestParentID].push_back(id);
+    }
 }
 
 void BVHParser::parseMotion() {
@@ -196,20 +202,22 @@ void BVHParser::parseMotion() {
 
     // frames value
     try {
-        *inputStream >> numOfFrames;
+        *inputStream >> motion->numOfFrames;
     } catch (std::exception e) {
         throw parse_failed_error("Number of frames (int value) is expected.",
                                  inputStream);
     }
 
-    // allocate motion data
-    motion.resize(numOfFrames);
-    for (size_t frame = 0; frame < numOfFrames; frame++) {
-        motion[frame].resize(skelton.size());
-        for (size_t joint = 0; joint < skelton.size(); joint++) {
-            motion[frame][joint] = std::move(std::make_unique<Motion>());
-        }
+    // allocate JointMotions
+    for (size_t jointIdx = 0; jointIdx < skelton.size(); jointIdx++) {
+        // auto jm = std::make_shared<JointMotion>();
+        motion->jointMotions.push_back(std::make_shared<JointMotion>());
     }
+
+    // TODO: setup Motion rotationOrder
+    // set Z-X-Y for now
+    motion->rotationOrder = {RotationAxisEnum::Z, RotationAxisEnum::X,
+                             RotationAxisEnum::Y};
 
     // Frame Time: token
     *inputStream >> input;
@@ -231,7 +239,7 @@ void BVHParser::parseMotion() {
 
     // frame time value
     try {
-        *inputStream >> frameRate;
+        *inputStream >> motion->frameRate;
     } catch (std::exception e) {
         throw parse_failed_error("Frame rate (float value) is expected.",
                                  inputStream);
@@ -240,22 +248,28 @@ void BVHParser::parseMotion() {
     std::getline(*inputStream, input);
 
     std::stringstream strStream;
-    uint32_t numOfChannels = static_cast<uint32_t>(channels.size());
-    ikura::GroupID id;
+    uint32_t numOfChannels =
+        static_cast<uint32_t>(motion->channelDescriptionOrder.size());
     float value;
-    for (uint32_t frame = 0; frame < numOfFrames; frame++) {
+    for (uint32_t frame = 0; frame < motion->numOfFrames; frame++) {
         strStream.clear();
         std::getline(*inputStream, input);
-        if (frame < numOfFrames - 1 && inputStream->eof()) {
+        if (frame < motion->numOfFrames - 1 && inputStream->eof()) {
             std::string msg;
             msg += "The number of frames is smaller than the Hierarchy section "
                    "specification (";
-            msg += numOfFrames;
+            msg += motion->numOfFrames;
             msg += ").";
             throw parse_failed_error(msg, inputStream);
         }
 
         strStream << input;
+
+        // allocate JointState for current frame
+        for (size_t jointIdx = 0; jointIdx < skelton.size(); jointIdx++) {
+            motion->jointMotions[jointIdx]->jointStates.push_back(
+                std::make_shared<JointState>());
+        }
 
         for (uint32_t i = 0; i < numOfChannels; i++) {
             strStream >> value;
@@ -268,36 +282,39 @@ void BVHParser::parseMotion() {
                 throw parse_failed_error(msg, inputStream);
             }
 
-            id = channels[i].first;
-            switch (channels[i].second) {
-            case Channel::Xposition:
-                if (id == 0)
-                    motion[frame][id]->pos.x = value;
+            auto id = motion->channelDescriptionOrder[i].joindId;
+            auto channel = motion->channelDescriptionOrder[i].channel;
+            switch (channel) {
+            case ChannelEnum::Xposition:
+                motion->jointMotions[id]->jointStates[frame]->pos.x = value;
                 break;
-            case Channel::Yposition:
-                if (id == 0)
-                    motion[frame][id]->pos.y = value;
+            case ChannelEnum::Yposition:
+                motion->jointMotions[id]->jointStates[frame]->pos.y = value;
                 break;
-            case Channel::Zposition:
-                if (id == 0)
-                    motion[frame][id]->pos.z = value;
+            case ChannelEnum::Zposition:
+                motion->jointMotions[id]->jointStates[frame]->pos.z = value;
                 break;
 
-            case Channel::Xrotation:
-                motion[frame][id]->rot.x = value;
+            case ChannelEnum::Xrotation:
+                motion->jointMotions[id]->jointStates[frame]->rot.x = value;
                 break;
-            case Channel::Yrotation:
-                motion[frame][id]->rot.y = value;
+            case ChannelEnum::Yrotation:
+                motion->jointMotions[id]->jointStates[frame]->rot.y = value;
                 break;
-            case Channel::Zrotation:
-                motion[frame][id]->rot.z = value;
+            case ChannelEnum::Zrotation:
+                motion->jointMotions[id]->jointStates[frame]->rot.z = value;
                 break;
             }
+
+            motion->jointMotions[id]->ownedChannels.insert(channel);
         }
     }
 }
 
 void BVHParser::parseBVH() {
+    motion = std::make_shared<Motion>();
+    ClosestChildMap closestChildMap;
+
     try {
         // Hierarchy section definition
         std::string input;
@@ -309,7 +326,7 @@ void BVHParser::parseBVH() {
             msg += "'.";
             throw parse_failed_error(msg, inputStream);
         }
-        parseJoints(false);
+        parseJoints(false, closestChildMap);
 
         // sort by ID
         std::sort(skelton.begin(), skelton.end(),
@@ -317,6 +334,11 @@ void BVHParser::parseBVH() {
                      const std::shared_ptr<Animator::Joint> &b) {
                       return a->getID() < b->getID();
                   });
+
+        // register closest child id
+        for (auto &joint : skelton) {
+            joint->setClosestChildIDs(closestChildMap[joint->getID()]);
+        }
 
         // Motion section definition
         *inputStream >> input;
@@ -333,27 +355,6 @@ void BVHParser::parseBVH() {
         std::cerr << e.where() << std::endl;
         exit(1);
     }
-}
-
-Channel convertStr2Channel(std::string str) {
-    if (str == "Xposition")
-        return Xposition;
-    else if (str == "Yposition")
-        return Yposition;
-    else if (str == "Zposition")
-        return Zposition;
-    else if (str == "Xrotation")
-        return Xrotation;
-    else if (str == "Yrotation")
-        return Yrotation;
-    else if (str == "Zrotation")
-        return Zrotation;
-
-    std::string msg;
-    msg += "Invalid channel '";
-    msg += str;
-    msg += "'.";
-    throw std::runtime_error(msg);
 }
 
 BVHParser::BVHParser(std::string filePath) {

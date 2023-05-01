@@ -195,9 +195,7 @@ void App::selectFileAndExportLoopRange() {
         return;
     }
 
-    exportLoopRangeToBvhFile(animator.getSourceFilePath(), filePath,
-                             animator.getLoopStartFrameIndex(),
-                             animator.getLoopEndFrameIndex());
+    exportLoopRangeToBvhFile(animator, filePath);
 }
 
 void App::updateMatrices() {
