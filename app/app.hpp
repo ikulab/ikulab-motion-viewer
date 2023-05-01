@@ -31,16 +31,16 @@ class App {
         basicRenderComponentProvider;
 
     // Contexts ----------
-    Camera camera;
-    Keyboard keyboard;
-    Mouse mouse;
-    UI ui;
+    std::shared_ptr<Camera> camera;
+    std::shared_ptr<Keyboard> keyboard;
+    std::shared_ptr<Mouse> mouse;
+    std::shared_ptr<UI> ui;
 
     // Flags ----------
     bool modelLoaded = false;
 
     // Others ----------
-    Animator animator;
+    std::shared_ptr<Animator> animator;
 
     // Functions ==========
     // Init ----------

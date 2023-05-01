@@ -25,6 +25,13 @@ class UI {
         bool show = false;
     } debugWindow;
 
+    struct Config {
+        const char *rotationOrderComboItems[6] = {"X-Y-Z", "X-Z-Y", "Y-X-Z",
+                                                  "Y-Z-X", "Z-X-Y", "Z-Y-X"};
+        int rotationOrderIndex = -1;
+        bool exportAllPositionChannel = false;
+    } config;
+
     bool showImGuiDemoWindow = false;
     bool showFloor = true;
     bool showAxisObject = false;

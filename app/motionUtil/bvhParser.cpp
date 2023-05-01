@@ -21,6 +21,8 @@ void BVHParser::parseJoints(bool isJointTokenRead,
     glm::vec3 pos;
     bool isRoot = false;
     bool isEndSite = false;
+    bool rotationOrderPredicted = false;
+    std::vector<RotationAxisEnum> predictedRotationOrder;
 
     jointIDStack.push_back(currentID);
 
@@ -139,10 +141,27 @@ void BVHParser::parseJoints(bool isJointTokenRead,
                 throw parse_failed_error(msg, inputStream);
             }
 
+            auto channel = convertStrToChannelEnum(input);
+
             ChannelJointCorrespondance correspondance{};
             correspondance.joindId = currentID;
-            correspondance.channel = convertStrToChannelEnum(input);
+            correspondance.channel = channel;
             motion->channelDescriptionOrder.push_back(correspondance);
+
+            // Perdict rotation order
+            if (!rotationOrderPredicted) {
+                RotationAxisEnum rotation;
+                if (convertChannelEnumToRotationAxisEnum(channel, rotation)) {
+                    predictedRotationOrder.push_back(rotation);
+                    if (predictedRotationOrder.size() >= 3) {
+                        for (size_t i = 0; i < 3; i++) {
+                            motion->rotationOrder[i] =
+                                predictedRotationOrder[i];
+                        }
+                        rotationOrderPredicted = true;
+                    }
+                }
+            }
         }
 
         currentID++;
@@ -213,11 +232,6 @@ void BVHParser::parseMotion() {
         // auto jm = std::make_shared<JointMotion>();
         motion->jointMotions.push_back(std::make_shared<JointMotion>());
     }
-
-    // TODO: setup Motion rotationOrder
-    // set Z-X-Y for now
-    motion->rotationOrder = {RotationAxisEnum::Z, RotationAxisEnum::X,
-                             RotationAxisEnum::Y};
 
     // Frame Time: token
     *inputStream >> input;

@@ -2951,6 +2951,10 @@ namespace VULKAN_HPP_NAMESPACE
 
   enum class InstanceCreateFlagBits
   {
+#ifdef __APPLE__
+    // added by @caffeine0coffee
+    eEnumeratePortabilityKHR = VK_KHR_portability_enumeration
+#endif
   };
 
   VULKAN_HPP_INLINE std::string to_string( InstanceCreateFlagBits )

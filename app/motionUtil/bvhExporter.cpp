@@ -11,30 +11,33 @@
 void writeJointsRecursive(std::vector<std::shared_ptr<Animator::Joint>> joints,
                           ikura::GroupID currentJointID,
                           std::shared_ptr<Motion> motion,
-                          std::ofstream &targetFile, uint32_t currentLevel);
+                          std::ofstream &targetFile, uint32_t currentLevel,
+                          bool writeAllPositionChannels);
 void writeIndents(std::ofstream &targetFile, uint32_t level);
-/// This function inserts pre-space if jointMotion owns channel.
+/// This function inserts pre-space if `channelsToExport` owns `channel`.
 /// e.g. writes " Xposition" to targetFile.
 void writeChannelStrIfOwned(std::ofstream &targetFile,
-                            std::shared_ptr<JointMotion> jointMotion,
+                            std::set<ChannelEnum> channelsToExport,
                             ChannelEnum channel);
 
-void exportLoopRangeToBvhFile(const Animator &animator,
-                              std::filesystem::path destFile) {
+void exportLoopRangeToBvhFile(const std::shared_ptr<Animator> animator,
+                              std::filesystem::path destFile,
+                              bool exportAllPositionChennel) {
 
     // vector<vector<Motion>>
-    auto motion = animator.getMotion();
+    auto motion = animator->getMotion();
     std::ofstream targetFile(destFile);
 
-    auto joints = animator.getJoints();
+    auto joints = animator->getJoints();
 
     // Header Section
     targetFile << TOKEN_TOP << std::endl;
-    writeJointsRecursive(joints, 0, motion, targetFile, 0);
+    writeJointsRecursive(joints, 0, motion, targetFile, 0,
+                         exportAllPositionChennel);
 
     // Data Section
-    auto loopStart = animator.getLoopStartFrameIndex();
-    auto loopEnd = animator.getLoopEndFrameIndex();
+    auto loopStart = animator->getLoopStartFrameIndex();
+    auto loopEnd = animator->getLoopEndFrameIndex();
     auto loopLength = loopEnd - loopStart + 1;
 
     targetFile << TOKEN_MOTION << std::endl;
@@ -48,18 +51,32 @@ void exportLoopRangeToBvhFile(const Animator &animator,
             }
 
             auto id = motion->channelDescriptionOrder[i].joindId;
+            bool exportPositionChannelValue = false;
+            if (id == 0 || exportAllPositionChennel) {
+                exportPositionChannelValue = true;
+            }
+
             switch (motion->channelDescriptionOrder[i].channel) {
             case ChannelEnum::Xposition:
-                targetFile
-                    << motion->jointMotions[id]->jointStates[frameIdx]->pos.x;
+                if (exportPositionChannelValue) {
+                    targetFile << motion->jointMotions[id]
+                                      ->jointStates[frameIdx]
+                                      ->pos.x;
+                }
                 break;
             case ChannelEnum::Yposition:
-                targetFile
-                    << motion->jointMotions[id]->jointStates[frameIdx]->pos.y;
+                if (exportPositionChannelValue) {
+                    targetFile << motion->jointMotions[id]
+                                      ->jointStates[frameIdx]
+                                      ->pos.y;
+                }
                 break;
             case ChannelEnum::Zposition:
-                targetFile
-                    << motion->jointMotions[id]->jointStates[frameIdx]->pos.z;
+                if (exportPositionChannelValue) {
+                    targetFile << motion->jointMotions[id]
+                                      ->jointStates[frameIdx]
+                                      ->pos.z;
+                }
                 break;
             case ChannelEnum::Xrotation:
                 targetFile
@@ -83,7 +100,8 @@ void exportLoopRangeToBvhFile(const Animator &animator,
 void writeJointsRecursive(std::vector<std::shared_ptr<Animator::Joint>> joints,
                           ikura::GroupID currentJointID,
                           std::shared_ptr<Motion> motion,
-                          std::ofstream &targetFile, uint32_t currentLevel) {
+                          std::ofstream &targetFile, uint32_t currentLevel,
+                          bool writeAllPositionChannels) {
 
     auto currentJoint = joints[currentJointID];
     auto jointMotion = motion->jointMotions[currentJointID];
@@ -115,16 +133,31 @@ void writeJointsRecursive(std::vector<std::shared_ptr<Animator::Joint>> joints,
 
     // Channels (non-EndSize only)
     if (!currentJoint->getIsEdge()) {
+        // erase non-Root && ?position channels if `writeAllPositionChannels` is
+        // true
+        std::set<ChannelEnum> channelsToExport;
+        if (currentJointID == 0 || writeAllPositionChannels) {
+            channelsToExport = jointMotion->ownedChannels;
+        } else {
+            channelsToExport = jointMotion->ownedChannels;
+            channelsToExport.erase(ChannelEnum::Xposition);
+            channelsToExport.erase(ChannelEnum::Yposition);
+            channelsToExport.erase(ChannelEnum::Zposition);
+        }
+
         writeIndents(targetFile, currentLevel);
         targetFile << TOKEN_CHANNELS << " ";
-        targetFile << jointMotion->ownedChannels.size();
+        targetFile << channelsToExport.size();
         // write "?position" if current joint owns these channels
-        writeChannelStrIfOwned(targetFile, jointMotion, ChannelEnum::Xposition);
-        writeChannelStrIfOwned(targetFile, jointMotion, ChannelEnum::Yposition);
-        writeChannelStrIfOwned(targetFile, jointMotion, ChannelEnum::Zposition);
+        writeChannelStrIfOwned(targetFile, channelsToExport,
+                               ChannelEnum::Xposition);
+        writeChannelStrIfOwned(targetFile, channelsToExport,
+                               ChannelEnum::Yposition);
+        writeChannelStrIfOwned(targetFile, channelsToExport,
+                               ChannelEnum::Zposition);
         // write "?rotation" in rotation order
         for (const auto &r : motion->rotationOrder) {
-            writeChannelStrIfOwned(targetFile, jointMotion,
+            writeChannelStrIfOwned(targetFile, channelsToExport,
                                    convertRotationAxisEnumToChannelEnum(r));
         }
         targetFile << std::endl;
@@ -136,7 +169,7 @@ void writeJointsRecursive(std::vector<std::shared_ptr<Animator::Joint>> joints,
         for (const auto &id : closestChildIDs) {
             auto childID = joints[id]->getID();
             writeJointsRecursive(joints, childID, motion, targetFile,
-                                 currentLevel);
+                                 currentLevel, writeAllPositionChannels);
         }
     }
 
@@ -152,12 +185,10 @@ void writeIndents(std::ofstream &targetFile, uint32_t level) {
 }
 
 void writeChannelStrIfOwned(std::ofstream &targetFile,
-                            std::shared_ptr<JointMotion> jointMotion,
+                            std::set<ChannelEnum> channelsToExport,
                             ChannelEnum channel) {
 
-    if (jointMotion->ownedChannels.find(channel) !=
-        jointMotion->ownedChannels.end()) {
-
+    if (channelsToExport.find(channel) != channelsToExport.end()) {
         targetFile << " ";
         targetFile << convertChannelEnumToStr(channel);
     }

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -21,7 +22,8 @@ class Camera {
     float distance;
 
     void init();
-    void updateCamera(Mouse mouseCtx, Keyboard keyCtx, bool isWindowFocused);
+    void updateCamera(std::shared_ptr<Mouse> mouseCtx,
+                      std::shared_ptr<Keyboard> keyCtx, bool isWindowFocused);
 
     glm::vec3 generatePos();
     glm::mat4 generateViewMat();

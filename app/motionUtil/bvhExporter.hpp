@@ -4,5 +4,6 @@
 
 #include "./animator.hpp"
 
-void exportLoopRangeToBvhFile(const Animator &animator,
-                              std::filesystem::path destFile);
+void exportLoopRangeToBvhFile(const std::shared_ptr<Animator> animator,
+                              std::filesystem::path destFile,
+                              bool exportAllPositionChennel);

@@ -54,6 +54,8 @@ void Animator::updateAnimator(float deltaTime) {
     }
 }
 
+Animator::Animator(std::shared_ptr<UI> ui) { this->ui = ui; }
+
 void Animator::initFromBVH(std::string filePath) {
     BVHParser parser(filePath);
     parser.parseBVH();
@@ -63,6 +65,23 @@ void Animator::initFromBVH(std::string filePath) {
     motion = parser.getMotion();
     numOfFrames = motion->numOfFrames;
     frameRate = motion->frameRate;
+
+    // set default rotation order for ui
+    {
+        std::string rotationOrderStr =
+            convertRotationAxisEnumToRotationOrderStr(motion->rotationOrder);
+
+        size_t arrSize = sizeof(ui->config.rotationOrderComboItems) /
+                         sizeof(ui->config.rotationOrderComboItems[0]);
+
+        for (size_t i = 0; i < arrSize; i++) {
+            if (strcmp(ui->config.rotationOrderComboItems[i],
+                       rotationOrderStr.c_str()) == 0) {
+                ui->config.rotationOrderIndex = i;
+                break;
+            }
+        }
+    }
 
     loopStartFrameIndex = 0;
     loopEndFrameIndex = numOfFrames - 1;
@@ -129,9 +148,7 @@ Animator::generateModelMatrices() {
             if (pID == 0) {
                 // Motion position
                 result[id] *=
-                    glm::translate(glm::mat4(1.0), currentJointStates[pID].pos
-                                   // glm::vec3(0.0)
-                    );
+                    glm::translate(glm::mat4(1.0), currentJointStates[pID].pos);
             } else {
                 // Joint offset
                 result[id] *=
@@ -139,15 +156,27 @@ Animator::generateModelMatrices() {
             }
 
             // Motion rotation
-            result[id] *= glm::rotate(
-                glm::mat4(1.0), glm::radians(currentJointStates[pID].rot.y),
-                glm::vec3(0.0, 1.0, 0.0));
-            result[id] *= glm::rotate(
-                glm::mat4(1.0), glm::radians(currentJointStates[pID].rot.x),
-                glm::vec3(1.0, 0.0, 0.0));
-            result[id] *= glm::rotate(
-                glm::mat4(1.0), glm::radians(currentJointStates[pID].rot.z),
-                glm::vec3(0.0, 0.0, 1.0));
+            const auto multiplyRotateMat = [&](RotationAxisEnum axis) {
+                glm::vec3 axisVec3;
+                float radians;
+                switch (axis) {
+                case RotationAxisEnum::X:
+                    radians = glm::radians(currentJointStates[pID].rot.x);
+                    axisVec3 = glm::vec3(1.0, 0.0, 0.0);
+                    break;
+                case RotationAxisEnum::Y:
+                    radians = glm::radians(currentJointStates[pID].rot.y);
+                    axisVec3 = glm::vec3(0.0, 1.0, 0.0);
+                    break;
+                case RotationAxisEnum::Z:
+                    radians = glm::radians(currentJointStates[pID].rot.z);
+                    axisVec3 = glm::vec3(0.0, 0.0, 1.0);
+                    break;
+                }
+                result[id] *= glm::rotate(glm::mat4(1.0), radians, axisVec3);
+            };
+            std::for_each(motion->rotationOrder.begin(),
+                          motion->rotationOrder.end(), multiplyRotateMat);
         }
 
         // Move to current joint's position
@@ -201,6 +230,11 @@ Animator::getJoints() const {
 }
 const std::vector<ikura::GroupID> &Animator::Joint::getClosestChildIDs() const {
     return closestChildIDs;
+}
+
+void Animator::setRotationOrder(std::array<RotationAxisEnum, 3> rotationOrder) {
+    std::cout << "aaa";
+    motion->rotationOrder = rotationOrder;
 }
 
 bool Animator::isAnimationStopped() const { return animationStopped; }

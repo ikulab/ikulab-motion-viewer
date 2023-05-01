@@ -50,7 +50,7 @@ void App::initIkura() {
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow *glfwWindow =
-        glfwCreateWindow(windowW, windowH, "Ikura Window", nullptr, nullptr);
+        glfwCreateWindow(windowW, windowH, "Ikulab Motion Viewer v1.1.0", nullptr, nullptr);
     glfwSetWindowPos(glfwWindow, xpos, ypos);
 
     // Create Surface
@@ -108,9 +108,9 @@ void App::setShapes(const char *filePath) {
 
     if (filePath) {
         // Joints ----------
-        animator.initFromBVH(filePath);
+        animator->initFromBVH(filePath);
         std::vector<std::shared_ptr<ikura::shapes::Shape>> shapes;
-        animator.generateBones(shapes);
+        animator->generateBones(shapes);
 
         if (shapes.size() + NUM_OF_GROUPS_OTHER_THAN_JOINTS >
             ikura::NUM_OF_MODEL_MATRIX) {
@@ -163,7 +163,14 @@ void App::setShapes(const char *filePath) {
     mainRenderContent->uploadIndexBuffer();
 }
 
-void App::initContexts() { camera.init(); }
+void App::initContexts() {
+    camera = std::make_shared<Camera>();
+    keyboard = std::make_shared<Keyboard>();
+    mouse = std::make_shared<Mouse>();
+    ui = std::make_shared<UI>();
+
+    camera->init();
+}
 
 void App::setGlfwWindowEvents(GLFWwindow *window) {
     glfwSetWindowUserPointer(window, this);
@@ -195,7 +202,8 @@ void App::selectFileAndExportLoopRange() {
         return;
     }
 
-    exportLoopRangeToBvhFile(animator, filePath);
+    exportLoopRangeToBvhFile(animator, filePath,
+                             ui->config.exportAllPositionChannel);
 }
 
 void App::updateMatrices() {
@@ -204,24 +212,24 @@ void App::updateMatrices() {
     ikura::BasicSceneMatUBO sceneMat;
 
     if (modelLoaded) {
-        if (!ui.animationControlWindow.isSeekBarDragging) {
-            animator.updateAnimator(appEngine->getDeltaTime());
+        if (!ui->animationControlWindow.isSeekBarDragging) {
+            animator->updateAnimator(appEngine->getDeltaTime());
         }
 
         // Joints
-        auto modelMat4s = animator.generateModelMatrices();
+        auto modelMat4s = animator->generateModelMatrices();
         for (int i = 0; i < ikura::NUM_OF_MODEL_MATRIX; i++) {
             modelMat.model[i] = modelMat4s[i];
         }
 
         // Other objects
-        if (ui.showFloor) {
+        if (ui->showFloor) {
             modelMat.model[FLOOR_GROUP_ID] = glm::mat4(1.0);
         } else {
             modelMat.model[FLOOR_GROUP_ID] = glm::mat4(0.0);
         }
 
-        if (ui.showAxisObject) {
+        if (ui->showAxisObject) {
             modelMat.model[AXIS_OBJ_GROUP_ID] = glm::mat4(1.0);
         } else {
             modelMat.model[AXIS_OBJ_GROUP_ID] = glm::mat4(0.0);
@@ -235,7 +243,7 @@ void App::updateMatrices() {
         m = glm::scale(glm::mat4(1.0), glm::vec3(0.1)) * m;
     }
 
-    sceneMat.view = camera.generateViewMat();
+    sceneMat.view = camera->generateViewMat();
     sceneMat.proj = glm::perspective(glm::radians(45.0f),
                                      mainWindow->getWidth() /
                                          (float)mainWindow->getHeight(),
@@ -250,6 +258,7 @@ App::App() {
     initIkura();
     setShapes(nullptr);
     initContexts();
+    animator = std::make_shared<Animator>(ui);
 }
 
 void App::run() {
@@ -258,14 +267,14 @@ void App::run() {
     while (!appEngine->shouldTerminated()) {
         appEngine->vSync();
 
-        camera.updateCamera(
+        camera->updateCamera(
             mouse, keyboard,
             std::any_of(mainWindow->getVirtualWindows().begin(),
                         mainWindow->getVirtualWindows().end(),
                         [](const std::shared_ptr<ikura::VirtualWindow> window) {
                             return window->isFocused();
                         }));
-        mouse.reset();
+        mouse->reset();
 
         updateMatrices();
         updateUI();

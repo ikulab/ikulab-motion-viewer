@@ -7,18 +7,19 @@ void Camera::init() {
     distance = 50.0;
 }
 
-void Camera::updateCamera(Mouse mouseCtx, Keyboard keyCtx,
-                          bool isWindowFocused) {
+void Camera::updateCamera(std::shared_ptr<Mouse> mouseCtx,
+                  std::shared_ptr<Keyboard> keyCtx, bool isWindowFocused) {
+
     const static double ROTATION_DIFF_RATIO = 0.01;
     const static double SHIFT_DIFF_RATIO = 0.1;
     const static double SCROLL_RATIO = 1.1;
 
     if (!isWindowFocused) {
-        if (mouseCtx.leftButton) {
-            double xDiff = mouseCtx.deltaX;
-            double yDiff = mouseCtx.deltaY;
+        if (mouseCtx->leftButton) {
+            double xDiff = mouseCtx->deltaX;
+            double yDiff = mouseCtx->deltaY;
 
-            if (keyCtx.shift) {
+            if (keyCtx->shift) {
                 xDiff *= SHIFT_DIFF_RATIO;
                 yDiff *= SHIFT_DIFF_RATIO;
 
@@ -39,7 +40,7 @@ void Camera::updateCamera(Mouse mouseCtx, Keyboard keyCtx,
                                -M_PI / 2.0 + 0.0001, M_PI / 2.0 - 0.0001);
             }
         }
-        distance *= std::pow(SCROLL_RATIO, -mouseCtx.scrollOffsetY);
+        distance *= std::pow(SCROLL_RATIO, -mouseCtx->scrollOffsetY);
     }
 }
 
