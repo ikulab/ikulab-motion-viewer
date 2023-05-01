@@ -46,6 +46,16 @@ struct Motion {
 };
 
 ChannelEnum convertStrToChannelEnum(std::string str);
+/// Return true if `channel` can be converted RotationAxisEnum.
+/// Return false if `channel` cannot be converted RotationAxisEnum.
+/// Conversion result will be stored in `rotation`.
+bool convertChannelEnumToRotationAxisEnum(ChannelEnum channel,
+                                          RotationAxisEnum &rotation);
 ChannelEnum convertRotationAxisEnumToChannelEnum(RotationAxisEnum rotation);
 std::string convertChannelEnumToStr(ChannelEnum channel);
 std::string convertRotationAxisEnumToChannelStr(RotationAxisEnum rotation);
+std::string convertRotationAxisEnumToRotationOrderStr(
+    std::array<RotationAxisEnum, 3> rotationOrder);
+/// Describe 3 upper-case axes separated by '-'.
+/// For example, str is "Z-X-Y".
+std::array<RotationAxisEnum, 3> convertStrToRotationOrder(std::string str);

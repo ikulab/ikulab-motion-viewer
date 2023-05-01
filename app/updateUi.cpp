@@ -18,13 +18,13 @@ void App::updateUI() {
 
     updateMainMenu();
 
-    if (ui.animationControlWindow.show) {
+    if (ui->animationControlWindow.show) {
         updateAnimationControlWindow();
     }
-    if (ui.debugWindow.show) {
+    if (ui->debugWindow.show) {
         updateDebugWindow();
     }
-    if (ui.showImGuiDemoWindow) {
+    if (ui->showImGuiDemoWindow) {
         ImGui::ShowDemoWindow();
     }
 
@@ -44,15 +44,45 @@ void App::updateMainMenu() {
         }
 
         if (ImGui::BeginMenu(u8"ウィンドウ")) {
-            ImGui::Checkbox(u8"デバッグウィンドウ", &ui.debugWindow.show);
+            ImGui::Checkbox(u8"デバッグウィンドウ", &ui->debugWindow.show);
             ImGui::Checkbox(u8"アニメーションコントロールウィンドウ",
-                            &ui.animationControlWindow.show);
+                            &ui->animationControlWindow.show);
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu(u8"表示")) {
-            ImGui::Checkbox(u8"軸オブジェクト", &ui.showAxisObject);
-            ImGui::Checkbox(u8"床", &ui.showFloor);
+            ImGui::Checkbox(u8"軸オブジェクト", &ui->showAxisObject);
+            ImGui::Checkbox(u8"床", &ui->showFloor);
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu(u8"設定")) {
+            // Rotation Order --------------------
+            if (!modelLoaded) {
+                ImGui::BeginDisabled();
+            }
+            ImGui::Text(u8"回転順序");
+            ImGui::SameLine();
+            ImGui::PushItemWidth(80);
+            auto oldRotationOrderIndex = ui->config.rotationOrderIndex;
+            ImGui::Combo("##rotation_order", &ui->config.rotationOrderIndex,
+                         ui->config.rotationOrderComboItems,
+                         IM_ARRAYSIZE(ui->config.rotationOrderComboItems));
+            // if order changed, update Motion's RotationAxisEnum order
+            if (oldRotationOrderIndex != ui->config.rotationOrderIndex) {
+                animator->setRotationOrder(convertStrToRotationOrder(
+                    ui->config.rotationOrderComboItems
+                        [ui->config.rotationOrderIndex]));
+            }
+
+            if (!modelLoaded) {
+                ImGui::EndDisabled();
+            }
+
+            // Export Option --------------------
+            ImGui::Checkbox(u8"全てのPositionチャンネルをエクスポート",
+                            &ui->config.exportAllPositionChannel);
+
             ImGui::EndMenu();
         }
 
@@ -67,16 +97,20 @@ void App::updateMainMenu() {
 void initAnimationControlWindowSize(
     std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
     UI::AnimationControlWindow &ctx);
-void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx,
-                                              Animator &animator);
+void updateAnimationControlWindowModeSwitcher(
+    UI::AnimationControlWindow &ctx, std::shared_ptr<Animator> animator);
 void updateAnimationControlWindowSeekbar(UI::AnimationControlWindow &ctx,
-                                         bool &modelLoaded, Animator &animator);
-void updateAnimationControlWindowMainController(Animator &animator);
-void updateAnimationControlWindowSpeedController(Animator &animator);
-void updateAnimationControlWindowEditor(bool &modelLoaded, Animator &animator);
+                                         bool &modelLoaded,
+                                         std::shared_ptr<Animator> animator);
+void updateAnimationControlWindowMainController(
+    std::shared_ptr<Animator> animator);
+void updateAnimationControlWindowSpeedController(
+    std::shared_ptr<Animator> animator);
+void updateAnimationControlWindowEditor(bool &modelLoaded,
+                                        std::shared_ptr<Animator> animator);
 
 void App::updateAnimationControlWindow() {
-    initAnimationControlWindowSize(mainWindow, ui.animationControlWindow);
+    initAnimationControlWindowSize(mainWindow, ui->animationControlWindow);
 
     ImGui::Begin(u8"アニメーションコントロール");
 
@@ -84,14 +118,14 @@ void App::updateAnimationControlWindow() {
         ImGui::BeginDisabled();
     }
 
-    updateAnimationControlWindowModeSwitcher(ui.animationControlWindow,
+    updateAnimationControlWindowModeSwitcher(ui->animationControlWindow,
                                              animator);
     UI::makePadding(20);
 
-    updateAnimationControlWindowSeekbar(ui.animationControlWindow, modelLoaded,
+    updateAnimationControlWindowSeekbar(ui->animationControlWindow, modelLoaded,
                                         animator);
 
-    if (ui.animationControlWindow.modeIndex ==
+    if (ui->animationControlWindow.modeIndex ==
         UI::AnimationControlWindow::MODE_INDEX_EDIT) {
         UI::makePadding(20);
         updateAnimationControlWindowEditor(modelLoaded, animator);
@@ -137,8 +171,8 @@ void initAnimationControlWindowSize(
     }
 }
 
-void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx,
-                                              Animator &animator) {
+void updateAnimationControlWindowModeSwitcher(
+    UI::AnimationControlWindow &ctx, std::shared_ptr<Animator> animator) {
     int oldModeIndex = ctx.modeIndex;
 
     ImGui::Text("Mode");
@@ -151,16 +185,16 @@ void updateAnimationControlWindowModeSwitcher(UI::AnimationControlWindow &ctx,
     // if changed, window size & position will be initialized
     if (oldModeIndex != ctx.modeIndex) {
         ctx.windowInitialized = false;
-        animator.setLoopEnabled(ctx.modeIndex ==
-                                UI::AnimationControlWindow::MODE_INDEX_EDIT);
+        animator->setLoopEnabled(ctx.modeIndex ==
+                                 UI::AnimationControlWindow::MODE_INDEX_EDIT);
     }
 }
 
 void updateAnimationControlWindowSeekbar(UI::AnimationControlWindow &ctx,
                                          bool &modelLoaded,
-                                         Animator &animator) {
-    auto maxFrameNum = animator.getNumOfFrames();
-    auto currentFrameNum = animator.getCurrentFrameIndex() + 1;
+                                         std::shared_ptr<Animator> animator) {
+    auto maxFrameNum = animator->getNumOfFrames();
+    auto currentFrameNum = animator->getCurrentFrameIndex() + 1;
 
     if (modelLoaded) {
         ImGui::Text("Frame: %d / %d", currentFrameNum, maxFrameNum);
@@ -174,11 +208,11 @@ void updateAnimationControlWindowSeekbar(UI::AnimationControlWindow &ctx,
         int oldSeekBarValue = seekBarValue;
 
         ImGui::SliderInt("##seek_bar", &seekBarValue, 1,
-                         animator.getNumOfFrames());
+                         animator->getNumOfFrames());
         ctx.isSeekBarDragging = ImGui::IsItemActive();
 
         if (oldSeekBarValue != seekBarValue) {
-            animator.seekAnimation(seekBarValue - 1);
+            animator->seekAnimation(seekBarValue - 1);
         }
     } else {
         int unused = 0;
@@ -187,7 +221,8 @@ void updateAnimationControlWindowSeekbar(UI::AnimationControlWindow &ctx,
     ImGui::PopItemWidth();
 }
 
-void updateAnimationControlWindowMainController(Animator &animator) {
+void updateAnimationControlWindowMainController(
+    std::shared_ptr<Animator> animator) {
     // Align
     float space = ImGui::GetStyle().ItemSpacing.x;
     float width = MAIN_CONTROL_BUTTON_SIZE_UNIT * 8 + space * 6;
@@ -199,32 +234,32 @@ void updateAnimationControlWindowMainController(Animator &animator) {
     if (ImGui::Button("<<##jump_to_begin",
                       ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                              MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animator.seekAnimation(0);
+        animator->seekAnimation(0);
     }
     ImGui::SameLine();
 
     // Prev frame
     if (ImGui::Button("-5##prev_5", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                                            MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animator.incrementFrameIndex(-5);
+        animator->incrementFrameIndex(-5);
     }
     ImGui::SameLine();
 
     if (ImGui::Button("-1##prev_1", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                                            MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animator.incrementFrameIndex(-1);
+        animator->incrementFrameIndex(-1);
     }
     ImGui::SameLine();
 
     // Play button
     const char *playButtonLabel =
-        animator.isAnimationStopped() ? "Play" : "Stop";
+        animator->isAnimationStopped() ? "Play" : "Stop";
     if (ImGui::Button(playButtonLabel, ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT * 2,
                                               MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        if (animator.isAnimationStopped()) {
-            animator.resumeAnimation();
+        if (animator->isAnimationStopped()) {
+            animator->resumeAnimation();
         } else {
-            animator.stopAnimation();
+            animator->stopAnimation();
         }
     }
     ImGui::SameLine();
@@ -232,13 +267,13 @@ void updateAnimationControlWindowMainController(Animator &animator) {
     // Next frame
     if (ImGui::Button("+1##next_1", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                                            MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animator.incrementFrameIndex(1);
+        animator->incrementFrameIndex(1);
     }
     ImGui::SameLine();
 
     if (ImGui::Button("+5##next_5", ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                                            MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animator.incrementFrameIndex(5);
+        animator->incrementFrameIndex(5);
     }
     ImGui::SameLine();
 
@@ -246,11 +281,12 @@ void updateAnimationControlWindowMainController(Animator &animator) {
     if (ImGui::Button(">>##jump_to_end",
                       ImVec2(MAIN_CONTROL_BUTTON_SIZE_UNIT,
                              MAIN_CONTROL_BUTTON_SIZE_UNIT))) {
-        animator.seekAnimation(animator.getNumOfFrames() - 1);
+        animator->seekAnimation(animator->getNumOfFrames() - 1);
     }
 }
-void updateAnimationControlWindowSpeedController(Animator &animator) {
-    float animationSpeed = animator.getAnimationSpeed();
+void updateAnimationControlWindowSpeedController(
+    std::shared_ptr<Animator> animator) {
+    float animationSpeed = animator->getAnimationSpeed();
 
     ImGui::Text("Speed");
 
@@ -278,14 +314,15 @@ void updateAnimationControlWindowSpeedController(Animator &animator) {
         animationSpeed = 1.0;
     }
 
-    animator.setAnimationSpeed(animationSpeed);
+    animator->setAnimationSpeed(animationSpeed);
 }
 
-void updateAnimationControlWindowEditor(bool &modelLoaded, Animator &animator) {
+void updateAnimationControlWindowEditor(bool &modelLoaded,
+                                        std::shared_ptr<Animator> animator) {
     // *Num starts from 1 (user-friendly expression)
     // *Index starts from 0
-    int newLoopStartFrameNum = animator.getLoopStartFrameIndex() + 1;
-    int newLoopEndFrameNum = animator.getLoopEndFrameIndex() + 1;
+    int newLoopStartFrameNum = animator->getLoopStartFrameIndex() + 1;
+    int newLoopEndFrameNum = animator->getLoopEndFrameIndex() + 1;
 
     if (modelLoaded) {
         // loop start ----------
@@ -298,7 +335,7 @@ void updateAnimationControlWindowEditor(bool &modelLoaded, Animator &animator) {
 
         ImGui::PushItemWidth(-1);
         ImGui::SliderInt("##editor_start", &newLoopStartFrameNum, 1,
-                         animator.getNumOfFrames());
+                         animator->getNumOfFrames());
         ImGui::PopItemWidth();
 
         newLoopStartFrameNum =
@@ -314,18 +351,18 @@ void updateAnimationControlWindowEditor(bool &modelLoaded, Animator &animator) {
 
         ImGui::PushItemWidth(-1);
         ImGui::SliderInt("##editor_end", &newLoopEndFrameNum, 1,
-                         animator.getNumOfFrames());
+                         animator->getNumOfFrames());
         ImGui::PopItemWidth();
 
         newLoopEndFrameNum =
             std::clamp(newLoopEndFrameNum, newLoopStartFrameNum,
-                       (int)animator.getNumOfFrames());
+                       (int)animator->getNumOfFrames());
 
         // update loop range ----------
-        if ((newLoopStartFrameNum != animator.getLoopStartFrameIndex() + 1) ||
-            (newLoopEndFrameNum != animator.getLoopEndFrameIndex() + 1)) {
-            animator.updateLoopRange(newLoopStartFrameNum - 1,
-                                     newLoopEndFrameNum - 1);
+        if ((newLoopStartFrameNum != animator->getLoopStartFrameIndex() + 1) ||
+            (newLoopEndFrameNum != animator->getLoopEndFrameIndex() + 1)) {
+            animator->updateLoopRange(newLoopStartFrameNum - 1,
+                                      newLoopEndFrameNum - 1);
         }
     } else {
         ImGui::PushItemWidth(-1);
@@ -343,47 +380,49 @@ void updateAnimationControlWindowEditor(bool &modelLoaded, Animator &animator) {
 // ----------------------------------------
 
 void App::updateDebugWindow() {
-    if (!ui.debugWindow.sizeInitialized) {
+    if (!ui->debugWindow.sizeInitialized) {
         ImGui::SetNextWindowSize(ImVec2(300, 500));
-        ui.debugWindow.sizeInitialized = true;
+        ui->debugWindow.sizeInitialized = true;
     }
 
     ImGui::Begin(u8"デバッグ");
     ImGuiIO &io = ImGui::GetIO();
 
     ImGui::Checkbox(u8"ImGui DemoWindowを表示する##show_imgui_window",
-                    &ui.showImGuiDemoWindow);
+                    &ui->showImGuiDemoWindow);
     ImGui::Checkbox(u8"軸オブジェクトを表示する##show_axis_object",
-                    &ui.showAxisObject);
-    ImGui::Checkbox(u8"床を表示する##show_floor", &ui.showFloor);
-    // ImGui::Checkbox("垂直同期を有効化する##enable_vsinc", &ui.enableVsinc);
+                    &ui->showAxisObject);
+    ImGui::Checkbox(u8"床を表示する##show_floor", &ui->showFloor);
+    // ImGui::Checkbox("垂直同期を有効化する##enable_vsinc", &ui->enableVsinc);
 
     UI::makePadding(20);
 
     ImGui::Text("FPS: %.1f", io.Framerate);
-    ImGui::Text("Joints: %d", animator.getNumOfJoints());
-    ImGui::Text("Animation Time: %f", animator.getAnimationTime());
+    ImGui::Text("Joints: %d", animator->getNumOfJoints());
+    ImGui::Text("Animation Time: %f", animator->getAnimationTime());
 
     UI::makePadding(10);
 
     // mouse input status
-    ImGui::Text("Cursor Pos: (%.1f, %.1f)", mouse.currentX, mouse.currentY);
-    ImGui::Text("DragStart: (%.1f, %.1f)", mouse.dragStartX, mouse.dragStartY);
-    ImGui::Text("DragEnd: (%.1f, %.1f)", mouse.dragEndX, mouse.dragEndY);
-    ImGui::Text("Button L/R/M: (%d / %d / %d)", mouse.leftButton,
-                mouse.rightButton, mouse.middleButton);
+    ImGui::Text("Cursor Pos: (%.1f, %.1f)", mouse->currentX, mouse->currentY);
+    ImGui::Text("DragStart: (%.1f, %.1f)", mouse->dragStartX,
+                mouse->dragStartY);
+    ImGui::Text("DragEnd: (%.1f, %.1f)", mouse->dragEndX, mouse->dragEndY);
+    ImGui::Text("Button L/R/M: (%d / %d / %d)", mouse->leftButton,
+                mouse->rightButton, mouse->middleButton);
 
     UI::makePadding(10);
 
     // camera status
     ImGui::Text("Camera rotation (degrees) H/V: (%.2f, %.2f)",
-                glm::degrees(camera.hRotation), glm::degrees(camera.vRotation));
-    ImGui::Text("Camera distance: %.2f", camera.distance);
-    glm::vec3 cameraPos = camera.generatePos();
+                glm::degrees(camera->hRotation),
+                glm::degrees(camera->vRotation));
+    ImGui::Text("Camera distance: %.2f", camera->distance);
+    glm::vec3 cameraPos = camera->generatePos();
     ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", cameraPos.x, cameraPos.y,
                 cameraPos.z);
-    ImGui::Text("Camera look-at position: (%.2f, %.2f, %.2f)", camera.center.x,
-                camera.center.y, camera.center.z);
+    ImGui::Text("Camera look-at position: (%.2f, %.2f, %.2f)", camera->center.x,
+                camera->center.y, camera->center.z);
 
     UI::makePadding(10);
 

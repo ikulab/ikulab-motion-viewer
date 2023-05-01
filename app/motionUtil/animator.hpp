@@ -11,6 +11,7 @@
 
 #include <ikura/ikura.hpp>
 
+#include "../context/ui.hpp"
 #include "./common.hpp"
 
 #define MAX_ANIMATION_SPEED 10.0f
@@ -18,6 +19,7 @@
 
 class Animator {
     std::shared_ptr<Motion> motion;
+    std::shared_ptr<UI> ui;
     uint32_t numOfFrames;
     std::string sourceFilePath;
 
@@ -65,6 +67,8 @@ class Animator {
         void showInfo();
     };
 
+    Animator(std::shared_ptr<UI> ui);
+
     void initFromBVH(std::string filePath);
     void
     generateBones(std::vector<std::shared_ptr<ikura::shapes::Shape>> &bones);
@@ -82,6 +86,8 @@ class Animator {
     std::string getSourceFilePath();
     const std::shared_ptr<Motion> &getMotion() const;
     const std::vector<std::shared_ptr<Animator::Joint>> &getJoints() const;
+
+    void setRotationOrder(std::array<RotationAxisEnum, 3> rotationOrder);
 
     bool isAnimationStopped() const;
     void stopAnimation();
