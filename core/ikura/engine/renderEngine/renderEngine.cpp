@@ -166,7 +166,7 @@ RenderEngineInitConfig RenderEngineInitConfig::defaultDebugSetting() {
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
     initConfig.instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-#if defined(__APPLE__) && defined(VK_KHR_portability_enumeration)
+#if defined(__APPLE__)
     initConfig.instanceExtensionNames.push_back("VK_KHR_portability_enumeration");
 #endif
 
