@@ -255,10 +255,16 @@ void App::updateMatrices() {
 }
 
 App::App() {
-    initIkura();
-    setShapes(nullptr);
-    initContexts();
-    animator = std::make_shared<Animator>(ui);
+    try {
+        initIkura();
+        setShapes(nullptr);
+        initContexts();
+        animator = std::make_shared<Animator>(ui);
+    } catch (const std::runtime_error &e) {
+        std::cerr << "Caught a Runtime Error :" << std::endl;
+        std::cerr << e.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
 }
 
 void App::run() {
