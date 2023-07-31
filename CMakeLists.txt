@@ -49,7 +49,9 @@ elseif(WIN32)
 		PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan/win64)
 elseif(APPLE)
 	find_package(glfw3 3.3 REQUIRED)
-	find_library(Vulkan_LIB NAMES libvulkan.dylib)
+	find_library(Vulkan_LIB
+		NAMES libvulkan.dylib
+		PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan/mac)
 endif()
 # }}}
 
@@ -90,7 +92,7 @@ else()
 	target_link_libraries(ikura INTERFACE glfw)
 endif()
 
-if(NOT "${Vulkan_LIB}" STREQUAL "")
+if(NOT "${Vulkan_LIB}" STREQUAL "LIB_Vulkan-NOTFOUND")
 	target_link_libraries(ikura INTERFACE ${Vulkan_LIB})
 else()
 	target_link_libraries(ikura INTERFACE vulkan)

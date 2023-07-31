@@ -156,6 +156,7 @@ void checkInstanceExtensionsSupport(
     std::vector<const char *> required = extensionNames;
     auto requiredEndIter = required.end();
 
+    // TODO: layerNameいらない
     auto checkExtensionProps = [&required,
                                 &requiredEndIter](const char *layerName) {
         auto exProps = vk::enumerateInstanceExtensionProperties();
