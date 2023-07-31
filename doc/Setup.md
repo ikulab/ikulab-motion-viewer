@@ -17,7 +17,9 @@ $ cd ikulab-motion-viewer
 ### ビルドツールのインストール
 
 - homebrewで以下のパッケージをインストール
-  - `brew install clang cmake ninja`
+  - `brew install llvm cmake ninja`
+- オプションで次のパッケージもインストール
+  - `brew install vulkan-validationlayers`
 
 ### 依存ライブラリのインストール
 
@@ -41,10 +43,13 @@ $ cd ikulab-motion-viewer
 ### ビルド
 
 - CMakeファイルの生成
-  - `$ ./utils/scripts/config_cmake.sh`
+  - `$ ./utils/scripts/config_cmake.sh Release`又は`$ ./utils/scripts/config_cmake.sh`※1
   - `build`というディレクトリが作成される
 - ビルド
   - `$ ./utils/scripts/build.sh`
+
+> ※1
+> Releaseオプションを付けるならvulkan-validationlayersのインストールは不要です
 
 ビルドをやり直す時は、`build.sh`の実行のみでOK。
 ただし、一回`build`ディレクトリを消して`config_cmake.sh`からやり直さないとうまく行かないケースもある(CMakeキャッシュ変数の変更など)。
