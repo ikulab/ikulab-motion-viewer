@@ -40,13 +40,13 @@ $ cd ikulab-motion-viewer
       - `shaderc`フォルダは無いので作ること
         - 作り方
         - `$ mkdir libs/shaderc`
-        - `$ cp <ダウンロードしたshaderc_combined_*のパス※1> libs/shaderc/shaderc_combined.a`
+        - `$ cp <ダウンロードしたshaderc_combined_*のパス> libs/shaderc/shaderc_combined.a ※1`
       - 必ずファイル名を`shaderc_combined.a`に変更すること
 
 > ※1<br>
 > `Downloads`フォルダにダウンロードしてある場合は<br>
 > `$ cp ~/Downloads/shaderc_combined_* libs/shaderc/shaderc_combined.a`<br>
-> 「*」の部分は`arm`か`x86_64`のどちらかに置き換える。
+> 「*」の部分は`arm.a`か`x86_64.a`のどちらかに置き換える。
 
 ### ビルド
 
