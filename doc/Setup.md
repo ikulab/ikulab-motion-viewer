@@ -43,9 +43,9 @@ $ cd ikulab-motion-viewer
         - `$ cp <ダウンロードしたshaderc_combined_*のパス※1> libs/shaderc/shaderc_combined.a`
       - 必ずファイル名を`shaderc_combined.a`に変更すること
 
-> ※1
-> `Downloads`フォルダにダウンロードしてある場合は
-> `$ cp ~/Downloads/shaderc_combined_* libs/shaderc/shaderc_combined.a`
+> ※1<br>
+> `Downloads`フォルダにダウンロードしてある場合は<br>
+> `$ cp ~/Downloads/shaderc_combined_* libs/shaderc/shaderc_combined.a`<br>
 > 「*」の部分は`arm`か`x86_64`のどちらかに置き換える。
 
 ### ビルド
@@ -56,7 +56,7 @@ $ cd ikulab-motion-viewer
 - ビルド
   - `$ ./utils/scripts/build.sh`
 
-> ※2
+> ※2<br>
 > Releaseオプションを付けるならvulkan-validationlayersのインストールは不要です
 
 ビルドをやり直す時は、`build.sh`の実行のみでOK。
