@@ -36,70 +36,37 @@ if("${BUILD_TYPE}" STREQUAL "Debug")
 endif()
 # }}}
 
+# External Libraries Settings -------------------- {{{
 
-# Common External Libraries Settings -------------------- {{{
-if(LINUX)
-	find_package(glfw3 3.3 REQUIRED)
-elseif(WIN32)
-	find_file(Glfw_LIB REQUIRED
-		NAMES glfw3.lib
-		PATHS ${CMAKE_SOURCE_DIR}/libs/glfw/win64-vc2022)
-	find_library(Vulkan_LIB
-		NAMES vulkan-1 vulkan
-		PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan/win64)
-elseif(APPLE)
-	find_package(glfw3 3.3 REQUIRED)
-	find_library(Vulkan_LIB
-		NAMES libvulkan.dylib
-		PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan/mac)
-endif()
+find_package(PkgConfig REQUIRED)
+
+find_package(glfw3 3.3 REQUIRED)
+find_package(imgui REQUIRED)
+find_package(tinyfiledialogs REQUIRED)
+find_package(Vulkan REQUIRED)
+
+find_package(glm CONFIG REQUIRED)
+
+find_package(VulkanHeaders CONFIG REQUIRED)
+
+pkg_check_modules(easyloggingpp easyloggingpp REQUIRED IMPORTED_TARGET)
 # }}}
-
-
-# Build ikura Core -------------------- {{{
-# put the list of external lib's c/cpp files into ikura-ext-src
-set(ikura-ext-src "")
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/imgui)
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/easylogging++)
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/vk_mem_alloc)
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/shaderc)
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/libshaderc_util)
-
-# combine external libs into a static lib
-add_library(ikura-ext-lib STATIC ${ikura-ext-src})
-target_include_directories(ikura-ext-lib PUBLIC ${CMAKE_SOURCE_DIR}/external)
-target_compile_definitions(ikura-ext-lib PUBLIC AUTO_INITIALIZE_EASYLOGGINGPP)
-if(APPLE)
-	target_include_directories(ikura-ext-lib PUBLIC "/usr/local/include")
-endif()
 
 # build ikura
 add_subdirectory(${CMAKE_SOURCE_DIR}/core/ikura)
 
-# link libshaderc static lib
-if(LINUX OR APPLE)
-	target_link_libraries(ikura
-		PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/shaderc_combined.a)
-elseif(WIN32)
-	target_link_libraries(ikura
-		PUBLIC ${PROJECT_SOURCE_DIR}/libs/shaderc/shaderc_combined.lib)
-endif()
+# Link Libraries -------------------- {{{
 
-# link other dependencies
-if(NOT "${Glfw_LIB}" STREQUAL "")
-	target_link_libraries(ikura INTERFACE ${Glfw_LIB})
-else()
-	target_link_libraries(ikura INTERFACE glfw)
-endif()
+# basic libraries
+target_link_libraries(ikura PRIVATE ${CMAKE_DL_LIBS})
 
-if(NOT "${Vulkan_LIB}" STREQUAL "LIB_Vulkan-NOTFOUND")
-	target_link_libraries(ikura INTERFACE ${Vulkan_LIB})
-else()
-	target_link_libraries(ikura INTERFACE vulkan)
-endif()
-
-target_link_libraries(ikura INTERFACE ${CMAKE_DL_LIBS})
-target_link_libraries(ikura INTERFACE ikura-ext-lib)
+# external libraries
+target_link_libraries(ikura PRIVATE glfw)
+target_link_libraries(ikura PRIVATE Vulkan::Vulkan)
+target_link_libraries(ikura PRIVATE PkgConfig::easyloggingpp)
+target_link_libraries(ikura PRIVATE Vulkan::Headers)
+target_link_libraries(ikura PRIVATE tinyfiledialogs)
+target_link_libraries(ikura PRIVATE glm::glm)
 # }}}
 
 
