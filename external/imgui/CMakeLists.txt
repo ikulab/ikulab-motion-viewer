@@ -10,3 +10,5 @@ file(GLOB headers *.h)
 install(FILES
 	${headers}
 	DESTINATION include/ikura/imgui)
+
+target_link_libraries(imgui PRIVATE Vulkan::Vulkan)

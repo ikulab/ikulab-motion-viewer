@@ -1,9 +1,4 @@
-set(common_include_dir
-	${PROJECT_SOURCE_DIR}/external
-	${PROJECT_SOURCE_DIR}/external/vk_mem_alloc
-	${PROJECT_SOURCE_DIR}/external/shaderc
-	${PROJECT_SOURCE_DIR}/external/libshaderc_util
-)
+set(common_include_dir ${PROJECT_SOURCE_DIR}/external)
 
 if(APPLE)
 	set(common_include_dir
@@ -39,6 +34,7 @@ target_link_libraries(ikura PUBLIC ikura-misc)
 
 add_subdirectory(./shape)
 target_include_directories(ikura-shape PUBLIC "${common_include_dir}")
+target_link_libraries(ikura-shape PRIVATE glm::glm)
 target_link_libraries(ikura PUBLIC ikura-shape)
 
 target_include_directories(ikura INTERFACE

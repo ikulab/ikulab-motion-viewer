@@ -43,10 +43,11 @@ find_package(PkgConfig REQUIRED)
 
 # installed via vcpkg
 find_package(Vulkan REQUIRED)
+find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+find_package(VulkanHeaders CONFIG REQUIRED)
 find_package(tinyfiledialogs CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-find_package(VulkanHeaders CONFIG REQUIRED)
 pkg_check_modules(easyloggingpp easyloggingpp REQUIRED IMPORTED_TARGET)
 
 # bundled src
@@ -63,17 +64,10 @@ target_link_libraries(imgui PRIVATE glfw)
 add_subdirectory(${CMAKE_SOURCE_DIR}/core/ikura)
 
 # link external libraries
-target_link_libraries(ikura PRIVATE glfw)
-target_link_libraries(ikura PRIVATE imgui)
 target_link_libraries(ikura PRIVATE Vulkan::Vulkan)
+target_link_libraries(ikura PRIVATE GPUOpen::VulkanMemoryAllocator)
 target_link_libraries(ikura PRIVATE PkgConfig::easyloggingpp)
-target_link_libraries(ikura PRIVATE Vulkan::Headers)
-target_link_libraries(ikura PRIVATE tinyfiledialogs)
 target_link_libraries(ikura PRIVATE glm::glm)
-
-target_link_libraries(ikura-window PkgConfig::easyloggingpp)
-target_link_libraries(ikura-window imgui)
-target_link_libraries(ikura-renderComponent ikura-common)
 
 target_link_libraries(ikura PRIVATE ${CMAKE_DL_LIBS})
 
@@ -83,8 +77,8 @@ target_link_libraries(ikura PRIVATE ${CMAKE_DL_LIBS})
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/app)
 
-# link libraries
-target_link_libraries(ikulab-motion-viewer ikura)
-target_link_libraries(ikulab-motion-viewer tinyfiledialogs)
+target_link_libraries(ikulab-motion-viewer PRIVATE ikura)
+
+target_link_libraries(ikulab-motion-viewer PRIVATE tinyfiledialogs)
 
 # }}}

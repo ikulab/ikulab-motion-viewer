@@ -18,9 +18,12 @@ target_compile_features(ikulab-motion-viewer PRIVATE cxx_std_17)
 
 add_subdirectory(./context)
 target_include_directories(context PUBLIC "${common_include_dir}")
-target_link_libraries(ikulab-motion-viewer context)
+target_link_libraries(context PRIVATE glm::glm)
+
+target_link_libraries(ikulab-motion-viewer PRIVATE context)
 
 add_subdirectory(./motionUtil)
 target_include_directories(motionUtil PUBLIC "${common_include_dir}")
-target_link_libraries(motionUtil imgui)
-target_link_libraries(ikulab-motion-viewer motionUtil)
+target_link_libraries(motionUtil PRIVATE glm::glm)
+
+target_link_libraries(ikulab-motion-viewer PRIVATE motionUtil)
