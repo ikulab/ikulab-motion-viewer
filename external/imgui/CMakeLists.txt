@@ -4,6 +4,8 @@ set(ikura-ext-src
 	${ikura-ext-src} ${sources}
 	PARENT_SCOPE)
 
+add_library(imgui STATIC ${sources})
+
 file(GLOB headers *.h)
 install(FILES
 	${headers}

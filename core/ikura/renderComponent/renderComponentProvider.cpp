@@ -2,6 +2,8 @@
 
 #include <easylogging++.h>
 
+#include "../common/logLevels.hpp"
+
 namespace ikura {
 RenderComponentProvider::RenderComponentProvider(
     const std::shared_ptr<RenderEngine> renderEngine) {

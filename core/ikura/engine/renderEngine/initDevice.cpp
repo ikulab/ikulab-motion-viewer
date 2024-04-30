@@ -8,6 +8,8 @@
 #include <easylogging++.h>
 #include <vk_mem_alloc.h>
 
+#include "../../common/logLevels.hpp"
+
 namespace ikura {
 struct PhysicalDeviceEvaluation {
     int score;

@@ -5,6 +5,7 @@
 #include <easylogging++.h>
 
 #include "../window/nativeWindow/nativeWindow.hpp"
+#include "../common/logLevels.hpp"
 
 namespace ikura {
 void BufferResource::release(VmaAllocator allocator) {

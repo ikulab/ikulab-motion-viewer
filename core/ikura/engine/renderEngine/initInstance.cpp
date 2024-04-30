@@ -5,6 +5,8 @@
 
 #include <easylogging++.h>
 
+#include "../../common/logLevels.hpp"
+
 namespace ikura {
 // forward declearation of helper functions ----------
 void checkLayersSupport(std::vector<const char *> &layersNames);

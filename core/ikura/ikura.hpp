@@ -12,6 +12,7 @@
 // Common header
 #include "common/renderPrimitiveTypes.hpp"
 #include "common/uniformBufferInfo.hpp"
+#include "common/logLevels.hpp"
 
 // RenderComponents
 #include "renderComponent/basic/basicRenderComponentProvider.hpp"

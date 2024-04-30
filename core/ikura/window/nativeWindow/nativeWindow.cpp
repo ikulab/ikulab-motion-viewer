@@ -5,6 +5,8 @@
 
 #include "../virtualWindow/virtualWindow.hpp"
 
+#include "../../common/logLevels.hpp"
+
 namespace ikura {
 void NativeWindow::recreateSwapChain(bool destroyExistingResources) {}
 

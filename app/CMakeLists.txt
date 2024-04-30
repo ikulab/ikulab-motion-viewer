@@ -1,6 +1,5 @@
 set(common_include_dir
 	${PROJECT_SOURCE_DIR}/external
-	${PROJECT_SOURCE_DIR}/external/easylogging++
 	${PROJECT_SOURCE_DIR}/external/vk_mem_alloc
 	${PROJECT_SOURCE_DIR}/external/shaderc
 	${PROJECT_SOURCE_DIR}/external/libshaderc_util
@@ -23,4 +22,5 @@ target_link_libraries(ikulab-motion-viewer context)
 
 add_subdirectory(./motionUtil)
 target_include_directories(motionUtil PUBLIC "${common_include_dir}")
+target_link_libraries(motionUtil imgui)
 target_link_libraries(ikulab-motion-viewer motionUtil)

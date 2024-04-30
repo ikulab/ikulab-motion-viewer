@@ -2,6 +2,8 @@ file(GLOB_RECURSE sources *.cpp)
 
 add_library(ikura-renderComponent STATIC ${sources})
 
+target_link_libraries(ikura-renderComponent PkgConfig::easyloggingpp)
+
 file(GLOB headers ./*.hpp)
 install(FILES ${headers}
 	DESTINATION include/ikura/renderComponent)

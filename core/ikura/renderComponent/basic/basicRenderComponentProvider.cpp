@@ -4,6 +4,8 @@
 
 #include "./descriptorSetProps.hpp"
 
+#include "../../common/logLevels.hpp"
+
 namespace ikura {
 void BasicRenderComponentProvider::createDescriptorSetlayout() {
     vk::DescriptorSetLayoutBinding modelMatLayoutBinding{};

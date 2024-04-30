@@ -6,6 +6,8 @@
 #include "../../window/window.hpp"
 #include "./descriptorSetProps.hpp"
 
+#include "../../common/logLevels.hpp"
+
 // for demo
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE

@@ -4,6 +4,8 @@
 
 #include <easylogging++.h>
 
+#include "../../common/logLevels.hpp"
+
 #define VMA_IMPLEMENTATION
 // for compability
 #ifndef VK_API_VERSION_MAJOR

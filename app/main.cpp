@@ -8,7 +8,9 @@
 #include <vulkan/vulkan.hpp>
 
 #include "./resourceDirectory.hpp"
- 
+
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, const char **argv) {
     el::Configurations conf((getResourceDirectory() / "config" / "easylogging.conf").string());
     el::Loggers::reconfigureAllLoggers(conf);

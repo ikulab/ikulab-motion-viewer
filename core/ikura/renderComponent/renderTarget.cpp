@@ -7,6 +7,8 @@
 
 #include "../window/nativeWindow/nativeWindow.hpp"
 
+#include "../common/logLevels.hpp"
+
 namespace ikura {
 void ImageResource::release(vk::Device device, VmaAllocator allocator) {
     if (releaseImageView) {

@@ -10,6 +10,7 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # Build Settings -------------------- {{{
+
 if(WIN32)
 	add_compile_options(
 		-std=c++17 -fdiagnostics-color=always -g
@@ -40,44 +41,49 @@ endif()
 
 find_package(PkgConfig REQUIRED)
 
-find_package(glfw3 3.3 REQUIRED)
-find_package(imgui REQUIRED)
-find_package(tinyfiledialogs REQUIRED)
+# installed via vcpkg
 find_package(Vulkan REQUIRED)
-
+find_package(tinyfiledialogs CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-
 find_package(VulkanHeaders CONFIG REQUIRED)
-
 pkg_check_modules(easyloggingpp easyloggingpp REQUIRED IMPORTED_TARGET)
+
+# bundled src
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/tinyfiledialogs)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/imgui)
+
+# resolve dependency of external library
+target_link_libraries(imgui PRIVATE glfw)
+
 # }}}
 
-# build ikura
+# Build Ikura -------------------- {{{
+
 add_subdirectory(${CMAKE_SOURCE_DIR}/core/ikura)
 
-# Link Libraries -------------------- {{{
-
-# basic libraries
-target_link_libraries(ikura PRIVATE ${CMAKE_DL_LIBS})
-
-# external libraries
+# link external libraries
 target_link_libraries(ikura PRIVATE glfw)
+target_link_libraries(ikura PRIVATE imgui)
 target_link_libraries(ikura PRIVATE Vulkan::Vulkan)
 target_link_libraries(ikura PRIVATE PkgConfig::easyloggingpp)
 target_link_libraries(ikura PRIVATE Vulkan::Headers)
 target_link_libraries(ikura PRIVATE tinyfiledialogs)
 target_link_libraries(ikura PRIVATE glm::glm)
+
+target_link_libraries(ikura-window PkgConfig::easyloggingpp)
+target_link_libraries(ikura-window imgui)
+
+target_link_libraries(ikura PRIVATE ${CMAKE_DL_LIBS})
+
 # }}}
 
+# Build ikulab-motion-viewer -------------------- {{{
 
-# Build App -------------------- {{{
-# external libs depends on app
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/tinyfiledialogs)
-
-# build app
 add_subdirectory(${CMAKE_SOURCE_DIR}/app)
 
-# link libs
+# link libraries
 target_link_libraries(ikulab-motion-viewer ikura)
 target_link_libraries(ikulab-motion-viewer tinyfiledialogs)
+
 # }}}

@@ -6,9 +6,6 @@
     "name" : "glfw3",
     "version>=" : "3.4"
   }, {
-    "name" : "imgui",
-    "version>=" : "1.90.2"
-  }, {
     "name" : "easyloggingpp",
     "version>=" : "9.97.1#1"
   }, {

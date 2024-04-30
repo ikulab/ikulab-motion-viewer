@@ -11,6 +11,7 @@
 #include "./ikuraConfig.h"
 
 #include "./common/resourceDirectory.hpp"
+#include "./common/logLevels.hpp"
 #include "./misc/shaderCodes.hpp"
 
 #define VERSION_INFO_FILE_NAME "version_info.txt"

@@ -4,6 +4,7 @@
 
 #include "../../common/renderPrimitiveTypes.hpp"
 #include "../../common/resourceDirectory.hpp"
+#include "../../common/logLevels.hpp"
 
 namespace ikura {
 void BasicRenderTarget::setupRenderPass() {

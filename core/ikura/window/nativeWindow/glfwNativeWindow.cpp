@@ -4,6 +4,8 @@
 
 #include "../virtualWindow/virtualWindow.hpp"
 
+#include "../../common/logLevels.hpp"
+
 #if defined(IS_WINDOWS)
 #include <climits>
 #endif
