@@ -73,6 +73,7 @@ target_link_libraries(ikura PRIVATE glm::glm)
 
 target_link_libraries(ikura-window PkgConfig::easyloggingpp)
 target_link_libraries(ikura-window imgui)
+target_link_libraries(ikura-renderComponent ikura-common)
 
 target_link_libraries(ikura PRIVATE ${CMAKE_DL_LIBS})
 
