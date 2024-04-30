@@ -9,7 +9,7 @@ myeasylog.log
 *.vim
 .ignore
 .idea
-cmake-build-debug
+cmake-build-debug*
 
 shaderc_combined.a
 shaderc_combined.lib
