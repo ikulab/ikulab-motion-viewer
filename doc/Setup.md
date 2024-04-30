@@ -1,5 +1,7 @@
 # build
 
+todo: vcpkg導入に伴い修正が必要
+
 ## Mac
 
 基本的に`$ command`はシェルで実行するコマンドを示します。
