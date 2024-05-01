@@ -44,7 +44,6 @@ find_package(PkgConfig REQUIRED)
 # installed via vcpkg
 find_package(Vulkan REQUIRED)
 find_package(VulkanMemoryAllocator CONFIG REQUIRED)
-find_package(VulkanHeaders CONFIG REQUIRED)
 find_package(tinyfiledialogs CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
@@ -80,5 +79,6 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/app)
 target_link_libraries(ikulab-motion-viewer PRIVATE ikura)
 
 target_link_libraries(ikulab-motion-viewer PRIVATE tinyfiledialogs)
+target_link_libraries(ikulab-motion-viewer PRIVATE glfw)
 
 # }}}

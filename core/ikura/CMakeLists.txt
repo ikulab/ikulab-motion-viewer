@@ -1,4 +1,9 @@
-set(common_include_dir ${PROJECT_SOURCE_DIR}/external)
+set(common_include_dir
+	${PROJECT_SOURCE_DIR}/external
+	${PROJECT_SOURCE_DIR}/external/vk_mem_alloc
+	${PROJECT_SOURCE_DIR}/external/shaderc
+	${PROJECT_SOURCE_DIR}/external/libshaderc_util
+)
 
 if(APPLE)
 	set(common_include_dir
@@ -22,6 +27,7 @@ target_link_libraries(ikura PUBLIC ikura-window)
 add_subdirectory(./engine)
 target_include_directories(ikura-appEngine PUBLIC "${common_include_dir}")
 target_include_directories(ikura-renderEngine PUBLIC "${common_include_dir}")
+target_link_libraries(ikura PUBLIC ikura-appEngine ikura-appEngine)
 target_link_libraries(ikura PUBLIC ikura-appEngine ikura-renderEngine)
 
 add_subdirectory(./renderComponent)
@@ -34,8 +40,9 @@ target_link_libraries(ikura PUBLIC ikura-misc)
 
 add_subdirectory(./shape)
 target_include_directories(ikura-shape PUBLIC "${common_include_dir}")
-target_link_libraries(ikura-shape PRIVATE glm::glm)
 target_link_libraries(ikura PUBLIC ikura-shape)
+
+target_link_libraries(ikura-renderComponent PRIVATE ikura-common)
 
 target_include_directories(ikura INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>

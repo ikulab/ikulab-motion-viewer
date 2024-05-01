@@ -2,6 +2,8 @@ file(GLOB_RECURSE sources *.cpp)
 
 add_library(ikura-shape STATIC ${sources})
 
+target_link_libraries(ikura-shape PRIVATE glfw)
+
 file(GLOB headers ./*.hpp)
 install(FILES ${headers}
 	DESTINATION include/ikura/shape)

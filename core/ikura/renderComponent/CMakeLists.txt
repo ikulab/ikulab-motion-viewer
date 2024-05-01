@@ -2,9 +2,7 @@ file(GLOB_RECURSE sources *.cpp)
 
 add_library(ikura-renderComponent STATIC ${sources})
 
-target_link_libraries(ikura-renderComponent ikura-common)
-
-target_link_libraries(ikura-renderComponent PkgConfig::easyloggingpp)
+target_link_libraries(ikura-renderComponent PRIVATE PkgConfig::easyloggingpp)
 
 file(GLOB headers ./*.hpp)
 install(FILES ${headers}
