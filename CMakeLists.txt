@@ -50,7 +50,6 @@ find_package(glm CONFIG REQUIRED)
 pkg_check_modules(easyloggingpp easyloggingpp REQUIRED IMPORTED_TARGET)
 
 # bundled src
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/tinyfiledialogs)
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/imgui)
 
 # resolve dependency of external library
@@ -78,7 +77,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/app)
 
 target_link_libraries(ikulab-motion-viewer PRIVATE ikura)
 
-target_link_libraries(ikulab-motion-viewer PRIVATE tinyfiledialogs)
+target_link_libraries(ikulab-motion-viewer PRIVATE tinyfiledialogs::tinyfiledialogs)
 target_link_libraries(ikulab-motion-viewer PRIVATE glfw)
 
 # }}}
