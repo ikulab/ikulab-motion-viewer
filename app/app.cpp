@@ -10,7 +10,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <tinyfiledialogs.h>
 
 #include "./motionUtil/bvhExporter.hpp"

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include "./motionUtil/bvhExporter.hpp"
 

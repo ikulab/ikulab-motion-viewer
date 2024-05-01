@@ -20,5 +20,12 @@
   }, {
     "name" : "vulkan-memory-allocator",
     "version>=" : "3.0.1#4"
-  } ]
+  }, {
+    "name" : "imgui",
+    "features": ["glfw-binding", "vulkan-binding"]
+  } ],
+  "overrides": [{
+    "name": "imgui",
+    "version": "1.88"
+  }]
 }
