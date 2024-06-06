@@ -1,0 +1,106 @@
+@startuml overall-structure
+
+' Engines ---------------
+class AppEngine {
+	- Window[] windows
+	+ createWindow(...)
+}
+
+class RenderEngine {
+	- VkDevice device
+	- VkInstance instance
+	- QueueFamily queueFamily
+
+	+ init(...)
+	+ drawToRenderTarget(content, target)
+}
+
+class UiEngine {
+	+ UiEngine(renderEngine)
+	+ UiWindow createUiWindow(...)
+}
+
+' Components ---------------
+' Windows -----
+abstract Window {
+	# int width, height
+	# RenderTarget[] renderTargets
+	# RenderContent[] renderContents
+}
+abstract NativeWindow {
+	- VkSurfaceKHR surface
+	- InputContext inputCtx
+	+ NativeWindow(const RenderEngine& renderEngine)
+}
+class GLFWNativeWindow {
+	- GLFWWindow window
+	----
+	GLFW Input Callbacks...
+}
+
+abstract VirtualWindow {}
+class UiWindow {
+	- ImGuiContext uiContext
+}
+
+' Context -----
+class InputContext {
+	Mouse mouse
+	Keyboard keyboard
+}
+
+struct Mouse {
+	+ bool left, right, middle
+	+ double currentX, currentY
+	+ dragX, dragY
+	etc...
+}
+
+struct Keyboard {
+	+ bool ctrl, alt, shift
+	etc...
+}
+
+' Render Data -----
+class RenderTarget {
+	# VkFrameBuffer frameBuffer
+	# VkRenderPass renderPass
+	# VkExtent2D extent
+}
+class RenderContent {
+	- vector<Vertex> vertices
+	- vector<uint32> indices
+	- vector<unique_ptr<Shape>> shapes
+	+ void addShape()
+	-- for RenderEngine --
+	+ getVertices(), getIndices()
+}
+
+
+' Notes ---------------
+note "VkInstance and GLFW support info\nare required to create surface" as N_GLfwSupport
+
+
+' Relations ---------------
+AppEngine "1" *-- "1..n" Window
+
+Window --|> NativeWindow
+NativeWindow --|> GLFWNativeWindow
+Window --|> VirtualWindow
+VirtualWindow --|> UiWindow
+NativeWindow "1" *-- "0..n" VirtualWindow
+
+RenderTarget "1..n" --* "1" Window
+RenderContent "1..n" --* "1" Window
+InputContext --* NativeWindow
+
+AppEngine ..> RenderEngine : render >=1 times
+UiEngine <.. RenderEngine : < init
+
+InputContext *-- Mouse
+InputContext *-- Keyboard 
+
+RenderEngine . N_GLfwSupport
+N_GLfwSupport .> GLFWNativeWindow
+
+@enduml

@@ -1,0 +1,214 @@
+@startuml ikura
+title Ikura Class Structure v1.0.0
+
+' ==================================================
+'   class definitions
+' ==================================================
+
+' engine --------------------
+
+class AppEngine {
+	+ AppEngine(RenderEngine*)
+	- RenderEngine* renderEngine
+	----
+	- vector<NativeWindow*> nativeWindows
+	- float fps
+	----
+	+ void drawAllWindows()
+	+ bool shouldTerminated()
+	----
+	+ void vSync()
+	+ float getDeltaTime()
+}
+
+class RenderEngine {
+	Vulkan bjects
+	- vk::Device device
+	- vk::PhysicalDevice physicalDevice
+	- vk::Instance instance
+	- vk::Queue graphicsQueue, presentQueue
+	- vk::CommandPool commandPool
+	----
+	- VmaAllocator vmaAllocator
+	----
+	+ void createInstance()
+	+ void createDevice()
+	+ void setupExtensions()
+	----
+	+ vk::CommandBuffer beginSingleTimeCommands()
+	+ void endSingleTimeCommands(vk:: CommandBuffer)
+	----
+	+ vk::Device getDevice()
+	+ vk::PhysicalDevice getPhysicalDevice()
+	+ vk::Instance getInstance()
+	+ other Vulkan object getters...
+}
+
+' window --------------------
+
+abstract Window {
+	# RenderEngine* renderEngine
+	----
+	# int width, height
+	# RenderContent renderContent
+	# RenderTarget renderTarget
+	----
+	+ void setRenderContent(), setRenderTarget()
+	+ void getRenderContent(), getRenderTarget()
+	+ other getters...
+}
+
+abstract NativeWindow {
+	# vk::SurfaceKHR surface
+	# vk::SwapchainKHR swapChain
+	# vk::Format swapChainFormat
+	# vk::Extent2D swapChainExtent
+	----
+	+ {abstract} recreateSwapChain()
+	+ {abstract} destroySwapChain()
+	+ {abstract} void draw()
+	----
+	+ getters...
+}
+
+class GlfwNativeWindow {
+	# GLFWwindow* window
+}
+
+abstract VirtualWindow {
+	+ {abstract} void recordCommandBuffer(vk::CommandBuffer)
+}
+
+class ImGuiVirtualWindow {
+	# ImGuiContext* imGuiContext
+	----
+	+ void setCurrentImGuiContext()
+	+ void newFrame() // provides ImGui new frame
+}
+
+' render component
+
+abstract RenderContent {
+	# RenderEngine* renderEngine
+	----
+	# BufferResource vertexBufferResource
+	# BufferResource indexBufferResource
+	# BufferResource[][] uniformBufferResources
+	----
+	# vk::DescriptorPool decriptorPool
+	# vk::DescriptorSet[][] descriptorSets
+	----
+	+ {abstract} void uploadVertexBuffer()
+	+ {abstract} void uploadIndexBuffer()
+}
+
+class BasicRenderContent {
+	# BasicVertex[] vertices
+	# BasicIndex[] indices
+	# void setupUniformBuffers()
+	# void setupDescriptorSets()
+	----
+	+ void setVertices(BasicVertex[])
+	+ void setIndices(BasicIndex[])
+	+ void updateUniformBufer(int frameIndex,
+	.	BasicModelMatUBO, BasicSceneMatUBO)
+}
+
+abstract RenderTarget {
+	# RenderEngine* renderEngine
+	----
+	ImageResource colorImageResource
+	ImageResource depthImageResource
+	----
+	# vk::CommandBuffer[] renderCommandBuffers
+	# vk::PipelineLayout graphicsPipelineLayout
+	# vk::Pipeline graphicsPipeline
+	# vk::RenderPass renderPass
+	# vk::FrameBuffer[] frameBuffers
+	----
+	# vk::Semaphore[] imageAvailableSemaphores
+	# vk::Semaphore[] renderFinishedSemaphores
+	# vk::Fence[] renderingFence
+}
+
+class BasicRenderTarget {
+	# void setupRenderPass()
+	# void setupImageResources()
+	# void setupFrameBuffers()
+	# void setupGraphicsPipeline()
+	----
+	+ recreateResourcesForSwapChainRecreation(...)
+}
+
+abstract RenderComponentProvider {
+	# RenderEngine* renderEngine
+	----
+	+ vk::DescriptorSetLayout descriptorSetLayout
+}
+
+class BasicRenderComponentProvider {
+	+ createBasicRenderContent(NativeWindow*)
+	+ createBasicRenderTarget(NativeWindow*)
+}
+
+struct BasicVertex::Data {
+	+ glm::vec3 pos
+	+ glm::vec3 color
+	+ uint32_t id
+}
+
+' resources
+
+class ImageResource {
+	+ VmaAllocation allocation
+	+ vk::Image image
+	+ vk::ImageView imageView
+	----
+	+ void release()
+}
+
+class BufferResource {
+	+ VmaAllocation allocation
+	----
+	+ vk::Buffer buffer
+}
+
+' notes --------------------
+
+note "BasicIndex is alias for uint32_t" as BasicIndex
+
+' ==================================================
+'   relations
+' ==================================================
+
+' inheritances --------------------
+
+Window <|-- NativeWindow
+Window <|-- VirtualWindow
+NativeWindow <|-- GlfwNativeWindow
+VirtualWindow <|-- ImGuiVirtualWindow
+
+RenderContent <|-- BasicRenderContent
+RenderTarget <|-- BasicRenderTarget
+RenderComponentProvider <|-- BasicRenderComponentProvider 
+
+' dependencies --------------------
+
+AppEngine ..> RenderEngine
+AppEngine "1" --> "1..n" NativeWindow
+
+NativeWindow "1..n" --> "0..n" VirtualWindow
+
+Window --> RenderContent
+Window --> RenderTarget
+
+ImageResource <-- RenderTarget
+BufferResource <-- RenderContent
+
+BasicRenderComponentProvider --* BasicRenderContent : "create"
+BasicRenderComponentProvider --* BasicRenderTarget  : "create"
+
+BasicRenderContent --> BasicVertex::Data
+BasicRenderTarget .. BasicIndex
+
+@enduml
