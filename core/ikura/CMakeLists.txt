@@ -18,7 +18,6 @@ find_package(PkgConfig REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 pkg_check_modules(easyloggingpp easyloggingpp REQUIRED IMPORTED_TARGET)
 
@@ -47,7 +46,6 @@ target_include_directories(ikura INTERFACE
 target_link_libraries(ikura PRIVATE Vulkan::Vulkan)
 target_link_libraries(ikura PRIVATE GPUOpen::VulkanMemoryAllocator)
 target_link_libraries(ikura PRIVATE PkgConfig::easyloggingpp)
-target_link_libraries(ikura PRIVATE glm::glm)
 target_link_libraries(ikura PRIVATE imgui::imgui)
 
 target_link_libraries(ikura PRIVATE ${CMAKE_DL_LIBS})
