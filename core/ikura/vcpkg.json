@@ -1,0 +1,31 @@
+{
+  "name" : "ikulab-motion-viewer",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "a34c873a9717a888f58dc05268dea15592c2f0ff",
+  "dependencies" : [ {
+    "name" : "glfw3",
+    "version>=" : "3.4"
+  }, {
+    "name" : "easyloggingpp",
+    "version>=" : "9.97.1#1"
+  }, {
+    "name" : "tinyfiledialogs",
+    "version>=" : "3.8.8#4"
+  }, {
+    "name" : "glm",
+    "version>=" : "1.0.1#2"
+  }, {
+    "name" : "vulkan",
+    "version>=" : "2023-12-17"
+  }, {
+    "name" : "vulkan-memory-allocator",
+    "version>=" : "3.0.1#4"
+  }, {
+    "name" : "imgui",
+    "features": ["glfw-binding", "vulkan-binding"]
+  } ],
+  "overrides": [{
+    "name": "imgui",
+    "version": "1.88"
+  }]
+}
