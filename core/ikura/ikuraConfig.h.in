@@ -1,0 +1,5 @@
+#pragma once
+
+#define IKURA_VERSION_MAJOR @ikura_VERSION_MAJOR@
+#define IKURA_VERSION_MINOR @ikura_VERSION_MINOR@
+#define IKURA_VERSION_PATCH @ikura_VERSION_PATCH@

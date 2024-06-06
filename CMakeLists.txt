@@ -1,45 +1,79 @@
 cmake_minimum_required(VERSION 3.16)
 project(
-	ikulab-motion-viwer
+	ikura
 	VERSION 0.1.0
 	LANGUAGES CXX
 )
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_compile_options(
-	-std=c++17 -fdiagnostics-color=always -g
-)
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
 
-option(USE_CLANG "set CXX compiler to Clang" TRUE)
+# Build Settings -------------------- {{{
 
-if(USE_CLANG)
-	set(CMAKE_CXX_COMPILER clang++)
-	set(CMAKE_C_COMPILER clang)
+if(WIN32)
 	add_compile_options(
+		-std=c++17 -fdiagnostics-color=always -g
+		-Wno-nullability-completeness
+		-D_USE_MATH_DEFINES
+		-DIS_WINDOWS
+	)
+elseif(LINUX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	add_compile_options(
+		-std=c++17 -fdiagnostics-color=always -g
 		-Wno-nullability-completeness
 	)
-else()
-	set(CMAKE_CXX_COMPILER gcc)
-	set(CMAKE_C_COMPILER gcc)
+elseif(APPLE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	add_compile_options(
+		-std=c++17 -fdiagnostics-color=always -g
+		-Wno-nullability-completeness
+	)
 endif()
 
-if("${BUILD_TYPE}" STREQUAL "Release")
-	add_compile_options(-DNODEBUG)
+if("${BUILD_TYPE}" STREQUAL "Debug")
+	add_compile_options(-DIMV_IS_DEBUG)
 endif()
+# }}}
 
-# external libraries ----------
-find_package(glfw3 3.3 REQUIRED)
-find_package(ikura)
+# External Libraries Settings -------------------- {{{
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/includes/tinyfiledialogs)
+find_package(PkgConfig REQUIRED)
 
-# ikulab-motion-viewer app ----------
-add_subdirectory(./src)
+# installed via vcpkg
+find_package(Vulkan REQUIRED)
+find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+find_package(tinyfiledialogs CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+pkg_check_modules(easyloggingpp easyloggingpp REQUIRED IMPORTED_TARGET)
 
-# app dependencies
-target_link_libraries(app tinyfiledialogs)
-target_link_libraries(app ikura glfw)
+# }}}
 
-# TODO: delete them
-target_link_libraries(motionUtil ikura)
-target_link_libraries(context ikura)
+# Build Ikura -------------------- {{{
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/core/ikura)
+
+# link external libraries
+target_link_libraries(ikura PRIVATE Vulkan::Vulkan)
+target_link_libraries(ikura PRIVATE GPUOpen::VulkanMemoryAllocator)
+target_link_libraries(ikura PRIVATE PkgConfig::easyloggingpp)
+target_link_libraries(ikura PRIVATE glm::glm)
+target_link_libraries(ikura PRIVATE imgui::imgui)
+
+target_link_libraries(ikura PRIVATE ${CMAKE_DL_LIBS})
+
+# }}}
+
+# Build ikulab-motion-viewer -------------------- {{{
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/app)
+
+target_link_libraries(ikulab-motion-viewer PRIVATE ikura)
+
+target_link_libraries(ikulab-motion-viewer PRIVATE tinyfiledialogs::tinyfiledialogs)
+target_link_libraries(ikulab-motion-viewer PRIVATE glfw)
+
+# }}}

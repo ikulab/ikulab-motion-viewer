@@ -1,21 +1,21 @@
-# VSCode seting
-.vscode/*
-!.vscode/launch.json
-!.vscode/tasks.json.template
-!.vscode/c_cpp_properties.json
-
-# build binary
 build
-bin
-
-# imgui file
-imgui.ini
-
-# easyloggingpp
-myeasylog.log
-
-# ccls
+downloads
+libs/shaderc
 .ccls-cache
+imgui.ini
+myeasylog.log
+.vscode
+.nvim
+*.vim
+.ignore
+.idea
+cmake-build-debug*
+
+shaderc_combined.a
+shaderc_combined.lib
+
+.DS_Store
+
 compile_commands.json
 
 # template -------------
@@ -34,20 +34,9 @@ compile_commands.json
 *.gch
 *.pch
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
 # Fortran module files
 *.mod
 *.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
 
 # Executables
 *.exe
