@@ -1,55 +1,51 @@
-set(common_include_dir
-	${PROJECT_SOURCE_DIR}/external
-	${PROJECT_SOURCE_DIR}/external/vk_mem_alloc
-	${PROJECT_SOURCE_DIR}/external/shaderc
-	${PROJECT_SOURCE_DIR}/external/libshaderc_util
-)
+cmake_minimum_required(VERSION 3.16)
+project(ikura VERSION 0.1.0 LANGUAGES CXX)
 
-if(APPLE)
-	set(common_include_dir
-		${common_include_dir}
-		/usr/local/include
-	)
-endif()
+if (APPLE)
+    set(common_include_dir
+            ${common_include_dir}
+            /usr/local/include
+    )
+endif ()
 
-add_library(ikura STATIC init.cpp)
-target_link_directories(ikura PUBLIC "${common_include_dir}")
-target_link_libraries(ikura PRIVATE PkgConfig::easyloggingpp)
+# ------------------------------------------------------------
+# find all dependencies
+# ------------------------------------------------------------
 
-add_subdirectory(./common)
-target_include_directories(ikura-common PUBLIC "${common_include_dir}")
-target_link_libraries(ikura PUBLIC ikura-common)
+find_package(PkgConfig REQUIRED)
 
-add_subdirectory(./window)
-target_include_directories(ikura-window PUBLIC "${common_include_dir}")
-target_link_libraries(ikura PUBLIC ikura-window)
+# packages installed via vcpkg
+find_package(Vulkan REQUIRED)
+find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+pkg_check_modules(easyloggingpp easyloggingpp REQUIRED IMPORTED_TARGET)
 
-add_subdirectory(./engine)
-target_include_directories(ikura-appEngine PUBLIC "${common_include_dir}")
-target_include_directories(ikura-renderEngine PUBLIC "${common_include_dir}")
-target_link_libraries(ikura PUBLIC ikura-appEngine ikura-appEngine)
-target_link_libraries(ikura PUBLIC ikura-appEngine ikura-renderEngine)
+# ------------------------------------------------------------
+# build ikura
+# ------------------------------------------------------------
 
-add_subdirectory(./renderComponent)
-target_include_directories(ikura-renderComponent PUBLIC "${common_include_dir}")
-target_link_libraries(ikura PUBLIC ikura-renderComponent)
+# get all source files in ikura/
+file(GLOB_RECURSE ikura_sources "*.cpp")
 
-add_subdirectory(./misc)
-target_include_directories(ikura-misc PUBLIC "${common_include_dir}")
-target_link_libraries(ikura PUBLIC ikura-misc)
+# build all files in ikura/
+add_library(ikura STATIC ${ikura_sources})
+# set compile options for ikura
+target_compile_definitions(ikura PRIVATE VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
 
-add_subdirectory(./shape)
-target_include_directories(ikura-shape PUBLIC "${common_include_dir}")
-target_link_libraries(ikura PUBLIC ikura-shape)
-
-target_link_libraries(ikura-renderComponent PRIVATE ikura-common)
-
+# set include directory for applications using ikura
 target_include_directories(ikura INTERFACE
-	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-	$<INSTALL_INTERFACE:include/ikura>
-	$<INSTALL_INTERFACE:${common_include_dir}>)
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:include/ikura>
+        $<INSTALL_INTERFACE:${common_include_dir}>)
 
-install(FILES
-	${PROJECT_SOURCE_DIR}/src/ikura/ikuraConfig.h
-	${PROJECT_SOURCE_DIR}/src/ikura/init.hpp
-	DESTINATION include/ikura)
+# ------------------------------------------------------------
+# link external libraries
+# ------------------------------------------------------------
+
+target_link_libraries(ikura PRIVATE Vulkan::Vulkan)
+target_link_libraries(ikura PRIVATE GPUOpen::VulkanMemoryAllocator)
+target_link_libraries(ikura PRIVATE PkgConfig::easyloggingpp)
+target_link_libraries(ikura PRIVATE imgui::imgui)
+
+target_link_libraries(ikura PRIVATE ${CMAKE_DL_LIBS})
