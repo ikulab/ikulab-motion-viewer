@@ -22,10 +22,13 @@
     "version>=" : "3.0.1#4"
   }, {
     "name" : "imgui",
-    "features": ["glfw-binding", "vulkan-binding"]
+    "features" : [ "glfw-binding", "vulkan-binding" ]
+  }, {
+    "name" : "glslang",
+    "version>=" : "14.0.0"
   } ],
-  "overrides": [{
-    "name": "imgui",
-    "version": "1.88"
-  }]
+  "overrides" : [ {
+    "name" : "imgui",
+    "version" : "1.88"
+  } ]
 }

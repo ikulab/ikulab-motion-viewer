@@ -13,6 +13,8 @@ std::filesystem::path getResourceDirectory() {
 
     return resourceDir;
 }
+
+std::filesystem::path getHomeDirectory() { return getenv("HOME"); }
 #endif
 
 #ifdef __APPLE__
@@ -61,6 +63,8 @@ std::filesystem::path getResourceDirectory() {
         return "/usr/local/share/ikulab-motion-viewer";
     }
 }
+
+std::filesystem::path getHomeDirectory() { return getenv("HOME"); }
 #endif
 
 #ifdef IS_WINDOWS
@@ -70,5 +74,13 @@ std::filesystem::path getResourceDirectory() {
     std::filesystem::path resourceDir = homeDrive / homePath / ".ikulab-motion-viewer";
 
     return resourceDir;
+}
+
+std::filesystem::path getHomeDirectory() {
+
+    std::filesystem::path homeDrive = getenv("HOMEDRIVE");
+    std::filesystem::path homePath = getenv("HOMEPATH");
+    
+    return homeDrive / homePath;
 }
 #endif

@@ -10,11 +10,12 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <imgui.h>
 #include <tinyfiledialogs.h>
 
 #include "./motionUtil/bvhExporter.hpp"
 #include "./resourceDirectory.hpp"
+#include "./util/popupUtils.hpp"
+#include "./util/errorUtils.hpp"
 
 void App::initIkura() {
     // Initialize Ikura
@@ -49,8 +50,8 @@ void App::initIkura() {
 #endif
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    GLFWwindow *glfwWindow =
-        glfwCreateWindow(windowW, windowH, "Ikulab Motion Viewer v1.1.0", nullptr, nullptr);
+    GLFWwindow *glfwWindow = glfwCreateWindow(
+        windowW, windowH, "Ikulab Motion Viewer v1.1.0", nullptr, nullptr);
     glfwSetWindowPos(glfwWindow, xpos, ypos);
 
     // Create Surface
@@ -89,6 +90,14 @@ void App::initIkura() {
     std::filesystem::path fontFilePath =
         getResourceDirectory() / "fonts" / "NotoSansJP-Medium.otf";
     std::string fontFilePathStr = fontFilePath.string();
+    
+    if (!std::filesystem::exists(fontFilePath)) {
+        std::string msg;
+        msg += "フォントファイルが見つかりません。\n";
+        msg += "Path: ";
+        msg += fontFilePathStr;
+        notifyErrorAndExit(msg);
+    }
 
     ikura::ImGuiVirtualWindowInitConfig imGuiVirtualWindowInitConfig;
     imGuiVirtualWindowInitConfig.fontFilePath = fontFilePathStr.c_str();
@@ -255,16 +264,10 @@ void App::updateMatrices() {
 }
 
 App::App() {
-    try {
-        initIkura();
-        setShapes(nullptr);
-        initContexts();
-        animator = std::make_shared<Animator>(ui);
-    } catch (const std::runtime_error &e) {
-        std::cerr << "Caught a Runtime Error :" << std::endl;
-        std::cerr << e.what() << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    initIkura();
+    setShapes(nullptr);
+    initContexts();
+    animator = std::make_shared<Animator>(ui);
 }
 
 void App::run() {

@@ -74,9 +74,6 @@ endif ()
 # fonts
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets/fonts
         DESTINATION ${CMAKE_INSTALL_DATADIR}ikulab-motion-viewer.app/Contents/Resources)
-# easylogging config
-install(FILES ${PROJECT_SOURCE_DIR}/easylogging.conf
-        DESTINATION ${CMAKE_INSTALL_DATADIR}ikulab-motion-viewer.app/Contents/Resources)
 
 # CPack config
 set(CPACK_GENERATOR DEB)

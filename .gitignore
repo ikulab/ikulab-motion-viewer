@@ -1,4 +1,5 @@
 build
+vcpkg_installed
 downloads
 libs/shaderc
 .ccls-cache
