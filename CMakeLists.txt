@@ -60,7 +60,11 @@ target_link_libraries(ikulab-motion-viewer PRIVATE glm::glm)
 # install files
 if (APPLE)
     # binary
-    install(FILES ${PROJECT_SOURCE_DIR}/build/app/ikulab-motion-viewer
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer
+            DESTINATION ${CMAKE_INSTALL_DATADIR}ikulab-motion-viewer.app/Contents/MacOS
+            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
+    # startup script
+    install(FILES ${PROJECT_SOURCE_DIR}/assets/macos/startup.sh
             DESTINATION ${CMAKE_INSTALL_DATADIR}ikulab-motion-viewer.app/Contents/MacOS
             PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
     # info.plist
