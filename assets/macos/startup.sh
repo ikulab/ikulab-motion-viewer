@@ -57,11 +57,11 @@ function show_download_suggest_popup() {
 	popup_content="${popup_content}\n"
 	popup_content="${popup_content}※インストールを行う際は、必ず 'System Global Installation' にチェックを入れて下さい。"
 
-	popup_open_link_button_text="リンクを開く"
-	popup_close_button_text="閉じる"
-	popup_result=$(osascript -e "display dialog \"$popup_content\" buttons {\"$popup_open_link_button_text\", \"$popup_close_button_text\"} default button \"$popup_close_button_text\" with icon stop with title \"$popup_title\"")
+	btn_txt_open_link="リンクを開く"
+	btn_txt_close="閉じる"
+	popup_result=$(osascript -e "display dialog \"$popup_content\" buttons {\"$btn_txt_open_link\", \"$btn_txt_close\"} default button \"$btn_txt_close\" with icon stop with title \"$popup_title\"")
 
-	if [[ "$popup_result" = *"$popup_open_link_button_text"* ]]; then
+	if [[ "$popup_result" = *"$btn_txt_open_link"* ]]; then
 		open "$vulkan_sdk_download_url"
 	fi
 }
