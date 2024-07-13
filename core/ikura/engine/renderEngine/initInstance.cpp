@@ -143,6 +143,7 @@ void checkLayersSupport(std::vector<const char *> &LayerNames) {
             msg += layerName;
             msg += "' is NOT supported.";
             msg += "Make sure Layer name is correct.";
+            LOG(ERROR) << msg;
             throw std::runtime_error(msg);
         }
     }
@@ -204,6 +205,7 @@ void checkInstanceExtensionsSupport(
                           msg += " ";
                       });
         msg += ". Make sure  name is correct.";
+        LOG(ERROR) << msg;
         throw std::runtime_error(msg);
     }
 

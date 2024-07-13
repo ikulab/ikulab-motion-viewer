@@ -2,9 +2,9 @@
 
 #include <filesystem>
 
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
+#include <ikura_ext_imgui/imgui.h>
+#include <ikura_ext_imgui/imgui_impl_glfw.h>
+#include <ikura_ext_imgui/imgui_impl_vulkan.h>
 
 namespace ikura {
 void ImGuiVirtualWindow::initImGuiResources(
@@ -38,7 +38,8 @@ void ImGuiVirtualWindow::initImGuiResources(
 
     ImGui_ImplVulkan_InitInfo initInfo{};
     initInfo.Instance = (VkInstance)renderEngine->getInstance();
-    initInfo.PhysicalDevice = (VkPhysicalDevice)renderEngine->getPhysicalDevice();
+    initInfo.PhysicalDevice =
+        (VkPhysicalDevice)renderEngine->getPhysicalDevice();
     initInfo.Device = (VkDevice)renderEngine->getDevice();
     initInfo.QueueFamily = renderEngine->getQueueFamilyIndices().get(
         ikura::QueueFamilyIndices::GRAPHICS);
@@ -48,9 +49,9 @@ void ImGuiVirtualWindow::initImGuiResources(
     initInfo.ImageCount = 3;
     initInfo.MSAASamples = (VkSampleCountFlagBits)renderEngine->getEngineInfo()
                                .limit.maxMsaaSamples;
+    initInfo.RenderPass = (VkRenderPass)nativeWindow->getRenderTarget()->getRenderPass();
 
-    ImGui_ImplVulkan_Init(&initInfo,
-                          (VkRenderPass)nativeWindow->getRenderTarget()->getRenderPass());
+    ImGui_ImplVulkan_Init(&initInfo);
 
     // Upload default font
     ImGuiIO &io = ImGui::GetIO();
@@ -61,11 +62,11 @@ void ImGuiVirtualWindow::initImGuiResources(
                                      io.Fonts->GetGlyphRangesJapanese());
     }
 
-    auto cmd = renderEngine->beginSingleTimeCommands();
-    ImGui_ImplVulkan_CreateFontsTexture((VkCommandBuffer)cmd);
-    renderEngine->endSingleTimeCommands(cmd);
-
-    ImGui_ImplVulkan_DestroyFontUploadObjects();
+    //    auto cmd = renderEngine->beginSingleTimeCommands();
+    //    ImGui_ImplVulkan_CreateFontsTexture((VkCommandBuffer)cmd);
+    //    renderEngine->endSingleTimeCommands(cmd);
+    //
+    //    ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
 void ImGuiVirtualWindow::destroyImGuiResources() {

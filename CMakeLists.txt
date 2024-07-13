@@ -43,7 +43,7 @@ endif ()
 add_subdirectory(${CMAKE_SOURCE_DIR}/core/ikura)
 # build ikulab-motion-viewer
 add_subdirectory(${CMAKE_SOURCE_DIR}/app)
-# link
+# link ikura to ikulab-motion-viewer
 target_link_libraries(ikulab-motion-viewer PRIVATE ikura)
 
 # find / link external libraries

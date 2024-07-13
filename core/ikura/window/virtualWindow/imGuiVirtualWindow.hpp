@@ -1,6 +1,6 @@
 #pragma once
 
-#include <imgui.h>
+#include <ikura_ext_imgui/imgui.h>
 
 #include "../nativeWindow/glfwNativeWindow.hpp"
 #include "./virtualWindow.hpp"
