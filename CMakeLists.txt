@@ -57,31 +57,44 @@ target_link_libraries(ikulab-motion-viewer PRIVATE glm::glm)
 # Config installer
 # ------------------------------------------------------------
 
-# install files
+include(CPack)
+
+# prepare MacOS bundle
 if (APPLE)
+    # create bundle (and install binary and Info.plist)
     set_target_properties(ikulab-motion-viewer PROPERTIES
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/assets/macos/Info.plist
-        INSTALL_RPATH "@executable_path/../libs"
+    )
+    # set rpath
+    set_target_properties(ikulab-motion-viewer PROPERTIES
+        INSTALL_RPATH "@executable_path/../Frameworks"
         BUILD_WITH_INSTALL_RPATH TRUE
     )
 
+    install(TARGETS ikulab-motion-viewer BUNDLE DESTINATION .)
+
+    # install files
+
     # startup script
     install(FILES ${PROJECT_SOURCE_DIR}/assets/macos/startup.sh
-        DESTINATION DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents/MacOS
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents/MacOS
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
+
+    # vulkan dynamic libraries
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets/macos/Frameworks
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents
+        FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
+    # vulkan library settings
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets/macos/vulkan
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents/Resources)
+
     # icon
     install(FILES ${PROJECT_SOURCE_DIR}/assets/macos/icon.icns
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents/Resources)
-
     # fonts
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets/fonts
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents/Resources)
-
-    # vulkan libs
-    file(GLOB vcpkg_vulkan_libs "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libvulkan.*")
-    install(FILES ${vcpkg_vulkan_libs}
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents/libs)
 endif ()
 
 
@@ -99,4 +112,3 @@ set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Info.plist")
 set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/icon.icns")
 set(CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/build/app/startup.sh")
 
-include(CPack)

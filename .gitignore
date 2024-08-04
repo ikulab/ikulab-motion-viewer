@@ -11,6 +11,7 @@ myeasylog.log
 .ignore
 .idea
 cmake-build-debug*
+*.log
 
 shaderc_combined.a
 shaderc_combined.lib
