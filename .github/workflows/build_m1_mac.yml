@@ -3,7 +3,7 @@ on:
   push:
   workflow_call:
 jobs:
-  build-linux-x64:
+  build-M1-MacOS:
     runs-on: macos-14
     steps:
 
