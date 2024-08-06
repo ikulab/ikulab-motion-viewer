@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include <imgui.h>
+#include <ikura/external/ikura_ext_imgui/imgui.h>
 
 #include "./motionUtil/bvhExporter.hpp"
 
@@ -226,7 +226,7 @@ void updateAnimationControlWindowMainController(
     // Align
     float space = ImGui::GetStyle().ItemSpacing.x;
     float width = MAIN_CONTROL_BUTTON_SIZE_UNIT * 8 + space * 6;
-    float avail = ImGui::GetWindowContentRegionWidth();
+    float avail = ImGui::GetContentRegionAvail().x;
     float pos = (avail - width) / 2 + ImGui::GetCursorPosX();
     ImGui::SetCursorPosX(pos);
 

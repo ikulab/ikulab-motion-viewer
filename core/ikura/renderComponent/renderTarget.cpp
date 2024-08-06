@@ -8,6 +8,7 @@
 #include "../window/nativeWindow/nativeWindow.hpp"
 
 #include "../common/logLevels.hpp"
+#include "../misc/shaderCodes.hpp"
 
 namespace ikura {
 void ImageResource::release(vk::Device device, VmaAllocator allocator) {

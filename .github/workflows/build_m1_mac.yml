@@ -1,0 +1,29 @@
+name: build-M1-MacOS
+on:
+  push:
+  workflow_call:
+jobs:
+  build-M1-MacOS:
+    runs-on: macos-14
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: test
+        run: pwd
+
+      - name: Install Ninja
+        run: brew install ninja
+
+      - name: Build
+        run: utils/scripts/build_app_package.sh
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ikulab-motion-viewer-m1-macos
+          path: |
+            ./build/ikulab-motion-viewer-0.1.0-Darwin.dmg
