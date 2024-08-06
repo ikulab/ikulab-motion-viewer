@@ -72,6 +72,9 @@ class RenderTarget {
     static vk::ShaderModule
     createShaderModuleFromFile(const std::filesystem::path fileName,
                                const vk::Device device);
+    
+    static vk::ShaderModule createBasicVertexShaderModule(const vk::Device& device);
+    static vk::ShaderModule createBasicFragmentShaderModule(const vk::Device& device);
 
   public:
     RenderTarget(const std::shared_ptr<RenderEngine> renderEngine,

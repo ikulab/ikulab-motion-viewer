@@ -4,3 +4,5 @@
 #include <string>
 
 std::filesystem::path getResourceDirectory();
+
+std::filesystem::path getHomeDirectory();

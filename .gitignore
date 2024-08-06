@@ -1,6 +1,5 @@
 build
-downloads
-libs/shaderc
+vcpkg_installed
 .ccls-cache
 imgui.ini
 myeasylog.log
@@ -10,17 +9,12 @@ myeasylog.log
 .ignore
 .idea
 cmake-build-debug*
-
-shaderc_combined.a
-shaderc_combined.lib
+*.log
 
 .DS_Store
 
 compile_commands.json
-
-# template -------------
-# Prerequisites
-*.d
+.cache
 
 # Compiled Object files
 *.slo

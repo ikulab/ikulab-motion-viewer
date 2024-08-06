@@ -2,9 +2,10 @@
 
 #include <easylogging++.h>
 
-#include "../../common/renderPrimitiveTypes.hpp"
-#include "../../common/resourceDirectory.hpp"
 #include "../../common/logLevels.hpp"
+#include "../../common/renderPrimitiveTypes.hpp"
+#include "../../misc/shaderCodes.hpp"
+#include "../../util/shaderUtils.hpp"
 
 namespace ikura {
 void BasicRenderTarget::setupRenderPass() {
@@ -163,18 +164,27 @@ void BasicRenderTarget::setupGraphicsPipeline() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Creating default GraphicsPipeline...";
 
     // ShaderModules ----------
-    auto vertShaderModule = createShaderModuleFromFile(
-        createResourceDirectoryPath(std::filesystem::path("shaders") / "vert.spv"),
-        renderEngine->getDevice());
-    auto fragShaderModule = createShaderModuleFromFile(
-        createResourceDirectoryPath(std::filesystem::path("shaders") / "frag.spv"),
-        renderEngine->getDevice());
+    //    auto vertShaderModule = createShaderModuleFromFile(
+    //        createResourceDirectoryPath(std::filesystem::path("shaders") /
+    //        "vert.spv"), renderEngine->getDevice());
+    //    auto fragShaderModule = createShaderModuleFromFile(
+    //        createResourceDirectoryPath(std::filesystem::path("shaders") /
+    //        "frag.spv"), renderEngine->getDevice());
+
+    auto vertShader = compileShader(ikura::VERTEX_SHADER_CODE, EShLangVertex);
+    auto vertShaderModule =
+        createShaderModule(vertShader, renderEngine->getDevice());
+
+    auto fragShader =
+        compileShader(ikura::FRAGMENT_SHADER_CODE, EShLangFragment);
+    auto fragShaderModule =
+        createShaderModule(fragShader, renderEngine->getDevice());
 
     vk::PipelineShaderStageCreateInfo vertShaderStageCI{};
     vertShaderStageCI.stage = vk::ShaderStageFlagBits::eVertex;
     vertShaderStageCI.module = vertShaderModule;
     vertShaderStageCI.pName = "main";
-/*  */
+
     vk::PipelineShaderStageCreateInfo fragShaderStageCI{};
     fragShaderStageCI.stage = vk::ShaderStageFlagBits::eFragment;
     fragShaderStageCI.module = fragShaderModule;

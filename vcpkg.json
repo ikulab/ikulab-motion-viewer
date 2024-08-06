@@ -15,17 +15,23 @@
     "name" : "glm",
     "version>=" : "1.0.1#2"
   }, {
-    "name" : "vulkan",
-    "version>=" : "2023-12-17"
+    "name" : "glslang",
+    "version>=" : "14.0.0"
+  }, {
+    "name" : "vulkan-headers",
+    "version>=" : "1.3.280.0"
   }, {
     "name" : "vulkan-memory-allocator",
     "version>=" : "3.0.1#4"
   }, {
-    "name" : "imgui",
-    "features": ["glfw-binding", "vulkan-binding"]
+    "name" : "freetype",
+    "version>=" : "2.13.2#1"
+  }, {
+    "name" : "vulkan-loader",
+    "version>=" : "1.3.280.0"
   } ],
-  "overrides": [{
-    "name": "imgui",
-    "version": "1.88"
-  }]
+  "overrides" : [ {
+    "name" : "imgui",
+    "version" : "1.88"
+  } ]
 }
