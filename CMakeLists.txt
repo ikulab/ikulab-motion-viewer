@@ -78,23 +78,23 @@ if (APPLE)
 
     # startup script
     install(FILES ${PROJECT_SOURCE_DIR}/assets/macos/startup.sh
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents/MacOS
+        DESTINATION ikulab-motion-viewer.app/Contents/MacOS
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 
     # vulkan dynamic libraries
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets/macos/Frameworks
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents
+        DESTINATION ikulab-motion-viewer.app/Contents
         FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
     # vulkan library settings
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets/macos/vulkan
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents/Resources)
+        DESTINATION ikulab-motion-viewer.app/Contents/Resources)
 
     # icon
     install(FILES ${PROJECT_SOURCE_DIR}/assets/macos/icon.icns
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents/Resources)
+        DESTINATION ikulab-motion-viewer.app/Contents/Resources)
     # fonts
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets/fonts
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/app/ikulab-motion-viewer.app/Contents/Resources)
+        DESTINATION ikulab-motion-viewer.app/Contents/Resources)
 endif ()
 
 
