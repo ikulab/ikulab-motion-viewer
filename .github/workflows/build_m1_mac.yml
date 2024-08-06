@@ -1,4 +1,4 @@
-name: build-linux-x64
+name: build-M1-MacOS
 on:
   push:
   workflow_call:
