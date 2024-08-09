@@ -32,10 +32,10 @@
       "name": "release-windows",
       "inherits": "release",
       "binaryDir": "${sourceDir}/build_release_windows",
-        "cacheVariables": {
-          "CMAKE_C_COMPILER": "cl.exe",
-          "CMAKE_CXX_COMPILER": "cl.exe"
-        }
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      }
     }
   ]
 }

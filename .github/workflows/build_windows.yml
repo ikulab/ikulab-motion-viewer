@@ -15,6 +15,9 @@ jobs:
       - name: Install Ninja
         run: choco install ninja
 
+      - name: Setup VisualStudio Dev Environment
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Cache vcpkg_installed
         uses: actions/cache@v2
         with:
