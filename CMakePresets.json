@@ -27,6 +27,12 @@
         "CMAKE_BUILD_TYPE": "Release",
         "GENERATE_PACKAGE": "ON"
       }
+    },
+    {
+      "name": "release-windows",
+      "inherits": "release",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/build_release_windows"
     }
   ]
 }
