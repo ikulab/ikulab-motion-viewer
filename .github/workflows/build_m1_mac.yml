@@ -19,7 +19,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./vcpkg_installed
-          key: ${{ runner.os }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
 
       - name: Build
         run: utils/scripts/build_app_package.sh
