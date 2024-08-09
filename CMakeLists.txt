@@ -35,7 +35,7 @@ endif ()
 # ------------------------------------------------------------
 
 # set IMV_IS_DEBUG flag
-if ("${BUILD_TYPE}" STREQUAL "Debug")
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     add_compile_options(-DIMV_IS_DEBUG)
 endif ()
 
