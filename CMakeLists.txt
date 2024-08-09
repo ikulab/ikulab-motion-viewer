@@ -11,8 +11,6 @@ endif ()
 
 if (WIN32)
     add_compile_options(
-            -std=c++17 -fdiagnostics-color=always -g
-            -Wno-nullability-completeness
             -D_USE_MATH_DEFINES
             -DIS_WINDOWS
     )
@@ -53,11 +51,14 @@ find_package(glm CONFIG REQUIRED)
 target_link_libraries(ikulab-motion-viewer PRIVATE tinyfiledialogs::tinyfiledialogs)
 target_link_libraries(ikulab-motion-viewer PRIVATE glm::glm)
 
+if (WIN32)
+    # リソースファイルを追加
+    target_sources(ikulab-motion-viewer PRIVATE assets/windows/icon.rc)
+endif ()
+
 # ------------------------------------------------------------
 # Config installer
 # ------------------------------------------------------------
-
-include(CPack)
 
 # prepare MacOS bundle
 if (APPLE)
@@ -95,20 +96,23 @@ if (APPLE)
     # fonts
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets/fonts
         DESTINATION ikulab-motion-viewer.app/Contents/Resources)
+
+    # CPack config for MacOS
+    set(CPACK_BUNDLE_NAME "ikulab-motion-viewer")
+    set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Info.plist")
+    set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/icon.icns")
+    set(CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/build/app/startup.sh")
+
+    include(CPack)
+elseif (LINUX)
+    # CPack config for DEB
+    set(CPACK_GENERATOR DEB)
+    set(CPACK_PACKAGE_VENDOR "ikulab / CaffeineFree")
+    set(CPACK_PACKAGE_NAME "ikulab-motion-viewer")
+    set(CPACK_PACKAGE_CONTACT "dev@caffeinezero.info")
+    set(CPACK_PACKAGE_DESCRIPTION "The BVH Motion Viewer powered by ikura Graphics Engine.")
+    set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
+
+    include(CPack)
 endif ()
-
-
-# CPack config
-set(CPACK_GENERATOR DEB)
-set(CPACK_PACKAGE_VENDOR "ikulab / CaffeineFree")
-set(CPACK_PACKAGE_NAME "ikulab-motion-viewer")
-set(CPACK_PACKAGE_CONTACT "dev@caffeinezero.info")
-set(CPACK_PACKAGE_DESCRIPTION "The BVH Motion Viewer powered by ikura Graphics Engine.")
-set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
-
-# CPack config for MacOS
-set(CPACK_BUNDLE_NAME "ikulab-motion-viewer")
-set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Info.plist")
-set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/icon.icns")
-set(CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/build/app/startup.sh")
 
