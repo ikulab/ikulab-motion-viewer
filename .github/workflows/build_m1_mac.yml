@@ -26,4 +26,4 @@ jobs:
         with:
           name: ikulab-motion-viewer-m1-macos
           path: |
-            ./build/ikulab-motion-viewer-1.2.0-Darwin.dmg
+            ./build_release/ikulab-motion-viewer-1.2.0-Darwin.dmg
