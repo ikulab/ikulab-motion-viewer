@@ -15,6 +15,12 @@ jobs:
       - name: Install Ninja
         run: choco install ninja
 
+      - name: Cache vcpkg_installed
+        uses: actions/cache@v2
+        with:
+          path: ./vcpkg_installed
+          key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
+
       - name: Build
         run: utils/scripts/build_win_package.ps1
 
