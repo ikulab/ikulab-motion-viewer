@@ -1,9 +1,9 @@
-name: build-M1-MacOS
+name: build-x64-Windows
 on:
   push:
   workflow_call:
 jobs:
-  build-M1-MacOS:
+  build-x64-Windows:
     runs-on: windows-latest
     steps:
 
