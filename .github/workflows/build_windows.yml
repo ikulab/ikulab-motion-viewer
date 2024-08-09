@@ -12,6 +12,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Install Ninja
+        run: choco install ninja
+
       - name: Build
         run: utils/scripts/build_win_package.ps1
 
