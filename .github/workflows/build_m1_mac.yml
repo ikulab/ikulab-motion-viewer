@@ -12,11 +12,14 @@ jobs:
         with:
           submodules: recursive
 
-      - name: test
-        run: pwd
-
       - name: Install Ninja
         run: brew install ninja
+
+      - name: Cache vcpkg_installed
+        uses: actions/cache@v2
+        with:
+          path: ./vcpkg_installed
+          key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
 
       - name: Build
         run: utils/scripts/build_app_package.sh
