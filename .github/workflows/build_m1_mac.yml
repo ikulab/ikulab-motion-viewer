@@ -12,9 +12,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: test
-        run: pwd
-
       - name: Install Ninja
         run: brew install ninja
 
