@@ -16,10 +16,10 @@ cd "$project_dir" || exit
 
 green "Building binary..."
 
-cmake --preset=default
-cmake --build build
+cmake --preset=release
+cmake --build build_release
 
-cd build
+cd build_release
 
 green "Generating package..."
 

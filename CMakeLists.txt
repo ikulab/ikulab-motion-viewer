@@ -54,6 +54,16 @@ target_link_libraries(ikulab-motion-viewer PRIVATE tinyfiledialogs::tinyfiledial
 target_link_libraries(ikulab-motion-viewer PRIVATE glm::glm)
 
 # ------------------------------------------------------------
+# config ikulab-motion-viewer 
+# ------------------------------------------------------------
+
+# override application resource director
+if (DEFINED RESOURCE_DIR)
+    target_compile_definitions(ikulab-motion-viewer PRIVATE RESOURCE_DIR="${RESOURCE_DIR}")
+    message(STATUS "Resource directory is set to ${RESOURCE_DIR}")
+endif ()
+
+# ------------------------------------------------------------
 # Config installer
 # ------------------------------------------------------------
 
