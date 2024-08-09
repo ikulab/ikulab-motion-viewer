@@ -27,6 +27,15 @@
         "CMAKE_BUILD_TYPE": "Release",
         "GENERATE_PACKAGE": "ON"
       }
+    },
+    {
+      "name": "release-windows",
+      "inherits": "release",
+      "binaryDir": "${sourceDir}/build_release_windows",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      }
     }
   ]
 }

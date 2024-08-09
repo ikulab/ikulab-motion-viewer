@@ -49,16 +49,16 @@ target_include_directories(ikura INTERFACE
 # link external libraries
 # ------------------------------------------------------------
 
-target_link_libraries(ikura PRIVATE ${CMAKE_DL_LIBS})
+target_link_libraries(ikura PUBLIC ${CMAKE_DL_LIBS})
 
 # packages installed via vcpkg
-target_link_libraries(ikura PRIVATE Vulkan::Headers)
-target_link_libraries(ikura PRIVATE Vulkan::Loader)
-target_link_libraries(ikura PRIVATE GPUOpen::VulkanMemoryAllocator)
-target_link_libraries(ikura PRIVATE glfw)
-target_link_libraries(ikura PRIVATE PkgConfig::easyloggingpp)
-target_link_libraries(ikura PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV glslang::SPVRemapper)
+target_link_libraries(ikura PUBLIC Vulkan::Headers)
+target_link_libraries(ikura PUBLIC Vulkan::Loader)
+target_link_libraries(ikura PUBLIC GPUOpen::VulkanMemoryAllocator)
+target_link_libraries(ikura PUBLIC glfw)
+target_link_libraries(ikura PUBLIC PkgConfig::easyloggingpp)
+target_link_libraries(ikura PUBLIC glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV glslang::SPVRemapper)
 
 # packages under external/ directory
 target_include_directories(ikura PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external)
-target_link_libraries(ikura PRIVATE ikura_ext_imgui)
+target_link_libraries(ikura PUBLIC ikura_ext_imgui)
