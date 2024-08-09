@@ -125,7 +125,3 @@ if (LINUX AND GENERATE_PACKAGE)
     set(CPACK_PACKAGE_DESCRIPTION "The BVH Motion Viewer powered by ikura Graphics Engine.")
     set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
 endif ()
-
-if (WIN32 AND GENERATE_PACKAGE)
-    # todo
-endif ()
