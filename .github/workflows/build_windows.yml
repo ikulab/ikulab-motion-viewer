@@ -1,0 +1,23 @@
+name: build-M1-MacOS
+on:
+  push:
+  workflow_call:
+jobs:
+  build-M1-MacOS:
+    runs-on: windows-latest
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: utils/scripts/build_win_package.ps1
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ikulab-motion-viewer-x64-windows
+          path: |
+            ./ikulab-motion-viewer_Installer.exe
