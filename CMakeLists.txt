@@ -33,7 +33,7 @@ endif ()
 # ------------------------------------------------------------
 
 # set IMV_IS_DEBUG flag
-if ("${BUILD_TYPE}" STREQUAL "Debug")
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     add_compile_options(-DIMV_IS_DEBUG)
 endif ()
 
@@ -57,11 +57,23 @@ if (WIN32)
 endif ()
 
 # ------------------------------------------------------------
+# config ikulab-motion-viewer 
+# ------------------------------------------------------------
+
+# override application resource director
+if (DEFINED RESOURCE_DIR)
+    target_compile_definitions(ikulab-motion-viewer PRIVATE RESOURCE_DIR="${RESOURCE_DIR}")
+    message(STATUS "Resource directory is set to ${RESOURCE_DIR}")
+endif ()
+
+# ------------------------------------------------------------
 # Config installer
 # ------------------------------------------------------------
 
 # prepare MacOS bundle
-if (APPLE)
+if (APPLE AND GENERATE_PACKAGE)
+    include(CPack)
+
     # create bundle (and install binary and Info.plist)
     set_target_properties(ikulab-motion-viewer PROPERTIES
         MACOSX_BUNDLE TRUE
@@ -102,17 +114,18 @@ if (APPLE)
     set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Info.plist")
     set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/icon.icns")
     set(CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/build/app/startup.sh")
+endif ()
 
-    include(CPack)
-elseif (LINUX)
-    # CPack config for DEB
+if (LINUX AND GENERATE_PACKAGE)
+    # CPack config
     set(CPACK_GENERATOR DEB)
     set(CPACK_PACKAGE_VENDOR "ikulab / CaffeineFree")
     set(CPACK_PACKAGE_NAME "ikulab-motion-viewer")
     set(CPACK_PACKAGE_CONTACT "dev@caffeinezero.info")
     set(CPACK_PACKAGE_DESCRIPTION "The BVH Motion Viewer powered by ikura Graphics Engine.")
     set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
-
-    include(CPack)
 endif ()
 
+if (WIN32 AND GENERATE_PACKAGE)
+    # todo
+endif ()

@@ -7,17 +7,30 @@
 
 #include <tinyfiledialogs.h>
 
+// ------------------------------------------------------------
+// getResourceDirectory
+// ------------------------------------------------------------
+
+#ifdef RESOURCE_DIR
+
+std::filesystem::path getResourceDirectory() {
+    std::filesystem::path resourceDir = RESOURCE_DIR;
+
+    return resourceDir;
+}
+
+#else
+
 #ifdef __linux__
+
 std::filesystem::path getResourceDirectory() {
     std::filesystem::path resourceDir = "/usr/local/share/ikulab-motion-viewer";
 
     return resourceDir;
 }
 
-std::filesystem::path getHomeDirectory() { return getenv("HOME"); }
-#endif
+#elif __APPLE__
 
-#ifdef __APPLE__
 /**
  * @brief Check if the application is launched from a bundle.
  * i.e. if the application launched by double-clicking .app file from Finder.
@@ -64,10 +77,8 @@ std::filesystem::path getResourceDirectory() {
     }
 }
 
-std::filesystem::path getHomeDirectory() { return getenv("HOME"); }
-#endif
+#elif IS_WINDOWS
 
-#ifdef IS_WINDOWS
 std::filesystem::path getResourceDirectory() {
     std::filesystem::path homeDrive = getenv("HOMEDRIVE");
     std::filesystem::path homePath = getenv("HOMEPATH");
@@ -75,6 +86,24 @@ std::filesystem::path getResourceDirectory() {
 
     return resourceDir;
 }
+
+#endif
+
+#endif
+
+// ------------------------------------------------------------
+// getHomeDirectory
+// ------------------------------------------------------------
+
+#ifdef __linux__
+
+std::filesystem::path getHomeDirectory() { return getenv("HOME"); }
+
+#elif __APPLE__
+
+std::filesystem::path getHomeDirectory() { return getenv("HOME"); }
+
+#elif IS_WINDOWS
 
 std::filesystem::path getHomeDirectory() {
 
