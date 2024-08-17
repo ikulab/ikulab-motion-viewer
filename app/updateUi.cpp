@@ -7,10 +7,12 @@
 
 #include "./motionUtil/bvhExporter.hpp"
 
-#define MAIN_CONTROL_BUTTON_SIZE_UNIT 40
+namespace {
+constexpr int MAIN_CONTROL_BUTTON_SIZE_UNIT = 40;
 
-#define ANIM_WINDOW_HEIGHT_NORMAL 250
-#define ANIM_WINDOW_HEIGHT_EDIT 400
+constexpr int ANIM_WINDOW_HEIGHT_NORMAL = 250;
+constexpr int ANIM_WINDOW_HEIGHT_EDIT = 400;
+} // namespace
 
 void App::updateUI() {
     imGuiVirtualWindow->setCurrentImGuiContext();
