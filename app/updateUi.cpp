@@ -107,7 +107,7 @@ void App::updateMainMenu() {
 // ----------------------------------------
 
 void initAnimationControlWindowSize(
-    std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
+    const std::shared_ptr<ikura::GlfwNativeWindow> &mainWindow,
     UI::AnimationControlWindow &ctx);
 void updateAnimationControlWindowModeSwitcher(
     UI::AnimationControlWindow &ctx, std::shared_ptr<Animator> animator);
@@ -154,31 +154,34 @@ void App::updateAnimationControlWindow() {
 }
 
 void initAnimationControlWindowSize(
-    std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
+    const std::shared_ptr<ikura::GlfwNativeWindow> &mainWindow,
     UI::AnimationControlWindow &ctx) {
 
     if (!ctx.windowInitialized) {
-        ImVec2 newWindowSize;
-        ImVec2 newWindowPos;
-        auto modeIndex = ctx.modeIndex;
+        const auto modeIndex = ctx.modeIndex;
 
-        // Normal mode
-        if (modeIndex == ctx.MODE_INDEX_NORMAL) {
-            newWindowSize =
-                ImVec2(ANIM_WINDOW_WIDTH, ANIM_WINDOW_HEIGHT_NORMAL);
-            newWindowPos =
-                ImVec2((mainWindow->getWidth() - ANIM_WINDOW_WIDTH) / 2,
-                       mainWindow->getHeight() - ANIM_WINDOW_HEIGHT_NORMAL -
-                           ANIM_WINDOW_BOTTOM_MARGIN);
+        int width, height;
+        if (modeIndex == UI::AnimationControlWindow::MODE_INDEX_NORMAL) {
+            width = ANIM_WINDOW_WIDTH;
+            height = ANIM_WINDOW_HEIGHT_NORMAL;
+        } else if (modeIndex == UI::AnimationControlWindow::MODE_INDEX_EDIT) {
+            width = ANIM_WINDOW_WIDTH;
+            height = ANIM_WINDOW_HEIGHT_EDIT;
+        } else {
+            std::string msg;
+            msg += "アニメーションウィンドウのmodeIndexが不正です: ";
+            msg += std::to_string(modeIndex);
+            throw std::runtime_error(msg);
         }
-        // Edit mode
-        else if (modeIndex == ctx.MODE_INDEX_EDIT) {
-            newWindowSize = ImVec2(ANIM_WINDOW_WIDTH, ANIM_WINDOW_HEIGHT_EDIT);
-            newWindowPos =
-                ImVec2((mainWindow->getWidth() - ANIM_WINDOW_WIDTH) / 2,
-                       mainWindow->getHeight() - ANIM_WINDOW_HEIGHT_EDIT -
-                           ANIM_WINDOW_BOTTOM_MARGIN);
-        }
+
+        const auto posX = (mainWindow->getWidth() - width) / 2;
+        const auto posY =
+            mainWindow->getHeight() - height - ANIM_WINDOW_BOTTOM_MARGIN;
+
+        const auto newWindowSize =
+            ImVec2(static_cast<float>(width), static_cast<float>(height));
+        const auto newWindowPos =
+            ImVec2(static_cast<float>(posX), static_cast<float>(posY));
 
         ImGui::SetNextWindowSize(newWindowSize);
         ImGui::SetNextWindowPos(newWindowPos);
