@@ -157,21 +157,23 @@ void initAnimationControlWindowSize(
     const std::shared_ptr<ikura::GlfwNativeWindow> &mainWindow,
     UI::AnimationControlWindow &ctx) {
 
-    if (!ctx.windowInitialized) {
-        const auto modeIndex = ctx.modeIndex;
+    if (ctx.windowInitialized)
+        return;
 
-        int width, height;
-        if (modeIndex == UI::AnimationControlWindow::MODE_INDEX_NORMAL) {
-            width = ANIM_WINDOW_WIDTH;
-            height = ANIM_WINDOW_HEIGHT_NORMAL;
-        } else if (modeIndex == UI::AnimationControlWindow::MODE_INDEX_EDIT) {
-            width = ANIM_WINDOW_WIDTH;
-            height = ANIM_WINDOW_HEIGHT_EDIT;
-        } else {
-            std::string msg;
-            msg += "アニメーションウィンドウのmodeIndexが不正です: ";
-            msg += std::to_string(modeIndex);
-            throw std::runtime_error(msg);
+    const auto modeIndex = ctx.modeIndex;
+
+    int width, height;
+    if (modeIndex == UI::AnimationControlWindow::MODE_INDEX_NORMAL) {
+        width = ANIM_WINDOW_WIDTH;
+        height = ANIM_WINDOW_HEIGHT_NORMAL;
+    } else if (modeIndex == UI::AnimationControlWindow::MODE_INDEX_EDIT) {
+        width = ANIM_WINDOW_WIDTH;
+        height = ANIM_WINDOW_HEIGHT_EDIT;
+    } else {
+        std::string msg;
+        msg += "アニメーションウィンドウのmodeIndexが不正です: ";
+        msg += std::to_string(modeIndex);
+        throw std::runtime_error(msg);
         }
 
         const auto posX = (mainWindow->getWidth() - width) / 2;
@@ -186,7 +188,6 @@ void initAnimationControlWindowSize(
         ImGui::SetNextWindowSize(newWindowSize);
         ImGui::SetNextWindowPos(newWindowPos);
         ctx.windowInitialized = true;
-    }
 }
 
 void updateAnimationControlWindowModeSwitcher(
