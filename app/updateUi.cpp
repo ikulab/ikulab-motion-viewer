@@ -180,8 +180,11 @@ void initAnimationControlWindowSize(
     const float nativeWindowHeightScaled =
         static_cast<float>(mainWindow->getHeight()) / mainWindow->getScaleY();
 
+    // アニメーションウィンドウの初期位置を計算
+    // 横方向は中央揃え
     const auto posX =
         (nativeWindowWidthScaled - static_cast<float>(animWindowWidth)) / 2;
+    // 縦方向は下揃えで、OSウィンドウの下端からマージンを開ける
     const auto posY = nativeWindowHeightScaled -
                       static_cast<float>(animWindowHeight) -
                       ANIM_WINDOW_BOTTOM_MARGIN;
