@@ -155,6 +155,17 @@ void App::updateAnimationControlWindow() {
     ImGui::End();
 }
 
+/**
+ * @brief アニメーションコントロールウィンドウの初期サイズと初期位置を設定する。
+ * 
+ * Retinaディスプレイなど、ウィンドウのスケールが1.0以外の場合も考慮する。
+ * VulkanによるレンダリングはRetinaディスプレイの論理ピクセルベースで行っている。
+ * 一方で、Dear ImGuiは物理ピクセルベースでレンダリングを行う。
+ * したがって、OSウィンドウのサイズはスケーリング後のものを使用する。
+ * 
+ * @param mainWindow メインウィンドウのGLFWウィンドウ
+ * @param ctx アニメーションコントロールウィンドウのコンテキスト
+ */
 void initAnimationControlWindowSize(
     const std::shared_ptr<ikura::GlfwNativeWindow> &mainWindow,
     UI::AnimationControlWindow &ctx) {
