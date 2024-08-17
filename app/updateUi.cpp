@@ -429,6 +429,7 @@ void App::updateDebugWindow() {
     // window status
     ImGui::Text("Window size: (%d, %d)", mainWindow->getWidth(),
                 mainWindow->getHeight());
+    ImGui::Text("Window scale: (%f, %f)", mainWindow->getScaleX(), mainWindow->getScaleY());
     ImGui::Text("IsWindowFocused: %d", ImGui::IsWindowFocused());
 
     ImGui::End();

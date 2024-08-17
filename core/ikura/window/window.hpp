@@ -37,6 +37,9 @@ class Window {
     const std::shared_ptr<RenderTarget> &getRenderTarget();
     const std::shared_ptr<RenderContent> &getRenderContent();
 
+    virtual float getScaleX() const { return 1.0f; };
+    virtual float getScaleY() const { return 1.0f; };
+
     // Setters ----------
     void setRenderTarget(std::shared_ptr<RenderTarget> renderTarget);
     void setRenderContent(std::shared_ptr<RenderContent> renderContent);

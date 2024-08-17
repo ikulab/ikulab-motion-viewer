@@ -72,6 +72,20 @@ GlfwNativeWindow::~GlfwNativeWindow() {
     }
 }
 
+float GlfwNativeWindow::getScaleX() const {
+    float xScale;
+    glfwGetWindowContentScale(window, &xScale, nullptr);
+
+    return xScale;
+}
+
+float GlfwNativeWindow::getScaleY() const {
+    float yScale;
+    glfwGetWindowContentScale(window, nullptr, &yScale);
+
+    return yScale;
+}
+
 void GlfwNativeWindow::createSwapChain() {
     VLOG(VLOG_LV_3_PROCESS_TRACKING)
         << "Creating SwapChain for '" << name << "'...";
