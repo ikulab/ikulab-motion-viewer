@@ -12,10 +12,16 @@ namespace {
 // 基本的にこの単位サイズの整数倍の大きさをボタンの大きさに設定する
 constexpr int MAIN_CONTROL_BUTTON_SIZE_UNIT = 40;
 
-// Normalモードのアニメーションウィンドウの高さ
+// アニメーションコントールウィンドウの幅
+constexpr int ANIM_WINDOW_WIDTH = 800;
+
+// Normalモードのアニメーションコントロールウィンドウの高さ
 constexpr int ANIM_WINDOW_HEIGHT_NORMAL = 250;
-// Editモードのアニメーションウィンドウの高さ
+// Editモードのアニメーションコントロールウィンドウの高さ
 constexpr int ANIM_WINDOW_HEIGHT_EDIT = 400;
+
+// アニメーションコントロールウィンドウの下端からウィンドウの下端までのマージン
+constexpr int ANIM_WINDOW_BOTTOM_MARGIN = 10;
 } // namespace
 
 void App::updateUI() {
@@ -158,17 +164,20 @@ void initAnimationControlWindowSize(
 
         // Normal mode
         if (modeIndex == ctx.MODE_INDEX_NORMAL) {
-            newWindowSize = ImVec2(800, ANIM_WINDOW_HEIGHT_NORMAL);
-            newWindowPos = ImVec2((mainWindow->getWidth() - 800) / 2,
-                                  mainWindow->getHeight() -
-                                      ANIM_WINDOW_HEIGHT_NORMAL - 10);
+            newWindowSize =
+                ImVec2(ANIM_WINDOW_WIDTH, ANIM_WINDOW_HEIGHT_NORMAL);
+            newWindowPos =
+                ImVec2((mainWindow->getWidth() - ANIM_WINDOW_WIDTH) / 2,
+                       mainWindow->getHeight() - ANIM_WINDOW_HEIGHT_NORMAL -
+                           ANIM_WINDOW_BOTTOM_MARGIN);
         }
         // Edit mode
         else if (modeIndex == ctx.MODE_INDEX_EDIT) {
-            newWindowSize = ImVec2(800, ANIM_WINDOW_HEIGHT_EDIT);
+            newWindowSize = ImVec2(ANIM_WINDOW_WIDTH, ANIM_WINDOW_HEIGHT_EDIT);
             newWindowPos =
-                ImVec2((mainWindow->getWidth() - 800) / 2,
-                       mainWindow->getHeight() - ANIM_WINDOW_HEIGHT_EDIT - 10);
+                ImVec2((mainWindow->getWidth() - ANIM_WINDOW_WIDTH) / 2,
+                       mainWindow->getHeight() - ANIM_WINDOW_HEIGHT_EDIT -
+                           ANIM_WINDOW_BOTTOM_MARGIN);
         }
 
         ImGui::SetNextWindowSize(newWindowSize);
