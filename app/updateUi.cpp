@@ -161,13 +161,13 @@ void initAnimationControlWindowSize(
 
     const auto modeIndex = ctx.modeIndex;
 
-    int width, height;
+    int animWindowWidth, animWindowHeight;
     if (modeIndex == UI::AnimationControlWindow::MODE_INDEX_NORMAL) {
-        width = ANIM_WINDOW_WIDTH;
-        height = ANIM_WINDOW_HEIGHT_NORMAL;
+        animWindowWidth = ANIM_WINDOW_WIDTH;
+        animWindowHeight = ANIM_WINDOW_HEIGHT_NORMAL;
     } else if (modeIndex == UI::AnimationControlWindow::MODE_INDEX_EDIT) {
-        width = ANIM_WINDOW_WIDTH;
-        height = ANIM_WINDOW_HEIGHT_EDIT;
+        animWindowWidth = ANIM_WINDOW_WIDTH;
+        animWindowHeight = ANIM_WINDOW_HEIGHT_EDIT;
     } else {
         std::string msg;
         msg += "アニメーションウィンドウのmodeIndexが不正です: ";
@@ -175,14 +175,20 @@ void initAnimationControlWindowSize(
         throw std::runtime_error(msg);
     }
 
-    const auto posX = (mainWindow->getWidth() - width) / 2;
-    const auto posY =
-        mainWindow->getHeight() - height - ANIM_WINDOW_BOTTOM_MARGIN;
+    const float nativeWindowWidthScaled =
+        static_cast<float>(mainWindow->getWidth()) / mainWindow->getScaleX();
+    const float nativeWindowHeightScaled =
+        static_cast<float>(mainWindow->getHeight()) / mainWindow->getScaleY();
 
-    const auto newWindowSize =
-        ImVec2(static_cast<float>(width), static_cast<float>(height));
-    const auto newWindowPos =
-        ImVec2(static_cast<float>(posX), static_cast<float>(posY));
+    const auto posX =
+        (nativeWindowWidthScaled - static_cast<float>(animWindowWidth)) / 2;
+    const auto posY = nativeWindowHeightScaled -
+                      static_cast<float>(animWindowHeight) -
+                      ANIM_WINDOW_BOTTOM_MARGIN;
+
+    const auto newWindowSize = ImVec2(static_cast<float>(animWindowWidth),
+                                      static_cast<float>(animWindowHeight));
+    const auto newWindowPos = ImVec2(posX, posY);
 
     ImGui::SetNextWindowSize(newWindowSize);
     ImGui::SetNextWindowPos(newWindowPos);
