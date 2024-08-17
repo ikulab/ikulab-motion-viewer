@@ -122,7 +122,9 @@ void updateAnimationControlWindowEditor(bool &modelLoaded,
                                         std::shared_ptr<Animator> animator);
 
 void App::updateAnimationControlWindow() {
-    initAnimationControlWindowSize(mainWindow, ui->animationControlWindow);
+    if (!ui->animationControlWindow.windowInitialized) {
+        initAnimationControlWindowSize(mainWindow, ui->animationControlWindow);
+    }
 
     ImGui::Begin(u8"アニメーションコントロール");
 
@@ -157,9 +159,6 @@ void initAnimationControlWindowSize(
     const std::shared_ptr<ikura::GlfwNativeWindow> &mainWindow,
     UI::AnimationControlWindow &ctx) {
 
-    if (ctx.windowInitialized)
-        return;
-
     const auto modeIndex = ctx.modeIndex;
 
     int width, height;
@@ -174,20 +173,20 @@ void initAnimationControlWindowSize(
         msg += "アニメーションウィンドウのmodeIndexが不正です: ";
         msg += std::to_string(modeIndex);
         throw std::runtime_error(msg);
-        }
+    }
 
-        const auto posX = (mainWindow->getWidth() - width) / 2;
-        const auto posY =
-            mainWindow->getHeight() - height - ANIM_WINDOW_BOTTOM_MARGIN;
+    const auto posX = (mainWindow->getWidth() - width) / 2;
+    const auto posY =
+        mainWindow->getHeight() - height - ANIM_WINDOW_BOTTOM_MARGIN;
 
-        const auto newWindowSize =
-            ImVec2(static_cast<float>(width), static_cast<float>(height));
-        const auto newWindowPos =
-            ImVec2(static_cast<float>(posX), static_cast<float>(posY));
+    const auto newWindowSize =
+        ImVec2(static_cast<float>(width), static_cast<float>(height));
+    const auto newWindowPos =
+        ImVec2(static_cast<float>(posX), static_cast<float>(posY));
 
-        ImGui::SetNextWindowSize(newWindowSize);
-        ImGui::SetNextWindowPos(newWindowPos);
-        ctx.windowInitialized = true;
+    ImGui::SetNextWindowSize(newWindowSize);
+    ImGui::SetNextWindowPos(newWindowPos);
+    ctx.windowInitialized = true;
 }
 
 void updateAnimationControlWindowModeSwitcher(
