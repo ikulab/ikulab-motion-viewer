@@ -8,9 +8,13 @@
 #include "./motionUtil/bvhExporter.hpp"
 
 namespace {
+// コントロールボタンの1単位サイズ
+// 基本的にこの単位サイズの整数倍の大きさをボタンの大きさに設定する
 constexpr int MAIN_CONTROL_BUTTON_SIZE_UNIT = 40;
 
+// Normalモードのアニメーションウィンドウの高さ
 constexpr int ANIM_WINDOW_HEIGHT_NORMAL = 250;
+// Editモードのアニメーションウィンドウの高さ
 constexpr int ANIM_WINDOW_HEIGHT_EDIT = 400;
 } // namespace
 
