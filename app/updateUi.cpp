@@ -7,10 +7,22 @@
 
 #include "./motionUtil/bvhExporter.hpp"
 
-#define MAIN_CONTROL_BUTTON_SIZE_UNIT 40
+namespace {
+// コントロールボタンの1単位サイズ
+// 基本的にこの単位サイズの整数倍の大きさをボタンの大きさに設定する
+constexpr int MAIN_CONTROL_BUTTON_SIZE_UNIT = 40;
 
-#define ANIM_WINDOW_HEIGHT_NORMAL 250
-#define ANIM_WINDOW_HEIGHT_EDIT 400
+// アニメーションコントールウィンドウの幅
+constexpr int ANIM_WINDOW_WIDTH = 800;
+
+// Normalモードのアニメーションコントロールウィンドウの高さ
+constexpr int ANIM_WINDOW_HEIGHT_NORMAL = 250;
+// Editモードのアニメーションコントロールウィンドウの高さ
+constexpr int ANIM_WINDOW_HEIGHT_EDIT = 400;
+
+// アニメーションコントロールウィンドウの下端からウィンドウの下端までのマージン
+constexpr int ANIM_WINDOW_BOTTOM_MARGIN = 10;
+} // namespace
 
 void App::updateUI() {
     imGuiVirtualWindow->setCurrentImGuiContext();
@@ -95,7 +107,7 @@ void App::updateMainMenu() {
 // ----------------------------------------
 
 void initAnimationControlWindowSize(
-    std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
+    const std::shared_ptr<ikura::GlfwNativeWindow> &mainWindow,
     UI::AnimationControlWindow &ctx);
 void updateAnimationControlWindowModeSwitcher(
     UI::AnimationControlWindow &ctx, std::shared_ptr<Animator> animator);
@@ -110,7 +122,9 @@ void updateAnimationControlWindowEditor(bool &modelLoaded,
                                         std::shared_ptr<Animator> animator);
 
 void App::updateAnimationControlWindow() {
-    initAnimationControlWindowSize(mainWindow, ui->animationControlWindow);
+    if (!ui->animationControlWindow.windowInitialized) {
+        initAnimationControlWindowSize(mainWindow, ui->animationControlWindow);
+    }
 
     ImGui::Begin(u8"アニメーションコントロール");
 
@@ -141,34 +155,58 @@ void App::updateAnimationControlWindow() {
     ImGui::End();
 }
 
+/**
+ * @brief アニメーションコントロールウィンドウの初期サイズと初期位置を設定する。
+ * 
+ * Retinaディスプレイなど、ウィンドウのスケールが1.0以外の場合も考慮する。
+ * VulkanによるレンダリングはRetinaディスプレイの論理ピクセルベースで行っている。
+ * 一方で、Dear ImGuiは物理ピクセルベースでレンダリングを行う。
+ * したがって、OSウィンドウのサイズはスケーリング後のものを使用する。
+ * 
+ * @param mainWindow メインウィンドウのGLFWウィンドウ
+ * @param ctx アニメーションコントロールウィンドウのコンテキスト
+ */
 void initAnimationControlWindowSize(
-    std::shared_ptr<ikura::GlfwNativeWindow> mainWindow,
+    const std::shared_ptr<ikura::GlfwNativeWindow> &mainWindow,
     UI::AnimationControlWindow &ctx) {
 
-    if (!ctx.windowInitialized) {
-        ImVec2 newWindowSize;
-        ImVec2 newWindowPos;
-        auto modeIndex = ctx.modeIndex;
+    const auto modeIndex = ctx.modeIndex;
 
-        // Normal mode
-        if (modeIndex == ctx.MODE_INDEX_NORMAL) {
-            newWindowSize = ImVec2(800, ANIM_WINDOW_HEIGHT_NORMAL);
-            newWindowPos = ImVec2((mainWindow->getWidth() - 800) / 2,
-                                  mainWindow->getHeight() -
-                                      ANIM_WINDOW_HEIGHT_NORMAL - 10);
-        }
-        // Edit mode
-        else if (modeIndex == ctx.MODE_INDEX_EDIT) {
-            newWindowSize = ImVec2(800, ANIM_WINDOW_HEIGHT_EDIT);
-            newWindowPos =
-                ImVec2((mainWindow->getWidth() - 800) / 2,
-                       mainWindow->getHeight() - ANIM_WINDOW_HEIGHT_EDIT - 10);
-        }
-
-        ImGui::SetNextWindowSize(newWindowSize);
-        ImGui::SetNextWindowPos(newWindowPos);
-        ctx.windowInitialized = true;
+    int animWindowWidth, animWindowHeight;
+    if (modeIndex == UI::AnimationControlWindow::MODE_INDEX_NORMAL) {
+        animWindowWidth = ANIM_WINDOW_WIDTH;
+        animWindowHeight = ANIM_WINDOW_HEIGHT_NORMAL;
+    } else if (modeIndex == UI::AnimationControlWindow::MODE_INDEX_EDIT) {
+        animWindowWidth = ANIM_WINDOW_WIDTH;
+        animWindowHeight = ANIM_WINDOW_HEIGHT_EDIT;
+    } else {
+        std::string msg;
+        msg += "アニメーションウィンドウのmodeIndexが不正です: ";
+        msg += std::to_string(modeIndex);
+        throw std::runtime_error(msg);
     }
+
+    const float nativeWindowWidthScaled =
+        static_cast<float>(mainWindow->getWidth()) / mainWindow->getScaleX();
+    const float nativeWindowHeightScaled =
+        static_cast<float>(mainWindow->getHeight()) / mainWindow->getScaleY();
+
+    // アニメーションウィンドウの初期位置を計算
+    // 横方向は中央揃え
+    const auto posX =
+        (nativeWindowWidthScaled - static_cast<float>(animWindowWidth)) / 2;
+    // 縦方向は下揃えで、OSウィンドウの下端からマージンを開ける
+    const auto posY = nativeWindowHeightScaled -
+                      static_cast<float>(animWindowHeight) -
+                      ANIM_WINDOW_BOTTOM_MARGIN;
+
+    const auto newWindowSize = ImVec2(static_cast<float>(animWindowWidth),
+                                      static_cast<float>(animWindowHeight));
+    const auto newWindowPos = ImVec2(posX, posY);
+
+    ImGui::SetNextWindowSize(newWindowSize);
+    ImGui::SetNextWindowPos(newWindowPos);
+    ctx.windowInitialized = true;
 }
 
 void updateAnimationControlWindowModeSwitcher(
@@ -429,6 +467,7 @@ void App::updateDebugWindow() {
     // window status
     ImGui::Text("Window size: (%d, %d)", mainWindow->getWidth(),
                 mainWindow->getHeight());
+    ImGui::Text("Window scale: (%f, %f)", mainWindow->getScaleX(), mainWindow->getScaleY());
     ImGui::Text("IsWindowFocused: %d", ImGui::IsWindowFocused());
 
     ImGui::End();
