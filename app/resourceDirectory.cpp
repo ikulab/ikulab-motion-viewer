@@ -112,7 +112,7 @@ std::filesystem::path getHomeDirectory() {
 
     std::filesystem::path homeDrive = getenv("HOMEDRIVE");
     std::filesystem::path homePath = getenv("HOMEPATH");
-    
+
     return homeDrive / homePath;
 }
 #endif
