@@ -54,8 +54,12 @@ target_link_libraries(ikulab-motion-viewer PRIVATE glm::glm)
 if (WIN32)
     # add resource file
     target_sources(ikulab-motion-viewer PRIVATE assets/windows/icon.rc)
-    # build as Windows GUI application (set entry point to WinMain)
-    set_target_properties(ikulab-motion-viewer PROPERTIES WIN32_EXECUTABLE TRUE)
+
+    # if FORCE_USE_CPP_MAIN is not defined
+    if (NOT DEFINED FORCE_USE_CPP_MAIN)
+        # build as Windows GUI application (set entry point to WinMain)
+        set_target_properties(ikulab-motion-viewer PROPERTIES WIN32_EXECUTABLE TRUE)
+    endif ()
 endif ()
 
 # ------------------------------------------------------------
