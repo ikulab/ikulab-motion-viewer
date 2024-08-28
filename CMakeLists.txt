@@ -52,7 +52,7 @@ target_link_libraries(ikulab-motion-viewer PRIVATE tinyfiledialogs::tinyfiledial
 target_link_libraries(ikulab-motion-viewer PRIVATE glm::glm)
 
 if (WIN32)
-    # リソースファイルを追加
+    # add resource file
     target_sources(ikulab-motion-viewer PRIVATE assets/windows/icon.rc)
     # build as Windows GUI application (set entry point to WinMain)
     set_target_properties(ikulab-motion-viewer PROPERTIES WIN32_EXECUTABLE TRUE)
