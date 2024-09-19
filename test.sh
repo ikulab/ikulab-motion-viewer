@@ -9,6 +9,11 @@ echo "ls /c"
 ls /c
 
 ls "c/Program Files"
+ls "c\Program Files"
+ls "c\\Program Files"
+ls "c/Program\ Files"
+ls "c\Program\ Files"
+ls "c\\Program\ Files"
 ls "c/Program Files/Microsoft Visual Studio"
 ls "c/Program Files/Microsoft Visual Studio/2022"
 ls "c/Program Files/Microsoft Visual Studio/2022/Enterprise"
