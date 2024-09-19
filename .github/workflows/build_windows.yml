@@ -10,6 +10,5 @@ jobs:
     - run: dir "C:\Program Files"
     - run: dir "C:\Program Files\Microsoft Visual Studio"
     - run: dir "C:\Program Files\Microsoft Visual Studio\2022"
-    - run: dir "C:\Program Files\Microsoft Visual Studio\2022\Community"
-    - run: dir "C:\Program Files\Microsoft Visual Studio\2022\Community\VC"
-    - run: dir "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist"
+    - run: dir "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+    - run: dir "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC"
