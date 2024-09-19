@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ls "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Redist/MSVC" | grep -v "v"
+ls "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Redist/MSVC" | grep -v "v" | tail -n 1
