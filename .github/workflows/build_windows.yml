@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-latest
     steps:
 
-      - bash -c "ls /c"
+      - run: bash -c "ls /c"
 
 #      - name: Checkout Code
 #        uses: actions/checkout@v3
