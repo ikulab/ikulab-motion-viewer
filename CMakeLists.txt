@@ -32,9 +32,9 @@ endif ()
 # build ikulab-motion-viewer
 # ------------------------------------------------------------
 
-# set IMV_IS_DEBUG flag
+# set IKURA_ENABLE_VALIDATION_LAYER flag
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    add_compile_options(-DIMV_IS_DEBUG)
+    add_compile_options(-DIKURA_ENABLE_VALIDATION_LAYER)
 endif ()
 
 # build ikura
@@ -56,8 +56,11 @@ if (WIN32)
     target_sources(ikulab-motion-viewer PRIVATE assets/windows/icon.rc)
 
     # if FORCE_USE_CPP_MAIN is not defined
-    if (NOT DEFINED FORCE_USE_CPP_MAIN)
-        # build as Windows GUI application (set entry point to WinMain)
+    if ("${FORCE_USE_CPP_MAIN}" STREQUAL "ON")
+        message("Build as Windows console application")
+    else ()
+        message("Build as Windows GUI application")
+        # Set entry point to WinMain
         set_target_properties(ikulab-motion-viewer PROPERTIES WIN32_EXECUTABLE TRUE)
     endif ()
 endif ()
@@ -70,6 +73,11 @@ endif ()
 if (DEFINED RESOURCE_DIR)
     target_compile_definitions(ikulab-motion-viewer PRIVATE RESOURCE_DIR="${RESOURCE_DIR}")
     message(STATUS "Resource directory is set to ${RESOURCE_DIR}")
+endif ()
+
+if (DEFINED ENABLE_VALIDATION_LAYER)
+    target_compile_definitions(ikulab-motion-viewer PRIVATE IKURA_ENABLE_VALIDATION_LAYER)
+    message(STATUS "Validation layer is enabled")
 endif ()
 
 # ------------------------------------------------------------

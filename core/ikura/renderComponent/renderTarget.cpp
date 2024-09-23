@@ -3,12 +3,15 @@
 #include <array>
 
 #include <easylogging++.h>
+#include <vk_mem_alloc.h>
 #include <vulkan/vulkan.hpp>
 
 #include "../window/nativeWindow/nativeWindow.hpp"
 
 #include "../common/logLevels.hpp"
 #include "../misc/shaderCodes.hpp"
+
+#include <tinyfiledialogs/tinyfiledialogs.h>
 
 namespace ikura {
 void ImageResource::release(vk::Device device, VmaAllocator allocator) {
@@ -55,7 +58,8 @@ void RenderTarget::createRenderCmdBuffers() {
 }
 
 void RenderTarget::recreateResourcesForSwapChainRecreation(
-    vk::Extent2D imageExtent, std::vector<vk::Image> renderImages) {}
+    vk::Extent2D imageExtent, std::vector<vk::Image> renderImages) {
+}
 
 vk::CommandBuffer &RenderTarget::getRenderCommandBuffer(int index) {
     return renderCmdBuffers[index];
@@ -208,7 +212,10 @@ void RenderTarget::createImage(
     const vk::Format format, const vk::ImageTiling tiling,
     const vk::ImageUsageFlags usage, const vk::MemoryPropertyFlags properties,
     VmaAllocator &allocator) {
-    vk::ImageCreateInfo imageCI;
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "A";
+
+    vk::ImageCreateInfo imageCI{};
     imageCI.imageType = vk::ImageType::e2D;
     imageCI.extent = vk::Extent3D(imageExtent, 1);
     imageCI.mipLevels = mipLevels;
@@ -220,14 +227,35 @@ void RenderTarget::createImage(
     imageCI.samples = numSamples;
     imageCI.sharingMode = vk::SharingMode::eExclusive;
 
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "B";
+
     VmaAllocationCreateInfo allocCI{};
     allocCI.usage = VMA_MEMORY_USAGE_AUTO;
     allocCI.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
     allocCI.priority = 1.0f;
 
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "C";
+
     auto vkImageCI = (VkImageCreateInfo)imageCI;
     VkImage vkImage;
     VmaAllocation allocation;
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "D";
+
+    if (vkImageCI.extent.width == 0 || vkImageCI.extent.height == 0 || vkImageCI
+        .extent.depth == 0) {
+        throw std::runtime_error("Invalid image extent.");
+    }
+    if (vkImageCI.mipLevels == 0) {
+        throw std::runtime_error("Invalid mip levels.");
+    }
+    if (vkImageCI.arrayLayers == 0) {
+        throw std::runtime_error("Invalid array layers.");
+    }
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "E";
+
+    tinyfd_messageBox("Debug", "Debug hey", "ok", "info", 0);
 
     vmaCreateImage(allocator, &vkImageCI, &allocCI, &vkImage, &allocation,
                    nullptr);

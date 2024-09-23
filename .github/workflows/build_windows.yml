@@ -24,6 +24,9 @@ jobs:
           path: ./build_release/vcpkg_installed
           key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
 
+      - name: save VC++ version file
+        run: bash ./utils/scripts/create_vcpp_version_file.sh
+
       - name: Build
         run: utils/scripts/build_win_package.ps1
 

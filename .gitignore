@@ -1,8 +1,7 @@
 build
-build_debug
-build_release
-build_release_windows
+build_*
 vcpkg_installed
+
 .ccls-cache
 imgui.ini
 myeasylog.log

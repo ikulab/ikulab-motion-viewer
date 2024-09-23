@@ -38,6 +38,7 @@ file(GLOB_RECURSE ikura_sources "*.cpp")
 add_library(ikura STATIC ${ikura_sources})
 # set compile options for ikura
 target_compile_definitions(ikura PRIVATE VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
+target_compile_definitions(ikura PRIVATE VMA_STATIC_VULKAN_FUNCTIONS=0 VMA_DYNAMIC_VULKAN_FUNCTIONS=1)
 
 # set include directory for applications using ikura
 target_include_directories(ikura INTERFACE
