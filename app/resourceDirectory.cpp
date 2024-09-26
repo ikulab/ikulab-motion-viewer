@@ -3,6 +3,8 @@
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach-o/dyld.h>
+#elif IS_WINDOWS
+#include <windows.h>
 #endif
 
 #include <tinyfiledialogs.h>
@@ -80,9 +82,10 @@ std::filesystem::path getResourceDirectory() {
 #elif IS_WINDOWS
 
 std::filesystem::path getResourceDirectory() {
-    std::filesystem::path homeDrive = getenv("HOMEDRIVE");
-    std::filesystem::path homePath = getenv("HOMEPATH");
-    std::filesystem::path resourceDir = homeDrive / homePath / ".ikulab-motion-viewer";
+    char buffer[MAX_PATH];
+    GetModuleFileName(nullptr, buffer, MAX_PATH);
+    const std::filesystem::path path = buffer;
+    std::filesystem::path resourceDir = path.parent_path();
 
     return resourceDir;
 }
@@ -109,7 +112,7 @@ std::filesystem::path getHomeDirectory() {
 
     std::filesystem::path homeDrive = getenv("HOMEDRIVE");
     std::filesystem::path homePath = getenv("HOMEPATH");
-    
+
     return homeDrive / homePath;
 }
 #endif
