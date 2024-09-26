@@ -4,7 +4,7 @@
 ;General
 
 Name "ikulab-motion-viewer"
-OutFile "..\..\ikulab-motion-viewer_Installer.exe"
+OutFile "..\..\..\ikulab-motion-viewer_Installer.exe"
 Unicode True
 
 InstallDir "$PROGRAMFILES\ikulab-motion-viewer"
@@ -40,12 +40,18 @@ InstallDir "$PROGRAMFILES\ikulab-motion-viewer"
 Section
 
   SetOutPath "$INSTDIR"
-  File "..\..\build_release_windows\app\ikulab-motion-viewer.exe"
-  File "..\..\build_release_windows\app\vulkan-1.dll"
-  File "..\..\build_release_windows\app\glfw3.dll"
+  File "..\..\..\build_release_windows\app\ikulab-motion-viewer.exe"
+  File "..\..\..\build_release_windows\app\vulkan-1.dll"
+  File "..\..\..\build_release_windows\app\glfw3.dll"
 
   SetOutPath "$INSTDIR\fonts"
-  File "..\..\assets\fonts\NotoSansJP-Medium.otf"
+  File "..\..\..\assets\fonts\NotoSansJP-Medium.otf"
+
+  ; VC++ Runtime Installer
+  SetOutPath "$INSTDIR"
+  File "..\..\..\dist_pyinstaller\check_vcpp_version_and_install.exe"
+  File "..\..\..\msvc_version.txt"
+  File "..\..\..\vc_redist.x64.exe"
 
   ;Start Menu Shortcut
   CreateShortcut "$SMPROGRAMS\ikulab-motion-viewer.lnk" "$INSTDIR\ikulab-motion-viewer.exe" ""
@@ -57,6 +63,8 @@ Section
   ;Registry for Uninstalling from Windows Settings
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ikulab-motion-viewer" "DisplayName" "ikulab-motion-viewer"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ikulab-motion-viewer" "UninstallString" '"$INSTDIR\Uninstall.exe"'
+
+  ExecWait "$INSTDIR\check_vcpp_version_and_install.exe"
 
 SectionEnd
 

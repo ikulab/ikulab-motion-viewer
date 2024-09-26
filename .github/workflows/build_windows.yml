@@ -21,11 +21,24 @@ jobs:
       - name: Cache vcpkg_installed
         uses: actions/cache@v2
         with:
-          path: ./build_release/vcpkg_installed
+          path: ./build_release_windows/vcpkg_installed
           key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
 
       - name: save VC++ version file
         run: bash ./utils/scripts/create_vcpp_version_file.sh
+
+      - name: copy vc_redist.*.exe
+        run: bash ./utils/scripts/copy_vc_redist_exe.sh
+
+      - name: Setup python packages
+        run: pip install -r requirements.txt
+
+      - name: Build vc++ installer script
+        run: |
+          pyinstaller --onefile `
+            --distpath ./dist_pyinstaller `
+            --workpath ./build_pyinstaller `
+            ./assets/windows/installer/check_vcpp_version_and_install.py
 
       - name: Build
         run: utils/scripts/build_win_package.ps1
