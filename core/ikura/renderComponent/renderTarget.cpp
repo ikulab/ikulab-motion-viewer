@@ -213,8 +213,6 @@ void RenderTarget::createImage(
     const vk::ImageUsageFlags usage, const vk::MemoryPropertyFlags properties,
     VmaAllocator &allocator) {
 
-    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "A";
-
     vk::ImageCreateInfo imageCI{};
     imageCI.imageType = vk::ImageType::e2D;
     imageCI.extent = vk::Extent3D(imageExtent, 1);
@@ -227,35 +225,14 @@ void RenderTarget::createImage(
     imageCI.samples = numSamples;
     imageCI.sharingMode = vk::SharingMode::eExclusive;
 
-    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "B";
-
     VmaAllocationCreateInfo allocCI{};
     allocCI.usage = VMA_MEMORY_USAGE_AUTO;
     allocCI.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
     allocCI.priority = 1.0f;
 
-    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "C";
-
     auto vkImageCI = (VkImageCreateInfo)imageCI;
     VkImage vkImage;
     VmaAllocation allocation;
-
-    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "D";
-
-    if (vkImageCI.extent.width == 0 || vkImageCI.extent.height == 0 || vkImageCI
-        .extent.depth == 0) {
-        throw std::runtime_error("Invalid image extent.");
-    }
-    if (vkImageCI.mipLevels == 0) {
-        throw std::runtime_error("Invalid mip levels.");
-    }
-    if (vkImageCI.arrayLayers == 0) {
-        throw std::runtime_error("Invalid array layers.");
-    }
-
-    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "E";
-
-    tinyfd_messageBox("Debug", "Debug hey", "ok", "info", 0);
 
     vmaCreateImage(allocator, &vkImageCI, &allocCI, &vkImage, &allocation,
                    nullptr);
