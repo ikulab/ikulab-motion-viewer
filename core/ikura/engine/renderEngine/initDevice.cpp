@@ -124,10 +124,9 @@ void RenderEngine::createDevice() {
 
     allocatorCI.pVulkanFunctions = &vmaVulkanFunc;
 
-    auto result = vmaCreateAllocator(&allocatorCI, vmaAllocator.get());
+    vmaCreateAllocator(&allocatorCI, vmaAllocator.get());
     VLOG(VLOG_LV_4_PROCESS_TRACKING_SECONDARY)
         << "VmaAllocator has been created.";
-    VLOG(VLOG_LV_4_PROCESS_TRACKING_SECONDARY) << "VkResult: " << result;
 
     // Create CommandPool
     vk::CommandPoolCreateInfo cmdPoolCI{};
