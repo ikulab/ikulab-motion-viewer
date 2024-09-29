@@ -159,11 +159,11 @@ void RenderEngine::waitForDeviceIdle() { device.waitIdle(); }
 RenderEngineInitConfig RenderEngineInitConfig::defaultDebugSetting() {
     RenderEngineInitConfig initConfig = defaultCommonSetting();
 
-#if defined(IMV_IS_DEBUG)
+#if defined(IKURA_ENABLE_VALIDATION_LAYER)
     initConfig.layerNames.push_back(VALIDATION_LAYER_NAME);
 #endif
 
-#if defined(IMV_IS_DEBUG)
+#if defined(IKURA_ENABLE_VALIDATION_LAYER)
     initConfig.instanceExtensionNames.push_back(
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif

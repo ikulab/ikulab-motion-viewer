@@ -3,12 +3,15 @@
 #include <array>
 
 #include <easylogging++.h>
+#include <vk_mem_alloc.h>
 #include <vulkan/vulkan.hpp>
 
 #include "../window/nativeWindow/nativeWindow.hpp"
 
 #include "../common/logLevels.hpp"
 #include "../misc/shaderCodes.hpp"
+
+#include <tinyfiledialogs/tinyfiledialogs.h>
 
 namespace ikura {
 void ImageResource::release(vk::Device device, VmaAllocator allocator) {
@@ -55,7 +58,8 @@ void RenderTarget::createRenderCmdBuffers() {
 }
 
 void RenderTarget::recreateResourcesForSwapChainRecreation(
-    vk::Extent2D imageExtent, std::vector<vk::Image> renderImages) {}
+    vk::Extent2D imageExtent, std::vector<vk::Image> renderImages) {
+}
 
 vk::CommandBuffer &RenderTarget::getRenderCommandBuffer(int index) {
     return renderCmdBuffers[index];
@@ -208,7 +212,8 @@ void RenderTarget::createImage(
     const vk::Format format, const vk::ImageTiling tiling,
     const vk::ImageUsageFlags usage, const vk::MemoryPropertyFlags properties,
     VmaAllocator &allocator) {
-    vk::ImageCreateInfo imageCI;
+
+    vk::ImageCreateInfo imageCI{};
     imageCI.imageType = vk::ImageType::e2D;
     imageCI.extent = vk::Extent3D(imageExtent, 1);
     imageCI.mipLevels = mipLevels;
