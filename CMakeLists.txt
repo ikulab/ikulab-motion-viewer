@@ -65,6 +65,9 @@ if (WIN32)
     endif ()
 endif ()
 
+configure_file(${CMAKE_SOURCE_DIR}/app/buildInfo.h.in ${CMAKE_SOURCE_DIR}/app/buildInfo.h)
+configure_file(${CMAKE_SOURCE_DIR}/assets/macos/Info.plist.in ${CMAKE_SOURCE_DIR}/assets/macos/Info.plist)
+
 # ------------------------------------------------------------
 # config ikulab-motion-viewer 
 # ------------------------------------------------------------
