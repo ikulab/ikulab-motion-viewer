@@ -52,7 +52,7 @@ void App::initIkura() {
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow *glfwWindow = glfwCreateWindow(
-        windowW, windowH, "Ikulab Motion Viewer " IMV_VERSION_STRING , nullptr, nullptr);
+        windowW, windowH, "ikulab-motion-viewer " IMV_VERSION_STRING , nullptr, nullptr);
     glfwSetWindowPos(glfwWindow, xpos, ypos);
 
     // Create Surface
