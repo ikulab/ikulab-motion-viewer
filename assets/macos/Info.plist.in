@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleName</key>
+	<string>ikulab-motion-viewer</string>
+	<key>CFBundleDisplayName</key>
+	<string>ikulab-motion-viewer</string>
+	<key>CFBundleIdentifier</key>
+	<string>info.caffeinezero.ikulab-motion-viewer</string>
+	<key>CFBundleVersion</key>
+	<string>@ikulab-motion-viewer_VERSION_MAJOR@.@ikulab-motion-viewer_VERSION_MINOR@.@ikulab-motion-viewer_VERSION_PATCH@</string>
+	<key>CFBundleExecutable</key>
+	<string>startup.sh</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleIconFile</key>
+	<string>icon.icns</string>
+</dict>
+</plist>
