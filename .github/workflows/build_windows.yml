@@ -1,0 +1,51 @@
+name: build-x64-Windows
+on:
+  push:
+  workflow_call:
+jobs:
+  build-x64-Windows:
+    runs-on: windows-latest
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Ninja
+        run: choco install ninja
+
+      - name: Setup VisualStudio Dev Environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Cache vcpkg_installed
+        uses: actions/cache@v2
+        with:
+          path: ./build_release_windows/vcpkg_installed
+          key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
+
+      - name: save VC++ version file
+        run: bash ./utils/scripts/create_vcpp_version_file.sh
+
+      - name: copy vc_redist.*.exe
+        run: bash ./utils/scripts/copy_vc_redist_exe.sh
+
+      - name: Setup python packages
+        run: pip install -r requirements.txt
+
+      - name: Build vc++ installer script
+        run: |
+          pyinstaller --onefile `
+            --distpath ./dist_pyinstaller `
+            --workpath ./build_pyinstaller `
+            ./assets/windows/installer/check_vcpp_version_and_install.py
+
+      - name: Build
+        run: utils/scripts/build_win_package.ps1
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ikulab-motion-viewer-x64-windows
+          path: |
+            ./ikulab-motion-viewer_Installer.exe

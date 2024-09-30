@@ -1,0 +1,5 @@
+#define IMV_VERSION_MAJOR @ikulab-motion-viewer_VERSION_MAJOR@
+#define IMV_VERSION_MINOR @ikulab-motion-viewer_VERSION_MINOR@
+#define IMV_VERSION_PATCH @ikulab-motion-viewer_VERSION_PATCH@
+
+#define IMV_VERSION_STRING "@ikulab-motion-viewer_VERSION_MAJOR@.@ikulab-motion-viewer_VERSION_MINOR@.@ikulab-motion-viewer_VERSION_PATCH@"

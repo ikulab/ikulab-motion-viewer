@@ -1,5 +1,7 @@
 build
+build_*
 vcpkg_installed
+
 .ccls-cache
 imgui.ini
 myeasylog.log
@@ -15,6 +17,8 @@ cmake-build-debug*
 
 compile_commands.json
 .cache
+
+vcpp_version.txt
 
 # Compiled Object files
 *.slo

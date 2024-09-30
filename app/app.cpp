@@ -16,6 +16,7 @@
 #include "./resourceDirectory.hpp"
 #include "./util/popupUtils.hpp"
 #include "./util/errorUtils.hpp"
+#include "./buildInfo.h"
 
 void App::initIkura() {
     // Initialize Ikura
@@ -51,7 +52,7 @@ void App::initIkura() {
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow *glfwWindow = glfwCreateWindow(
-        windowW, windowH, "Ikulab Motion Viewer v1.2.0", nullptr, nullptr);
+        windowW, windowH, "ikulab-motion-viewer " IMV_VERSION_STRING , nullptr, nullptr);
     glfwSetWindowPos(glfwWindow, xpos, ypos);
 
     // Create Surface

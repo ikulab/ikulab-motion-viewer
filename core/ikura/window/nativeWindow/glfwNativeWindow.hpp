@@ -30,6 +30,9 @@ class GlfwNativeWindow : public NativeWindow {
                      std::string name);
     ~GlfwNativeWindow();
 
+    float getScaleX() const override;
+    float getScaleY() const override;
+
     void destroyResources() override;
     void draw() override;
     bool closed() override;

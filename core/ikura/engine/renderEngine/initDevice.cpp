@@ -114,7 +114,15 @@ void RenderEngine::createDevice() {
     allocatorCI.instance = (VkInstance)instance;
     allocatorCI.physicalDevice = (VkPhysicalDevice)physicalDevice;
     allocatorCI.device = (VkDevice)device;
-    allocatorCI.vulkanApiVersion = VK_API_VERSION_1_2;
+    allocatorCI.vulkanApiVersion = VK_API_VERSION_1_3;
+
+    VmaVulkanFunctions vmaVulkanFunc{};
+    vmaVulkanFunc.vkGetInstanceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.
+        vkGetInstanceProcAddr;
+    vmaVulkanFunc.vkGetDeviceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.
+        vkGetDeviceProcAddr;
+
+    allocatorCI.pVulkanFunctions = &vmaVulkanFunc;
 
     vmaCreateAllocator(&allocatorCI, vmaAllocator.get());
     VLOG(VLOG_LV_4_PROCESS_TRACKING_SECONDARY)

@@ -102,9 +102,14 @@ void BasicRenderTarget::setupImageResources() {
                     vk::ImageUsageFlagBits::eColorAttachment,
                 vk::MemoryPropertyFlagBits::eDeviceLocal,
                 *renderEngine->getVmaAllocator());
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Color Image has been created.";
+
     createImageView(colorImageResource, colorImageFormat,
                     vk::ImageAspectFlagBits::eColor, 1,
                     renderEngine->getDevice());
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Color ImageView has been created.";
 
     // Depth Image
     createImage(depthImageResource, imageExtent, 1,
@@ -113,6 +118,9 @@ void BasicRenderTarget::setupImageResources() {
                 vk::ImageUsageFlagBits::eDepthStencilAttachment,
                 vk::MemoryPropertyFlagBits::eDeviceLocal,
                 *renderEngine->getVmaAllocator());
+
+    VLOG(VLOG_LV_3_PROCESS_TRACKING) << "Depth Image has been created.";
+
     createImageView(depthImageResource, findDepthFormat(renderEngine),
                     vk::ImageAspectFlagBits::eDepth, 1,
                     renderEngine->getDevice());
