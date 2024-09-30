@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(ikulab-motion-viewer VERSION 1.2.0 LANGUAGES CXX)
+project(ikulab-motion-viewer VERSION 1.2.1 LANGUAGES CXX)
 
 # ------------------------------------------------------------
 # build settings for each platform

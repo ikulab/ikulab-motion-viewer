@@ -9,7 +9,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>info.caffeinezero.ikulab-motion-viewer</string>
 	<key>CFBundleVersion</key>
-	<string>1.2.0</string>
+	<string>1.2.1</string>
 	<key>CFBundleExecutable</key>
 	<string>startup.sh</string>
 	<key>CFBundlePackageType</key>
