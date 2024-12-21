@@ -26,6 +26,7 @@ imv_version_checker
 imv_version_checker.spec
 
 .python-version
+__pycache__
 
 # Compiled Object files
 *.slo
