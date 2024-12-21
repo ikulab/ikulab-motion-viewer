@@ -21,7 +21,10 @@ jobs:
           path: ./build_release/vcpkg_installed
           key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
 
-      - name: Build
+      - name: Build Version Checker
+        run: version_checker/build.sh
+
+      - name: Build App Bundle
         run: utils/scripts/build_app_package.sh
 
       - name: Upload Artifact
