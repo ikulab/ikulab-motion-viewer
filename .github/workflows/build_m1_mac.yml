@@ -12,6 +12,15 @@ jobs:
         with:
           submodules: recursive
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.1'
+          cache: 'pip' # caching pip dependencies
+      - run: pip install -r requirements.txt
+
+      - name: Build Version Checker
+        run: version_checker/build.sh
+
       - name: Install Ninja
         run: brew install ninja
 
@@ -20,9 +29,6 @@ jobs:
         with:
           path: ./build_release/vcpkg_installed
           key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
-
-      - name: Build Version Checker
-        run: version_checker/build.sh
 
       - name: Build App Bundle
         run: utils/scripts/build_app_package.sh
