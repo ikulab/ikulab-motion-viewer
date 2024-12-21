@@ -9,6 +9,10 @@ from version_check import get_latest_release_version
 version_info_dir = ""
 
 
+def log(message):
+    print(f"imv version checker: {message}")
+
+
 def launch_app():
     app_path = sys.argv[2]
     subprocess.Popen([app_path])
@@ -40,32 +44,44 @@ def on_open():
 
 def main():
     global version_info_dir
+    version_info_dir = sys.argv[1]
 
     get_succeeded, latest_version = get_latest_release_version()
 
     if not get_succeeded:
+        log("Failed to get latest version. Launching ikulab-motion-viewer...")
         launch_app()
         return
-
-    version_info_dir = sys.argv[1]
+    log(f"Detected latest version: {latest_version}")
 
     with open(f"{version_info_dir}/current_version.txt", "r") as f:
         current_version = f.read()
+        log(f"Detected current version: {current_version}")
 
     with open(f"{version_info_dir}/skip_version.txt", "r") as f:
         skip_version = f.read()
+        log(f"Detected skip update version: {skip_version}")
+
+    new_version_available = False
+    if packaging.version.parse(current_version) < packaging.version.parse(latest_version):
+        log(f"New version is available: {latest_version}")
+        new_version_available = True
+
+    skip_update = False
+    if latest_version == skip_version:
+        log("Skipping update...")
+        skip_update = True
 
     open_update_dialog = False
-
-    # if new version is available
-    if packaging.version.parse(current_version) < packaging.version.parse(latest_version):
-        # set true if latest version is not skipped
-        open_update_dialog = skip_version != latest_version
+    if new_version_available and not skip_update:
+        log("Opening update dialog...")
+        open_update_dialog = True
 
     if open_update_dialog:
         app = MainUi(latest_version, on_open, on_close, on_later, on_skip)
         app.MainLoop()
     else:
+        log("Launching ikulab-motion-viewer...")
         launch_app()
 
 
