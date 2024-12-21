@@ -113,7 +113,7 @@ if (APPLE AND GENERATE_PACKAGE)
 
     # version checker
     install(FILES ${PROJECT_SOURCE_DIR}/assets/imv_version_checker
-        DESTINATION ikulab-motion-viewer.app/Contents/MacOS
+        DESTINATION ikulab-motion-viewer.app/Contents/Resources
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 
     # generate version info files
