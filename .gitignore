@@ -20,6 +20,13 @@ compile_commands.json
 
 vcpp_version.txt
 
+/assets/version_info/*.txt
+
+imv_version_checker
+imv_version_checker.spec
+
+.python-version
+
 # Compiled Object files
 *.slo
 *.lo
