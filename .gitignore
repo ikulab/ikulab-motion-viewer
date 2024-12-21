@@ -20,7 +20,9 @@ compile_commands.json
 
 vcpp_version.txt
 
-/assets/version_info/*.txt
+current_version.txt
+skip_version.txt
+/msvc_version.txt
 
 imv_version_checker
 imv_version_checker.spec
