@@ -8,6 +8,7 @@ numpy==2.0.2
 packaging==24.2
 pyinstaller==6.10.0
 pyinstaller-hooks-contrib==2024.10
+requests==2.32.3
 setuptools==68.2.2
 six==1.16.0
 urllib3==2.2.3

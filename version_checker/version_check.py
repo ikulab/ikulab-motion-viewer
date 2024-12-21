@@ -10,3 +10,4 @@ def get_latest_release_version():
         body = res.read()
         json_body = json.loads(body)
         return json_body["tag_name"]
+
