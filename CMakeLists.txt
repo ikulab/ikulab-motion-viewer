@@ -111,6 +111,18 @@ if (APPLE AND GENERATE_PACKAGE)
         DESTINATION ikulab-motion-viewer.app/Contents/MacOS
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 
+    # version checker
+    install(FILES ${PROJECT_SOURCE_DIR}/assets/imv_version_checker
+        DESTINATION ikulab-motion-viewer.app/Contents/MacOS
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
+
+    # generate version info files
+    file(WRITE "${PROJECT_BINARY_DIR}/version_info/current_version.txt" "${PROJECT_VERSION}")
+    file(WRITE "${PROJECT_BINARY_DIR}/version_info/skip_version.txt" "${PROJECT_VERSION}")
+    # install version info directory
+    install(DIRECTORY ${PROJECT_BINARY_DIR}/version_info
+        DESTINATION ikulab-motion-viewer.app/Contents/Resources)
+
     # vulkan dynamic libraries
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets/macos/Frameworks
         DESTINATION ikulab-motion-viewer.app/Contents
