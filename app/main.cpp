@@ -7,6 +7,8 @@
 #include <easylogging++.h>
 
 #include "./resourceDirectory.hpp"
+#include "./versionChecker.hpp"
+#include "./util/errorUtils.hpp"
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -42,6 +44,8 @@ int main(int argc, char **argv) {
     el::Loggers::setVerboseLevel(9);
 
     LOG(ERROR) << "test";
+
+    spawnVersionCheckerProcess();
 
     try {
         App app;
