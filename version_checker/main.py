@@ -26,9 +26,12 @@ def on_later():
 def on_skip():
     global version_info_dir
 
-    latest_version = get_latest_release_version()
-    with open(f"{version_info_dir}/skip_version.txt", "w") as f:
-        f.write(latest_version)
+    get_succeeded, latest_version = get_latest_release_version()
+
+    if get_succeeded:
+        with open(f"{version_info_dir}/skip_version.txt", "w") as f:
+            f.write(latest_version)
+
     launch_app()
 
 
@@ -39,7 +42,11 @@ def on_open():
 def main():
     global version_info_dir
 
-    latest_version = get_latest_release_version()
+    get_succeeded, latest_version = get_latest_release_version()
+
+    if not get_succeeded:
+        launch_app()
+        return
 
     version_info_dir = sys.argv[1]
 
