@@ -47,6 +47,10 @@ Section
   SetOutPath "$INSTDIR\fonts"
   File "..\..\..\assets\fonts\NotoSansJP-Medium.otf"
 
+  ; Version checker
+  SetOutPath "$INSTDIR"
+  File "..\..\..\version_checker\imv_version_checker.exe"
+
   ; VC++ Runtime Installer
   SetOutPath "$INSTDIR"
   File "..\..\..\dist_pyinstaller\check_vcpp_version_and_install.exe"
