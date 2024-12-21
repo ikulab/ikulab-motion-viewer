@@ -46,7 +46,7 @@ static void spawnVersionCheckerProcess() {
         auto versionCheckerExePath = getResourceDirectory() / "imv_version_checker";
         versionCheckerExePath.make_preferred();
 
-        auto versionInfoDirPath = getResourceDirectory();
+        auto versionInfoDirPath = getResourceDirectory() / "version_info";
         versionInfoDirPath.make_preferred();
 
         const auto arg0 = versionCheckerExePath.string();
