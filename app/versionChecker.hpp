@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <unistd.h>
+
 #include <easylogging++.h>
 
 #include "./resourceDirectory.hpp"
@@ -34,10 +36,27 @@ static void spawnVersionCheckerProcess() {
 
 #endif
 
-#ifdef IS_MACOS
+#ifdef __APPLE__
 
 static void spawnVersionCheckerProcess() {
-    //TODO
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        // child process
+        auto versionCheckerExePath = getResourceDirectory() / "imv_version_checker";
+        versionCheckerExePath.make_preferred();
+
+        auto versionInfoDirPath = getResourceDirectory();
+        versionInfoDirPath.make_preferred();
+
+        const auto arg0 = versionCheckerExePath.string();
+        const auto arg1 = versionInfoDirPath.string();
+        execl(arg0.c_str(), arg0.c_str(), arg1.c_str(), nullptr);
+    } else if (pid > 0) {
+        LOG(INFO) << "Version checker process spawned.";
+    } else {
+        LOG(ERROR) << "Failed to fork a process for version checker.";
+    }
 }
 
 #endif
