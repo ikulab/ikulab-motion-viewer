@@ -7,8 +7,6 @@
 #include <easylogging++.h>
 
 #include "./resourceDirectory.hpp"
-#include "./util/popupUtils.hpp"
-#include "./util/errorUtils.hpp"
 
 INITIALIZE_EASYLOGGINGPP
 
