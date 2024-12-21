@@ -13,17 +13,12 @@ def log(message):
     print(f"imv version checker: {message}")
 
 
-def launch_app():
-    app_path = sys.argv[2]
-    subprocess.Popen([app_path])
-
-
 def on_close():
-    launch_app()
+    pass
 
 
 def on_later():
-    launch_app()
+    pass
 
 
 def on_skip():
@@ -34,8 +29,6 @@ def on_skip():
     if get_succeeded:
         with open(f"{version_info_dir}/skip_version.txt", "w") as f:
             f.write(latest_version)
-
-    launch_app()
 
 
 def on_open():
@@ -49,9 +42,9 @@ def main():
     get_succeeded, latest_version = get_latest_release_version()
 
     if not get_succeeded:
-        log("Failed to get latest version. Launching ikulab-motion-viewer...")
-        launch_app()
+        log("Failed to get latest version.")
         return
+
     log(f"Detected latest version: {latest_version}")
 
     with open(f"{version_info_dir}/current_version.txt", "r") as f:
@@ -80,9 +73,6 @@ def main():
     if open_update_dialog:
         app = MainUi(latest_version, on_open, on_close, on_later, on_skip)
         app.MainLoop()
-    else:
-        log("Launching ikulab-motion-viewer...")
-        launch_app()
 
 
 if __name__ == "__main__":
