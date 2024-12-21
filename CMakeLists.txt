@@ -117,8 +117,8 @@ if (APPLE AND GENERATE_PACKAGE)
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 
     # generate version info files
-    file(WRITE "${PROJECT_BINARY_DIR}/version_info/current_version.txt" "${PROJECT_VERSION}")
-    file(WRITE "${PROJECT_BINARY_DIR}/version_info/skip_version.txt" "${PROJECT_VERSION}")
+    file(WRITE "${PROJECT_BINARY_DIR}/version_info/current_version.txt" "v${PROJECT_VERSION}")
+    file(WRITE "${PROJECT_BINARY_DIR}/version_info/skip_version.txt" "v${PROJECT_VERSION}")
     # install version info directory
     install(DIRECTORY ${PROJECT_BINARY_DIR}/version_info
         DESTINATION ikulab-motion-viewer.app/Contents/Resources)
