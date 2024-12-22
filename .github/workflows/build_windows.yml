@@ -15,9 +15,20 @@ jobs:
 
       - run: ls "C:\Program Files (x86)\NSIS\Plugins"
 
+      - run: |
+          cp `
+          ./assets/windows/installer/NsisPlugin/AccessControl_x86_ansi.dll `
+          "C:/Program Files (x86)/NSIS/Plugins/x86-ansi/AccessControl.dll"
+
+      - run: |
+          cp `
+          ./assets/windows/installer/NsisPlugin/AccessControl_x86_unicode.dll `
+          "C:/Program Files (x86)/NSIS/Plugins/x86-unicode/AccessControl.dll"
+
       - run: ls "C:\Program Files (x86)\NSIS\Plugins\x86-ansi"
 
       - run: ls "C:\Program Files (x86)\NSIS\Plugins\x86-unicode"
+
 #      - name: Checkout Code
 #        uses: actions/checkout@v3
 #        with:
