@@ -35,10 +35,21 @@ InstallDir "$PROGRAMFILES\ikulab-motion-viewer"
 !insertmacro MUI_LANGUAGE "Korean"
 
 ;--------------------------------
+;Variables
+
+Var ALLUSERSPROFILE
+
+;--------------------------------
 ;Installer Sections
 
 Section
+  ; Grant fullAccess to ProgrameData directory
+  System::Call 'kernel32::GetEnvironmentVariable(t "ALLUSERSPROFILE", t .r0, i ${NSIS_MAX_STRLEN}) i .r1'
+  StrCpy $ALLUSERSPROFILE $0
 
+  CreateDirectory "$ALLUSERSPROFILE\ikulab-motion-viewer"
+
+  ; Install files
   SetOutPath "$INSTDIR"
   File "..\..\..\build_release_windows\app\ikulab-motion-viewer.exe"
   File "..\..\..\build_release_windows\app\vulkan-1.dll"
@@ -52,7 +63,7 @@ Section
   File "..\..\..\version_checker\imv_version_checker.exe"
 
   ; Version info dir
-  SetOutPath "$INSTDIR\version_info"
+  SetOutPath "$ALLUSERSPROFILE\ikulab-motion-viewer\version_info"
   File "..\..\..\build_release_windows\version_info\current_version.txt"  
   File "..\..\..\build_release_windows\version_info\skip_version.txt"  
 
