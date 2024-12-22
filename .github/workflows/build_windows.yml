@@ -12,24 +12,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Ninja
-        run: choco install ninja
-
-      - name: Setup VisualStudio Dev Environment
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Cache vcpkg_installed
-        uses: actions/cache@v2
-        with:
-          path: ./build_release_windows/vcpkg_installed
-          key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
-
-      - name: save VC++ version file
-        run: bash ./utils/scripts/create_vcpp_version_file.sh
-
-      - name: copy vc_redist.*.exe
-        run: bash ./utils/scripts/copy_vc_redist_exe.sh
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13.1'
@@ -47,6 +29,24 @@ jobs:
             --distpath ./dist_pyinstaller `
             --workpath ./build_pyinstaller `
             ./assets/windows/installer/check_vcpp_version_and_install.py
+
+      - name: Install Ninja
+        run: choco install ninja
+
+      - name: Setup VisualStudio Dev Environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Cache vcpkg_installed
+        uses: actions/cache@v2
+        with:
+          path: ./build_release_windows/vcpkg_installed
+          key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('./vcpkg.json', './core/ikura/vcpkg.json') }}
+
+      - name: save VC++ version file
+        run: bash ./utils/scripts/create_vcpp_version_file.sh
+
+      - name: copy vc_redist.*.exe
+        run: bash ./utils/scripts/copy_vc_redist_exe.sh
 
       - name: Build
         run: utils/scripts/build_win_package.ps1
