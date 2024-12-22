@@ -5,30 +5,40 @@
 #include <mach-o/dyld.h>
 #elif IS_WINDOWS
 #include <windows.h>
+#include <shlobj.h>
 #endif
 
-#include <tinyfiledialogs.h>
+#include "./util/errorUtils.hpp"
 
 // ------------------------------------------------------------
-// getResourceDirectory
+// getReadOnlyResourceDirectory
+// getWritableResourceDirectory
 // ------------------------------------------------------------
 
 #ifdef RESOURCE_DIR
 
-std::filesystem::path getResourceDirectory() {
+std::filesystem::path getReadOnlyResourceDirectory() {
     std::filesystem::path resourceDir = RESOURCE_DIR;
 
     return resourceDir;
+}
+
+std::filesystem::path getWritableResourceDirectory() {
+    return getReadOnlyResourceDirectory();
 }
 
 #else
 
 #ifdef __linux__
 
-std::filesystem::path getResourceDirectory() {
+std::filesystem::path getReadOnlyResourceDirectory() {
     std::filesystem::path resourceDir = "/usr/local/share/ikulab-motion-viewer";
 
     return resourceDir;
+}
+
+std::filesystem::path getWritableResourceDirectory() {
+    return getReadOnlyResourceDirectory();
 }
 
 #elif __APPLE__
@@ -71,7 +81,16 @@ std::filesystem::path getBundleResourceDirectory() {
     return "";
 }
 
-std::filesystem::path getResourceDirectory() {
+/**
+ * @brief Get read-only resource directory path.
+ *
+ * The read-only resource directory does not assume write permission.
+ * On macOS, returns bundle resource directory if the application is launched from a bundle.
+ * Otherwise, returns /usr/local/share/ikulab-motion-viewer.
+ *
+ * @return read-only resource directory path.
+ */
+std::filesystem::path getReadOnlyResourceDirectory() {
     if (launchedFromBundle()) {
         return getBundleResourceDirectory();
     } else {
@@ -79,13 +98,60 @@ std::filesystem::path getResourceDirectory() {
     }
 }
 
+/**
+ * @brief Get writable resource directory path.
+ *
+ * The writable resource directory assumes write permission.
+ * On macOS, returns the same path as getReadOnlyResourceDirectory.
+ *
+ * @return writable resource directory path.
+ */
+std::filesystem::path getWritableResourceDirectory() {
+    return getReadOnlyResourceDirectory();
+}
+
 #elif IS_WINDOWS
 
-std::filesystem::path getResourceDirectory() {
+/**
+ * @brief Get read-only resource directory path.
+ *
+ * The read-only resource directory does not assume write permission.
+ * On Windows, returns the directory where the executable is located.
+ *
+ * @return read-only resource directory path.
+ */
+std::filesystem::path getReadOnlyResourceDirectory() {
     char buffer[MAX_PATH];
     GetModuleFileName(nullptr, buffer, MAX_PATH);
     const std::filesystem::path path = buffer;
     std::filesystem::path resourceDir = path.parent_path();
+
+    return resourceDir;
+}
+
+/**
+ * @brief Get writable resource directory path.
+ *
+ * The writable resource directory assumes write permission.
+ * On Windows, returns %ALLUSERSPROFILE%/ikulab-motion-viewer directory.
+ * Usually, %ALLUSERSPROFILE% is C:/ProgramData.
+ *
+ * @return writable resource directory path.
+ */
+std::filesystem::path getWritableResourceDirectory() {
+    PWSTR programDataPathPwstr = nullptr;
+    const auto result = SHGetKnownFolderPath(FOLDERID_ProgramData, 0, nullptr,
+                                             &programDataPathPwstr);
+    if (FAILED(result)) {
+        notifyErrorAndExit("Failed to get ProgramData directory.");
+    }
+
+    const std::filesystem::path programDataPath = programDataPathPwstr;
+    const auto resourceDir = programDataPath / "ikulab-motion-viewer";
+
+    if (!std::filesystem::exists(resourceDir)) {
+        notifyErrorAndExit("Writable resource directory does not exist.");
+    }
 
     return resourceDir;
 }
