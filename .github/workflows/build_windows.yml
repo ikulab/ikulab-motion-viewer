@@ -7,6 +7,11 @@ jobs:
     runs-on: windows-latest
     steps:
 
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
       - run: echo "Current directory is $PWD"
 
       - run: ls "C:\Program Files (x86)"
@@ -29,10 +34,6 @@ jobs:
 
       - run: ls "C:\Program Files (x86)\NSIS\Plugins\x86-unicode"
 
-#      - name: Checkout Code
-#        uses: actions/checkout@v3
-#        with:
-#          submodules: recursive
 #
 #      - name: Install Ninja
 #        run: choco install ninja
