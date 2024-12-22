@@ -9,12 +9,15 @@ jobs:
 
       - run: echo "Current directory is $PWD"
 
-      - run: ls C:\
-
-      - run: ls "C:\Program Files"
-
       - run: ls "C:\Program Files (x86)"
 
+      - run: ls "C:\Program Files (x86)\NSIS"
+
+      - run: ls "C:\Program Files (x86)\NSIS\Plugins"
+
+      - run: ls "C:\Program Files (x86)\NSIS\Plugins\x86-ansi"
+
+      - run: ls "C:\Program Files (x86)\NSIS\Plugins\x86-unicode"
 #      - name: Checkout Code
 #        uses: actions/checkout@v3
 #        with:
