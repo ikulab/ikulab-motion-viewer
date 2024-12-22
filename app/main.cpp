@@ -25,7 +25,7 @@ void initEasyloggingpp() {
         getHomeDirectory() / "Library" / "Logs" / "ikulab-motion-viewer.log";
     conf.set(el::Level::Global, el::ConfigurationType::Filename, logFilePath);
 #elif IS_WINDOWS
-    auto logFilePath = getResourceDirectory() / "ikulab-motion-viewer.log";
+    auto logFilePath = getReadOnlyResourceDirectory() / "ikulab-motion-viewer.log";
     conf.set(el::Level::Global, el::ConfigurationType::Filename,
              logFilePath.string());
 #endif
