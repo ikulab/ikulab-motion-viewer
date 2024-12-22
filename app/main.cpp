@@ -7,7 +7,7 @@
 #include <easylogging++.h>
 
 #include "./resourceDirectory.hpp"
-#include "./util/popupUtils.hpp"
+#include "./versionChecker.hpp"
 #include "./util/errorUtils.hpp"
 
 INITIALIZE_EASYLOGGINGPP
@@ -25,7 +25,7 @@ void initEasyloggingpp() {
         getHomeDirectory() / "Library" / "Logs" / "ikulab-motion-viewer.log";
     conf.set(el::Level::Global, el::ConfigurationType::Filename, logFilePath);
 #elif IS_WINDOWS
-    auto logFilePath = getResourceDirectory() / "ikulab-motion-viewer.log";
+    auto logFilePath = getReadOnlyResourceDirectory() / "ikulab-motion-viewer.log";
     conf.set(el::Level::Global, el::ConfigurationType::Filename,
              logFilePath.string());
 #endif
@@ -44,6 +44,8 @@ int main(int argc, char **argv) {
     el::Loggers::setVerboseLevel(9);
 
     LOG(ERROR) << "test";
+
+    spawnVersionCheckerProcess();
 
     try {
         App app;

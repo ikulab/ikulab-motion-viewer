@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <string>
 
-std::filesystem::path getResourceDirectory();
+std::filesystem::path getReadOnlyResourceDirectory();
+std::filesystem::path getWritableResourceDirectory();
 
 std::filesystem::path getHomeDirectory();

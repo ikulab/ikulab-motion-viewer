@@ -20,6 +20,16 @@ compile_commands.json
 
 vcpp_version.txt
 
+current_version.txt
+skip_version.txt
+/msvc_version.txt
+
+imv_version_checker
+imv_version_checker.spec
+
+.python-version
+__pycache__
+
 # Compiled Object files
 *.slo
 *.lo
