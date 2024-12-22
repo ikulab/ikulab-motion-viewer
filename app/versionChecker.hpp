@@ -45,10 +45,10 @@ static void spawnVersionCheckerProcess() {
 
     if (pid == 0) {
         // child process
-        auto versionCheckerExePath = getResourceDirectory() / "imv_version_checker";
+        auto versionCheckerExePath = getReadOnlyResourceDirectory() / "imv_version_checker";
         versionCheckerExePath.make_preferred();
 
-        auto versionInfoDirPath = getResourceDirectory() / "version_info";
+        auto versionInfoDirPath = getWritableResourceDirectory() / "version_info";
         versionInfoDirPath.make_preferred();
 
         const auto arg0 = versionCheckerExePath.string();
