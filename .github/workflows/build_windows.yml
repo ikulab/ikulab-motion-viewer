@@ -38,6 +38,9 @@ jobs:
       - name: Setup python packages
         run: pip install -r requirements.txt
 
+      - name: Build Version Checker
+        run: version_checker/build.ps1
+
       - name: Build vc++ installer script
         run: |
           pyinstaller --onefile `
