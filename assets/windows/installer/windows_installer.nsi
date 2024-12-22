@@ -107,6 +107,8 @@ FunctionEnd
 ;Uninstaller Section
 
 Section "Uninstall"
+  System::Call 'kernel32::GetEnvironmentVariable(t "ALLUSERSPROFILE", t .r0, i ${NSIS_MAX_STRLEN}) i .r1'
+  StrCpy $ALLUSERSPROFILE $0
 
   RMDir /r "$INSTDIR"
   RMDir /r "$ALLUSERSPROFILE\ikulab-motion-viewer"
