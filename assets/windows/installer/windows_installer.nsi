@@ -109,6 +109,7 @@ FunctionEnd
 Section "Uninstall"
 
   RMDir /r "$INSTDIR"
+  RMDir /r "$ALLUSERSPROFILE\ikulab-motion-viewer"
 
   Delete "$SMPROGRAMS\ikulab-motion-viewer.lnk"
   Delete "$DESKTOP\ikulab-motion-viewer.lnk"
