@@ -48,6 +48,11 @@ Section
   StrCpy $ALLUSERSPROFILE $0
 
   CreateDirectory "$ALLUSERSPROFILE\ikulab-motion-viewer"
+  AccessControl::GrantOnFile "$ALLUSERSPROFILE\ikulab-motion-viewer" "(BU)" "FullAccess"
+  Pop $0
+  ${If} $0 != "ok"
+    MessageBox MB_OK "Failed to grant full access to $ALLUSERSPROFILE\ikulab-motion-viewer"
+  ${EndIf}
 
   ; Install files
   SetOutPath "$INSTDIR"
