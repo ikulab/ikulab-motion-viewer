@@ -10,7 +10,9 @@ jobs:
       - run: echo "Current directory is $PWD"
 
       - run: ls C:\
+
       - run: ls "C:\Program Files"
+
       - run: ls "C:\Program Files (x86)"
 
 #      - name: Checkout Code
