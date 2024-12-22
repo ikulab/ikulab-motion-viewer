@@ -19,10 +19,10 @@
 #ifdef IS_WINDOWS
 
 static void spawnVersionCheckerProcess() {
-    auto versionCheckerExePath = getResourceDirectory() / "imv_version_checker.exe";
+    auto versionCheckerExePath = getReadOnlyResourceDirectory() / "imv_version_checker.exe";
     versionCheckerExePath.make_preferred();
 
-    auto versionInfoDirPath = getResourceDirectory();
+    auto versionInfoDirPath = getWritableResourceDirectory() / "version_info";
     versionInfoDirPath.make_preferred();
 
     ShellExecute(nullptr, "open",
