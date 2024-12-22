@@ -116,9 +116,6 @@ if (APPLE AND GENERATE_PACKAGE)
         DESTINATION ikulab-motion-viewer.app/Contents/Resources
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 
-    # generate version info files
-    file(WRITE "${PROJECT_BINARY_DIR}/version_info/current_version.txt" "v${PROJECT_VERSION}")
-    file(WRITE "${PROJECT_BINARY_DIR}/version_info/skip_version.txt" "v${PROJECT_VERSION}")
     # install version info directory
     install(DIRECTORY ${PROJECT_BINARY_DIR}/version_info
         DESTINATION ikulab-motion-viewer.app/Contents/Resources)
@@ -154,3 +151,13 @@ if (LINUX AND GENERATE_PACKAGE)
     set(CPACK_PACKAGE_DESCRIPTION "The BVH Motion Viewer powered by ikura Graphics Engine.")
     set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
 endif ()
+
+# ------------------------------------------------------------
+# Custom Target
+# ------------------------------------------------------------
+
+add_custom_target(write_version_info
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/version_info
+    COMMAND ${CMAKE_COMMAND} -E echo "v${PROJECT_VERSION}" > ${PROJECT_BINARY_DIR}/version_info/current_version.txt
+    COMMAND ${CMAKE_COMMAND} -E echo "v${PROJECT_VERSION}" > ${PROJECT_BINARY_DIR}/version_info/skip_version.txt
+)

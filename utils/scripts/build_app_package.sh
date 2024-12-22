@@ -18,6 +18,7 @@ green "Building binary..."
 
 cmake --preset=release
 cmake --build build_release
+cmake --build build_release --target write_version_info
 
 cd build_release
 
