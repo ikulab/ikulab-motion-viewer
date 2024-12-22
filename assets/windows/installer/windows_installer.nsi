@@ -51,6 +51,11 @@ Section
   SetOutPath "$INSTDIR"
   File "..\..\..\version_checker\imv_version_checker.exe"
 
+  ; Version info dir
+  SetOutPath "$INSTDIR\version_info"
+  File "..\..\..\build_release_windows\version_info\current_version.txt"  
+  File "..\..\..\build_release_windows\version_info\skip_version.txt"  
+
   ; VC++ Runtime Installer
   SetOutPath "$INSTDIR"
   File "..\..\..\dist_pyinstaller\check_vcpp_version_and_install.exe"
