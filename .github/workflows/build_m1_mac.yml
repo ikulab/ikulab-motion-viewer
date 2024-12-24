@@ -19,7 +19,7 @@ jobs:
       - run: pip install -r requirements.txt
 
       - name: Build Version Checker
-        run: version_checker/build.sh
+        run: subprojects/version_checker/build.sh
 
       - name: Install Ninja
         run: brew install ninja
